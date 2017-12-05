@@ -1,0 +1,31 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+	<div class="row">
+    	<div class="col-md-9">
+			<h2 class="text-primary">Import New Devices to Database</h2>
+			<form action="{{ url_for('importHostsConfirm') }}" method="post" name="importhosts">
+			    {{ form.hidden_tag() }}
+			    <p>
+			        Enter new devices in CSV format using the following columns, separated by commas only (no spaces)<br>
+			        <br />
+			        Hostname - <small>The hostname of the device</small><br />
+			        IPv4_Address - <small>The IP address address of the device.  Must be accessible via SSH</small><br />
+			        Device_Type - <small>Valid Options: Switch, Router, or Firewall</small><br />
+			        IOS_Type - <small>Valid Options: IOS, IOS-XE, NX-OS, or ASA</small><br />
+			        <br />
+			        {{ form.csvimport(rows=4, cols=60, autofocus="autofocus", required="required") }}
+			        {% for error in form.csvimport.errors %}
+			          <span style="color: red;">[{{error}}]</span>
+			        {% endfor %}<br>
+			    </p>
+			    <br />
+			    <p><input type="submit" value="Submit" class="btn btn-primary"></p>
+			</form>
+		</div>
+	</div>
+</div>
+{% endblock %}

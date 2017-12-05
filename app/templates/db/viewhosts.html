@@ -1,0 +1,36 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+	<div class="row">
+    	<div class="col-md-8">
+			<h2 class="text-primary">View All Devices</h2>
+		</div>
+		<div class="col-md-1">
+			<a href="/db/addhosts" class="btn btn-success" title="Add a device to the local database"><i class="fa fa-plus"></i> Add a Device</a>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-8">
+			<h4>All network devices in database</h4>
+
+			<div class="table-responsive">
+				<table id="tblViewHosts" class="table table-striped table-hover table-condensed display">
+					{% include 'hosts-table-header.html' %}
+				    <!-- hosts is a Paginate object -->
+				    <tbody>
+						{% for host in hosts.items %}
+							{% include 'hosts-table.html' %}
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+{% include "/js/datatables_custom_js.html" %}
+
+{% endblock %}

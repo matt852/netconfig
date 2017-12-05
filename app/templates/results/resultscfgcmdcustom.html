@@ -1,0 +1,38 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-md-9 col-md-offset-1">
+
+			<h2 class="text-primary">Custom Config Command Results</h2>
+
+			{% if result %}
+				<p><b>SUCCESS:</b> Host was successfully configured</p>
+			{% else %}
+				<p><b>ERROR:</b> Host was not configured</p>
+			{% endif %}
+
+			<p><b>Here are the results:</b></p>
+
+			{% for x in result %}
+				{% if x == 'config term' %}
+					{{ host.hostname }}#config t<br />
+				{% else %}
+					{{ x }}<br />
+				{% endif %}
+			{% endfor %}
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-9">
+			<div class="text-right">
+				<a href="/db/viewhosts/{{ host.id }}" class="btn btn-success">Return To Host</a><br />
+			</div>
+		</div>
+	</div>
+</div>
+
+{% endblock %}

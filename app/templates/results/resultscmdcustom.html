@@ -1,0 +1,46 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-md-9 col-md-offset-1">
+
+			<h2 class="text-primary">Custom Command Results</h2>
+
+			{% if result %}
+				<p><b>SUCCESS:</b> Commands were successfully executed on host</p>
+			{% else %}
+				<p><b>ERROR:</b> Commands failed to execute on host</p>
+			{% endif %}
+
+			<br /><br />
+
+			{% for x in result %}
+				{% if x %}
+					{% if 'Command:' in x %}
+						<hr /><b>{{ x }}</b><br />
+					{% else %}
+						{% for y in x.split('\n') %}
+							{% if y %}
+								{{ y }}<br />
+							{% elif not y and loop.index0 > 0 %}
+								<br />
+							{% endif %}
+						{% endfor %}
+					{% endif %}
+				{% endif %}
+			{% endfor %}
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-9">
+			<div class="text-right">
+				<a href="/db/viewhosts/{{ host.id }}" class="btn btn-success">Return To Host</a><br /><br />
+			</div>
+		</div>
+	</div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container-fluid">
+	<div class="row">
+    	<div class="col-md-9">
+				<h2 class="text-primary">Host {{ host.hostname }}</h2>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-6">
+    		<br />
+			<b>Command:</b>&nbsp;&nbsp;&nbsp;<i id="loadIcon" class="fa fa-spinner fa-spin"></i>
+			<br />
+			<input id="cmdInput" class="form-control" type="text" autofocus />
+		</div>
+		<div class="col-md-3">
+			<br />
+			<b>Configuration Mode</b>
+			<br />
+			<input id="chkConfigMode" type="checkbox" onclick="toggleConfigMode();" />
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-9">
+			<hr />
+			<div id="outputID" class="pre-scrollable"></div>
+		</div>
+	</div>
+</div>
+
+{% include "/js/hostshell_js.html" %}
+
+{% endblock %}

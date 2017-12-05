@@ -1,0 +1,34 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+    <div class="row">
+    	<div class="col-md-9 col-md-offset-1">
+            <form action="/results/resultsinterfacedisabled.html" method="post" class="form">
+                <div class="panel panel-danger">
+                    <div class="panel-heading">Disable interface?</div>
+                    	<div class="panel-body">
+
+            				<p>Are you sure you want to disable interface <strong>{{ interface }}</strong>?</p>
+            				<p>The following commands will be executed:</p>
+
+<pre><code>int {{ interface }}
+&nbsp;shutdown
+&nbsp;end</code></pre>
+
+				            <div class="text-right">
+                        		{% set ifaceURL = interface|replace('/','_') %}
+                        		<a href="/results/resultsinterfacedisabled/{{ hostid }}/{{ ifaceURL }}" class="btn btn-danger">Confirm</a>
+                        		<a href="/db/viewhosts/{{ hostid }}" class="btn btn-default">Cancel</a>
+                            </div>
+                		</div>
+                	</div>
+               	</div>
+            </form>
+    	</div>
+    </div>
+</div>
+
+{% endblock %}

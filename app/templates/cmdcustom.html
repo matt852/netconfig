@@ -1,0 +1,20 @@
+<div class="container-fluid">
+	<div class="row">
+    	<div class="col-md-6">
+			<form action="{{ url_for('confirmCmdCustom') }}" method="post" name="cmdCustom">
+			    {{ form.hidden_tag() }}
+
+ 				 <input type="hidden" name="hostname" value={{ host.hostname }}>
+ 				 <input type="hidden" name="hostid" value={{ host.id }}>
+			    <p>
+			        {{ form.command.label }}<br />
+			        {{ form.command(rows=4, cols=60) }}
+			        {% for error in form.command.errors %}
+			          <span style="color: red;">[{{error}}]</span>
+			        {% endfor %}<br>
+			    </p>
+			    <p><input type="submit" value="Submit" class="btn btn-primary"></p>
+			</form>
+		</div>
+	</div>
+</div>

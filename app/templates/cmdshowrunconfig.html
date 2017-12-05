@@ -1,0 +1,8 @@
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-md-12">
+			<h2 class="text-primary">Running Configuration for {{ host.hostname }}:</h2><br /><br />
+<code><pre>{% for x in hostConfig %}{% if x %}{{ x }}<br />{% endif %}{% endfor %}</pre></code>
+		</div>
+	</div>
+</div>

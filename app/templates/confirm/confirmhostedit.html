@@ -1,0 +1,41 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-9 col-md-offset-1">
+            <form action="/results/resulthostedit.html" method="post" class="form">
+                <div class="panel panel-success">
+                    <div class="panel-heading">Edit Host - Success</div>
+                    <div class="panel-body">
+                        {% if hostname == '' and ipv4_addr == '' and hosttype == '' and ios_type == '' %}
+                            No changes have been made<br />
+                        {% else %}
+                            <p>Host <strong>{{ host.hostname }} successfully edited</p><br />
+
+                            {% if hostname != '' %}
+                                New hostname = {{ hostname }}<br />
+                            {% endif %}
+                            {% if ipv4_addr != '' %}
+                                New IP address = {{ ipv4_addr }}<br />
+                            {% endif %}
+                            {% if hosttype != '' %}
+                                New host type = {{ hosttype }}<br />
+                            {% endif %}
+                            {% if ios_type != '' %}
+                                New IOS type = {{ ios_type }}<br />
+                            {% endif %}
+                            <br />
+                        {% endif %}
+                        <div class="text-right">
+                            <a href="/db/viewhosts/{{ host.id }}" class="btn btn-success">Go to {{ host.hostname }}</a>
+                            <a href="/db/viewhosts" class="btn btn-primary">View All Hosts</a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

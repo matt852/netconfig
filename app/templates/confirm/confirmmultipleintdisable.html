@@ -1,0 +1,52 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+<!--
+<script>
+    var selectedInterfaces = JSON.parse(window.localStorage.getItem("selectedInterfaces")); // Retrieving
+</script>
+-->
+<div class="container-fluid">
+    <div class="row">
+    	<div class="col-md-9 col-md-offset-1">
+            <form action="/results/resultsmultipleintdisabled.html" method="post" class="form">
+                <div class="panel panel-danger">
+                    <div class="panel-heading">Disable multiple interfaces?</div>
+                    	<div class="panel-body">
+
+            				<p>The following commands will be executed:</p>
+
+                            <code>
+                                config t<br />
+                                {% for x in interfaces.split('&') %}
+                                    {% set x = x|replace('_','/') %}
+                                    {% if x %}
+                                        &nbsp;int {{ x }}<br />
+                                        &nbsp;&nbsp;shutdown<br />
+                                    {% endif %}
+                                {% endfor %}
+                                end<br />
+                                {% if host.ios_type == 'cisco_nxos' %}
+                                copy running-config startup-config<br />
+                                {% elif host.ios_type == 'cisco_ios' or host.ios_type == 'cisco_asa' or host.ios_type == 'cisco_xe' %}
+                                wr mem<br />
+                                {% else %}
+                                wr mem<br />
+                                {% endif %}
+                            </code>
+                            <br />
+
+        					<div class="text-right">
+                        		<a href="/results/resultsmultipleintdisabled/{{ hostid }}/{{ interfaces }}" class="btn btn-danger">Confirm</a>
+                        		<a href="/db/viewhosts/{{ hostid }}" class="btn btn-default">Cancel</a>
+                    		</div>
+                        </div>
+                	</div>
+               	</div>
+            </form>
+    	</div>
+    </div>
+</div>
+
+{% endblock %}

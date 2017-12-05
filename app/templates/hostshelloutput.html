@@ -1,0 +1,1 @@
+<b>Command:</b> {{ command }}{% if configError %} - ? is not currently supported in config mode.<br /><br />{% else %}<code><pre>{% for x in output %}{% if x %}{{ x }}<br />{% endif %}{% endfor %}</pre></code>{% endif %}

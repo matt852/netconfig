@@ -1,0 +1,32 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-md-9">
+			<h2 class="text-primary">Adding Host - Success</h2>
+			<p>
+				<ul>
+					<li>Hostname: {{ hostname }}</li>
+					<li>IPv4 Address: {{ ipv4_addr }}</li>
+					<li>Type: {{ hosttype }}</li>
+			        {% if session['DEBUG'] %}
+						<li>IOS Type: {{ ios_type }}</li>
+					{% endif %}
+				</ul>
+			</p>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-9">
+			<div class="text-right">
+				<a href="/db/viewhosts" class="btn btn-primary">View host list</a>
+				<a href="/db/viewhosts/{{ hostid }}" class="btn btn-info">Go to {{ hostname }}</a>
+				<a href="/db/addhosts" class="btn btn-success"><i class="fa fa-plus"></i> Add another Device</a>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

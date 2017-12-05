@@ -1,0 +1,25 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-md-9">
+			<h2 class="text-primary">Delete Host - Success</h2>
+			<p>
+				<ul>
+					<li>Hostname: {{ host.hostname }}</li>
+				</ul>
+			</p>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-9">
+			<div class="text-right">
+				<a href="/db/viewhosts" class="btn btn-primary">View Host List</a>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

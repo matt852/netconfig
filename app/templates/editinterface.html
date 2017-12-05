@@ -1,0 +1,47 @@
+<div class="container-fluid">
+	<div class="row">
+    	<div class="col-md-6">
+			<p>
+				<b>Config:</b>
+				<br /><br />
+				{% for x in intConfig %}
+					{% if x != '' and 'end' not in x %}
+						{% if 'interface' not in x %}
+							&nbsp;
+						{% endif %}
+						{{ x }}<br />
+					{% endif %}
+				{% endfor %}
+			</p>
+			<hr />
+			<form action="{{ url_for('confirmIntEdit') }}" method="post" name="intEdit">
+			    {{ form.hidden_tag() }}
+
+ 				 <input type="hidden" name="hostid" value={{ hostid }}>
+ 				 <input type="hidden" name="interface" value={{ interface }}>
+			    <p>
+			        New access data vlan (access mode only):<br>
+			        {{ form.datavlan(size=5) }}
+			        {% for error in form.datavlan.errors %}
+			          <span style="color: red;">[{{error}}]</span>
+			        {% endfor %}<br>
+			    </p>
+			    <p>
+			        New voice vlan:<br>
+			        {{ form.voicevlan(size=5) }}
+			        {% for error in form.voicevlan.errors %}
+			          <span style="color: red;">[{{error}}]</span>
+			        {% endfor %}<br>
+			    </p>
+			    <p>
+			        Other:<br>
+			        {{ form.other(rows=4, cols=60) }}
+			        {% for error in form.other.errors %}
+			          <span style="color: red;">[{{error}}]</span>
+			        {% endfor %}<br>
+			    </p>
+			    <p><input type="submit" value="Submit" class="btn btn-primary"></p>
+			</form>
+		</div>
+	</div>
+</div>

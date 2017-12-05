@@ -1,0 +1,27 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-md-9">
+			<h2 class="text-primary">Import Devices - Result</h2>
+			<p>
+				{% if response %}
+					All devices successfully imported
+				{% else %}
+					Error with import - {{ message }}
+				{% endif %}
+			</p>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-9">
+			<div class="text-right">
+				<a href="/db/viewhosts" class="btn btn-primary">View host list</a>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

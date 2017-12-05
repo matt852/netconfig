@@ -1,0 +1,55 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+	<div class="row">
+    	<div class="col-md-8">
+			<h2 class="text-primary">View All Devices</h2>
+		</div>
+		<div class="col-md-1">
+			<a href="{{ config.NETBOXSERVER }}/dcim/devices/add" class="btn btn-success" title="Add a new device into Netbox" target="_blank"><i class="fa fa-plus"></i> Add a Device</a>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-8">
+			<h4>All devices pulled from Netbox</h4>
+
+			<div class="table-responsive">
+				<table id="tblViewHosts" class="table table-striped table-hover table-condensed display">
+					<thead>
+						<tr>
+						    <th>Hostname</th>
+						    <th>IPv4 Address</th>
+						    <th>Manufacturer</th>
+						    <th>Model</th>
+						    <th class="text-center">Status</th>
+						    <th class="text-center">Options</th>
+						</tr>
+					</thead>
+				    <tbody>
+						{% for host in hosts %}
+							<tr>
+								<td><a href="/db/viewhosts/{{ host['id'] }}">{{ host['name'] }}</a></td>
+							    <td>{{ host['primary_ip']['address'] }}</td>
+							    <td>{{ host['device_type']['manufacturer']['name'] }}</td>
+							    <td>{{ host['device_type']['model'] }}</td>
+							    <td class="text-center"><i class="glyphicon glyphicon-ok" aria-hidden="true" style="color:green"></i></td>
+							    <td class="text-center">
+							    	<a href="{{ config.NETBOXSERVER }}/dcim/devices/{{ host['id'] }}" class="btn btn-xs btn-info" title="Open Device in Netbox" target="_blank"><i class="glyphicon glyphicon-search" aria-hidden="true"></i></a>
+							    	<a href="{{ config.NETBOXSERVER }}/dcim/devices/{{ host['id'] }}/edit" class="btn btn-xs btn-warning" title="Edit Device in Netbox" target="_blank"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
+									<a href="{{ config.NETBOXSERVER }}/dcim/devices/{{ host['id'] }}/delete" class="btn btn-xs btn-danger" title="Delete Device in Netbox" target="_blank"><i class="glyphicon glyphicon-ban-circle" aria-hidden="true"></i></a>
+								</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+{% include "/js/datatables_custom_js.html" %}
+
+{% endblock %}

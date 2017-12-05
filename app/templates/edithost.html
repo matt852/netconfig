@@ -1,0 +1,52 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+	<div class="row">
+    	<div class="col-md-9">
+			<h2 class="text-primary">Edit Host {{ originalHost }}</h2>
+			<form action="{{ url_for('confirmHostEdit') }}{{ id }}" method="post" name="hostedit">
+			    {{ form.hidden_tag() }}
+			    <p>
+			        Hostname:<br>
+			        {{ form.hostname(size=20, autofocus="autofocus") }}
+			        {% for error in form.hostname.errors %}
+			          <span style="color: red;">[{{error}}]</span>
+			        {% endfor %}<br>
+			    </p>
+			    <p>
+			        IP address:<br>
+			        {{ form.ipv4_addr(size=20) }}
+			        {% for error in form.ipv4_addr.errors %}
+			          <span style="color: red;">[{{error}}]</span>
+			        {% endfor %}<br>
+			    </p>
+			    <p>
+			        Device Type:<br>
+			        {{ form.hosttype }}
+			        {% for error in form.hosttype.errors %}
+			          <span style="color: red;">[{{error}}]</span>
+			        {% endfor %}<br>
+			    </p>
+			    <p>
+			        IOS Type:<br>
+			        {{ form.ios_type }}
+			        {% for error in form.ios_type.errors %}
+			          <span style="color: red;">[{{error}}]</span>
+			        {% endfor %}<br>
+			    </p>
+			    <p><input type="submit" value="Submit" class="btn btn-primary"></p>
+			</form>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-9">
+			<div class="text-right">
+				<a href="/db/viewhosts/{{ id }}" class="btn btn-info">Return to {{ originalHost }}</a>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

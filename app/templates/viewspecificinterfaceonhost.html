@@ -1,0 +1,54 @@
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-md-12">
+			<b>Config:</b>
+			<br />
+<code><pre>{% for x in intConfig %}{% if x != '' and 'end' not in x %}{% if x %}{{ x }}<br />{% elif not y and loop.index0 > 0 %}<br />{% endif %}{% endif %}{% endfor %}</pre></code>
+			<b>Statistics:</b>
+			<br />
+<code><pre>{% for x in intStats %}{% if x != '' and 'end' not in x %}{% if x %}{{ x }}<br />{% elif not y and loop.index0 > 0 %}<br />{% endif %}{% endif %}{% endfor %}</pre></code>
+			{% if host.type == 'Switch' %}
+				<b>MAC Address Associations:</b>
+			{% endif %}
+			<br /><br />
+			<div class="table-responsive">
+				<table class="table table-striped table-hover table-condensed">
+				    {% for mac in intMac %}
+		    			<tr>
+			    			{% if loop.index0 == 0 %}
+			    				{% if host.ios_type == 'cisco_ios' %}
+				    				<th>Vlan</th>
+				    				<th>Mac Address</th>
+				    				<!--<th>IP Address</th>-->
+				    				<th>Type</th>
+				    				<th>Ports</th>
+				    			{% elif host.ios_type == 'cisco_nxos' %}
+				    				<th>Vlan</th>
+				    				<th>Mac Address</th>
+				    				<th>Type</th>
+				    				<th>Age</th>
+				    				<th>Secure</th>
+				    				<th>NTFY</th>
+				    				<th>Ports</th>
+				    			{% endif %}
+			    			{% else %}
+								{% if 'Mac' not in mac and '-' not in mac %}
+									{% for x in mac.split(',') %}
+										{% if x %}
+											{% if macToIP[x] %}
+												<td>{{ x }}</td>
+												<td>{{ macToIP[x] }}</td>
+											{% else %}
+						    					<td>{{ x }}</td>
+											{% endif %}
+					    				{% endif %}
+									{% endfor %}
+								{% endif %}
+							{% endif %}
+		     			</tr>
+					{% endfor %}
+				</table>
+			</div>
+		</div>
+	</div>
+</div>

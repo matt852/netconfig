@@ -1,0 +1,79 @@
+text-area {
+    white-space: pre-wrap;
+}
+code {
+    display: block;
+    unicode-bidi: embed;
+    font-family: monospace;
+    color: black;
+}
+.pre-scrollable {  /* Overrides bootstrap settings for pre-scrollable */
+    max-height: 100vh;
+}
+#loading {
+  display: none;
+}
+#loadingText {
+  display: none;
+}
+#loadingContentHide {
+  display: show;
+}
+/* Start - Loader */
+/* Center the loader */
+#loadingWheel {
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid blue;
+  border-right: 16px solid grey lighten-5;
+  border-bottom: 16px solid blue;
+  border-left: 16px solid grey lighten-5;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+  display: none;
+}
+
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+/* End - Loader */
+
+/* Start - Bottom loading animation */
+/*
+div#loadingContent {
+    display: none;
+}*/
+
+/* Add animation to "page content" 
+.animate-bottom {
+  position: relative;
+  -webkit-animation-name: animatebottom;
+  -webkit-animation-duration: 1s;
+  animation-name: animatebottom;
+  animation-duration: 1s
+}
+
+@-webkit-keyframes animatebottom {
+  from { bottom:-100px; opacity:0 } 
+  to { bottom:0px; opacity:1 }
+}
+
+@keyframes animatebottom { 
+  from{ bottom:-100px; opacity:0 } 
+  to{ bottom:0; opacity:1 }
+}
+/* End - Bottom loading animation */
+/*
+#myDiv {
+  display: none;
+  text-align: center;
+*/
+}

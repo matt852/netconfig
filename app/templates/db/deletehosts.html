@@ -1,0 +1,26 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Testing deletehosts</h1>
+<h4>
+    All network devices in database.<br>
+</h4>
+
+<div class="table-responsive">
+	<table class="table table-striped table-hover table-condensed">
+		{% include 'hosts-table-header.html' %}
+	    <!-- hosts is a Paginate object -->
+		{% for host in hosts.items %}
+			<p>
+				{% include 'hosts-table.html' %}
+			</p>
+		{% endfor %}
+	</table>
+</div>
+
+{% if hosts.has_prev %}<a href="{{ url_for('viewHosts', page=hosts.prev_num) }}">&lt;&lt; Previous page</a>{% else %}&lt;&lt; Previous page{% endif %} | 
+{% if hosts.has_next %}<a href="{{ url_for('viewHosts', page=hosts.next_num) }}">Next page &gt;&gt;</a>{% else %}Next page &gt;&gt;{% endif %}
+
+{% endblock %}

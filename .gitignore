@@ -2,9 +2,9 @@
 *.pyc
 *.log
 app.db
-app/scripts_bank/logs/
-app/scripts_bank/textfiles/
-app/log/
-app/instance/settings.py
+scripts_bank/logs/*
+scripts_bank/textfiles/*
+log/*
+instance/settings.py
 flask/
 flask/*

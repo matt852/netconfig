@@ -1,0 +1,41 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-md-9 col-md-offset-1">
+        <form action="/results/resultcfgcmdconfirm.html" method="post" class="form">
+            <div class="panel panel-danger">
+                <div class="panel-heading">Execute Config Commands?</div>
+                <div class="panel-body">
+
+                    <p>Are you sure you want to modify host <strong>{{ session['HOSTNAME'] }}</strong>?</p>
+                    <p>The following commands will be executed:</p>
+
+                    config t<br />
+                    {% if session['COMMAND'] %}
+                        {% set commandDisplay = session['COMMAND']|replace('\n','<br />&nbsp;') %}
+                        &nbsp;{{ commandDisplay | safe }}<br />
+                    {% endif %}
+
+                    &nbsp;end<br />
+                    {% if session['IOS_TYPE'] == 'cisco_nxos' %}
+                    copy running-config startup-config<br />
+                    {% elif session['IOS_TYPE'] == 'cisco_ios' or session['IOS_TYPE'] == 'cisco_asa' or session['IOS_TYPE'] == 'cisco_xe' %}
+                    wr mem<br />
+                    {% else %}
+                    wr mem<br />
+                    {% endif %}
+
+                    <div class="text-right">
+                        <a href="/results/resultscfgcmdcustom" class="btn btn-danger">Confirm</a>
+                        <a href="/db/viewhosts/{{ session['HOSTID'] }}" class="btn btn-default">Cancel</a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

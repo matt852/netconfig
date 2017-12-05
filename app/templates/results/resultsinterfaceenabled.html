@@ -1,0 +1,44 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-md-9 col-md-offset-1">
+
+			<h2 class="text-primary">Enable Interface Results</h2>
+
+			{% if session['DEBUG'] %}
+				Host: {{ host.hostname }}<br />
+				Interface: {{ interface }}<br />
+				<br />
+			{% endif %}
+
+			{% if result %}
+				<p><b>SUCCESS:</b> Interface was successfully enabled</p>
+			{% else %}
+				<p><b>ERROR:</b> Interface was not enabled properly</p>
+			{% endif %}
+
+			<p><b>Here are the results:</b></p>
+
+
+			{% for x in result %}
+				{% if host.hostname in x %}
+					{{ x }}<br />
+				{% endif %}
+			{% endfor %}
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-9">
+			<div class="text-right">
+				<a href="/db/viewhosts/{{ host.id }}" class="btn btn-success">Return To Host</a>
+			</div>
+		</div>
+	</div>
+</div>
+
+{% endblock %}

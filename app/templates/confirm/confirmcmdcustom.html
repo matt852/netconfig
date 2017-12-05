@@ -1,0 +1,31 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-md-9 col-md-offset-1">
+        <form action="/results/resultcmdconfirm.html" method="post" class="form">
+            <div class="panel panel-danger">
+                <div class="panel-heading">Execute Commands?</div>
+                <div class="panel-body">
+
+                    <p>Are you sure you want to run these commands on host <strong>{{ session['HOSTNAME'] }}</strong>?</p>
+                    <p>The following commands will be executed:</p>
+
+                    {% if session['COMMAND'] %}
+                        {% set commandDisplay = session['COMMAND']|replace('\n','<br />&nbsp;') %}
+                        &nbsp;{{ commandDisplay | safe }}<br />
+                    {% endif %}
+
+                    <div class="text-right">
+                        <a href="/results/resultscmdcustom" class="btn btn-danger">Confirm</a>
+                        <a href="/db/viewhosts/{{ session['HOSTID'] }}" class="btn btn-default">Cancel</a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

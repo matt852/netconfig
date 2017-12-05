@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block content %}
+	<h1>500 ERROR PAGE</h1>
+    {% if session['DEBUG'] %}
+		<p>{{ error }}</p>
+	{% endif %}
+	<br />
+	<p>Try logging out and logging back in.  If that still doesn't resolve the issue, contact your NetConfig administrator</p>
+{% endblock %}

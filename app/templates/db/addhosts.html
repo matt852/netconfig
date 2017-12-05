@@ -1,0 +1,46 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+	<div class="row">
+    	<div class="col-md-9">
+			<h2 class="text-primary">Add New Device to Database</h2>
+			<form action="{{ url_for('addHostConfirm') }}" method="post" name="addhosts">
+			    {{ form.hidden_tag() }}
+			    <p>
+			        Please enter the device hostname:<br>
+			        {{ form.hostname(size=20, autofocus="autofocus", required="required") }}
+			        {% for error in form.hostname.errors %}
+			          <span style="color: red;">[{{error}}]</span>
+			        {% endfor %}<br>
+			    </p>
+			    <p>
+			        Please enter the device host IP address:<br>
+			        {{ form.ipv4_addr(size=20, required="required") }}
+			        {% for error in form.ipv4_addr.errors %}
+			          <span style="color: red;">[{{error}}]</span>
+			        {% endfor %}<br>
+			    </p>
+			    <p>
+			        Please enter the device type:<br>
+			        {{ form.hosttype() }}
+			        {% for error in form.hosttype.errors %}
+			          <span style="color: red;">[{{error}}]</span>
+			        {% endfor %}<br>
+			    </p>
+			    <p>
+			        Please enter the device's IOS type:<br>
+			        {{ form.ios_type }}
+			        {% for error in form.ios_type.errors %}
+			          <span style="color: red;">[{{error}}]</span>
+			        {% endfor %}<br>
+			    </p>
+			    <br />
+			    <p><input type="submit" value="Submit" class="btn btn-primary"></p>
+			</form>
+		</div>
+	</div>
+</div>
+{% endblock %}

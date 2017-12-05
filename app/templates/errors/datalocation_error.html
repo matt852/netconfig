@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+	<h1>Incorrect setting in settings.py file</h1>
+	<p>Please correctly set the value of 'DATALOCATION' in the file settings.py, located in your Netconfig/instance directory</p>
+	<p>
+		Valid options are:
+		<ul>
+			<li>local</li>
+			<li>netbox</li>
+		</ul>
+	</p>
+	<p>It is currently set to: '{{ DATALOCATION }}'</p>
+{% endblock %}
