@@ -2,9 +2,6 @@
 
 #####################################################################################################
 # Written by Matt Vitale																			#
-# Creation date			2-5-2017																	#
-# Last modifed date		2-5-2017																	#
-#                                                                                                   #
 # Use: This file will be used to test different scripts that require an SSH connection and output   #
 #####################################################################################################
 

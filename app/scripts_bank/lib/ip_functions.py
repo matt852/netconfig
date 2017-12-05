@@ -2,8 +2,6 @@
 
 #####################################################################################################
 # Written by Matt Vitale																			#
-# Creation date			2-2-2017																	#
-# Last modifed date		2-2-2017																	#
 #####################################################################################################
 
 from platform import system as system_name # Returns the system/OS name

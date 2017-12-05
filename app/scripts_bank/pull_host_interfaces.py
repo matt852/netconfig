@@ -8,8 +8,6 @@ import sys
 import time
 import os
 import lib.functions as fn
-import lib.user_functions as ufn
-import lib.ssh_functions as sfn
 import lib.netmiko_functions as nfn
 import optparse
 import xml.etree.cElementTree as ET

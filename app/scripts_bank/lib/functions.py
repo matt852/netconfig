@@ -2,8 +2,6 @@
 
 #####################################################################################################
 # Written by Matt Vitale																			#
-# Creation date			2-22-2016																	#
-# Last modifed date		5-31-2016																	#
 #####################################################################################################
 
 import subprocess
@@ -15,7 +13,6 @@ import glob	# is this needed?
 import os
 import errno
 import hashlib
-import ssh_functions as sfn
 import netmiko_functions as nfn
 from datetime import datetime
 
@@ -403,7 +400,7 @@ def removeCharFromString(oldString, character):
 def getFileSize(imageFileFullPath):
 	size = os.path.getsize(imageFileFullPath)
 	return int(size)
-
+'''
 # Try to lookup switch hostname via reverse DNS
 # If it fails, try to SSH in and pull the hostname via the switch config
 # Otherwise returns IP address provided if it fails
@@ -434,7 +431,7 @@ def reverseDNSNetwork(host, creds):
 	#
 	# Return hostname of IP address from reverse DNS lookup
 	return hostName[0]
-
+'''
 # Try to lookup endpoint name via reverse DNS
 # Otherwise returns IP address provided if it fails
 def reverseDNSEndpoint(host):
@@ -474,7 +471,7 @@ def getCustomInput(typeOfInput, inputIsConfigCmds):
 	text = text.splitlines()
 	# Return all user input as a single variable/string
 	return text
-
+'''
 # Returns NXOS if host is an NX-OS switch, via provided IP address
 # Returns IOS if host is an IOS switch, via provided IP address
 # Otherwise returns INC if unknown
@@ -490,7 +487,7 @@ def isHostIOSorNXOS(host):
 		return "IOS"
 	else:
 		return "Inc"
-
+'''
 # Returns the correct command for saving the running-config on the host, as NX-OS does not support the "wr mem" command
 def returnSaveConfigCommand(host):
 	if host.ios_type == 'cisco_nxos':

@@ -46,7 +46,6 @@ pycparser==2.18
 Pygments==2.2.0
 PyNaCl==1.1.2
 python-engineio==1.7.0
-python-ldap==2.4.41
 python-openid==2.2.5
 python-socketio==1.8.0
 pytz==2017.2

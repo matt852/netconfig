@@ -7,9 +7,9 @@ Original Install Guide for Ubuntu 16.04 in home directory
 
 Update Ubuntu, install required system packages, and reboot
 
-  # sudo apt-get update && sudo apt-get -y upgrade && sudo apt-get -y dist-upgrade
-  # sudo reboot now
-  # sudo apt-get -y install python python-pip python-virtualenv nginx redis-server supervisor libssl-dev libsasl2-dev gunicorn
+  sudo apt-get update && sudo apt-get -y upgrade && sudo apt-get -y dist-upgrade && sudo apt -y autoremove
+  sudo reboot now
+  sudo apt-get -y install python python-pip python-virtualenv nginx redis-server supervisor libssl-dev libsasl2-dev gunicorn
 
 
 ###############
@@ -20,12 +20,12 @@ Create a new netconfig user to install and run Netconfig under.
 Set any password you choose.
 When prompted for full name, room number, phone numbers, etc, you can leave them all blank
 
-  # sudo adduser netconfig
-  # sudo usermod -aG sudo netconfig
+  sudo adduser netconfig
+  sudo usermod -aG sudo netconfig
 
 Switch to the new Netconfig user
 
-  # su - netconfig
+  su - netconfig
 
 ###############
 # Download NetConfig
@@ -33,13 +33,13 @@ Switch to the new Netconfig user
 
 Download NetConfig and install required Python packages in a virtualenv
 
-  # cd ~/
-  # git clone -b master https://github.com/v1tal3/netconfig.git
-  # cd netconfig
-  # sudo virtualenv netconfigenv
-  # source netconfigenv/bin/activate
-  # sudo pip install --upgrade pip
-  # sudo pip install -r requirements.txt
+  cd ~/
+  git clone -b master https://github.com/v1tal3/netconfig.git
+  cd netconfig
+  virtualenv netconfigenv
+  source netconfigenv/bin/activate
+  pip install --upgrade pip
+  pip install -r requirements.txt
 
 
 ###############
@@ -49,9 +49,9 @@ Download NetConfig and install required Python packages in a virtualenv
 
 Remove default in NGINX sites-enabled, and create a new site for Netconfig
 
-  # sudo rm /etc/nginx/sites-enabled/default
-  # sudo touch /etc/nginx/sites-available/netconfig
-  # sudo vi /etc/nginx/sites-available/netconfig
+  sudo rm /etc/nginx/sites-enabled/default
+  sudo touch /etc/nginx/sites-available/netconfig
+  sudo vi /etc/nginx/sites-available/netconfig
 
 
 ###############
@@ -88,7 +88,7 @@ server {
 
 Create symlink for netconfig file into nginx/sites-enabled
 
-  # sudo ln -s /etc/nginx/sites-available/netconfig /etc/nginx/sites-enabled
+  sudo ln -s /etc/nginx/sites-available/netconfig /etc/nginx/sites-enabled
 
 
 ###############
@@ -97,8 +97,8 @@ Create symlink for netconfig file into nginx/sites-enabled
 
 Create and fill out netconfig.service
 
-  # sudo touch /etc/systemd/system/netconfig.service
-  # sudo vi /etc/systemd/system/netconfig.service
+  sudo touch /etc/systemd/system/netconfig.service
+  sudo vi /etc/systemd/system/netconfig.service
 
 ###############
 # Begin contents of /etc/systemd/system/netconfig.service
@@ -125,9 +125,9 @@ WantedBy=multi-user.target
 
 Start and Enable Netconfig services
 
-  # sudo systemctl daemon-reload
-  # sudo systemctl start netconfig
-  # sudo systemctl enable netconfig
+  sudo systemctl daemon-reload
+  sudo systemctl start netconfig
+  sudo systemctl enable netconfig
 
 
 
@@ -137,8 +137,8 @@ Start and Enable Netconfig services
 
 Create and fill out netconfig.conf for gUnicorn
 
-  # sudo touch /etc/supervisor/conf.d/netconfig.conf
-  # sudo vi /etc/supervisor/conf.d/netconfig.conf
+  sudo touch /etc/supervisor/conf.d/netconfig.conf
+  sudo vi /etc/supervisor/conf.d/netconfig.conf
 
 ###############
 # Begin Contents of /etc/supervisor/conf.d/netconfig.conf
@@ -157,10 +157,10 @@ user = netconfig
 # Restart Services
 ###############
 
-  # sudo pkill gunicorn
-  # sudo supervisorctl reread
-  # sudo supervisorctl update
-  # sudo supervisorctl restart netconfig
+  sudo pkill gunicorn
+  sudo supervisorctl reread
+  sudo supervisorctl update
+  sudo supervisorctl restart netconfig
 
 
 ###############
@@ -171,27 +171,27 @@ Run these commands to generate a self-signed SSL certificate
 
 Create a new directory for the certs and move into it
 
-  # sudo mkdir /etc/nginx/ssl
-  # cd /etc/nginx/ssl
+  sudo mkdir /etc/nginx/ssl
+  cd /etc/nginx/ssl
 
 Generate the self-signed SSL certs.
 When prompted to create a certificate password, anything will work
 When generating the certificate, fill out the relevant details as requested (Country, State, etc.).
 However for common name, set it to your domain (domain.com)
 
-  # sudo openssl genrsa -des3 -out server.key 2048
+  sudo openssl genrsa -des3 -out server.key 2048
       (can use anything for password)
-  # sudo openssl req -new -key server.key -out server.csr  --> Common Name: [domain.com]
+  sudo openssl req -new -key server.key -out server.csr  --> Common Name: [domain.com]
       (for password, enter whatever was used above)
-  # sudo cp server.key server.key.org
-  # sudo openssl rsa -in server.key.org -out server.key
+  sudo cp server.key server.key.org
+  sudo openssl rsa -in server.key.org -out server.key
       (for password, enter whatever was used above)
-  # sudo openssl x509 -req -days 365 -in server.csr -signkey server.key -out server.crt
+  sudo openssl x509 -req -days 365 -in server.csr -signkey server.key -out server.crt
 
 
 Restart NGINX services
 
-  # sudo systemctl restart nginx
+  sudo systemctl restart nginx
 
 
 ###############
@@ -201,11 +201,13 @@ Restart NGINX services
 
 Copy settings template file
 
-  # cp ~/netconfig/instance/settings_template.py ~/netconfig/instance/settings.py
+  
+  cd ~/netconfig
+  cp instance/settings_template.py instance/settings.py
 
 Modify the contents of the file:
 
-  # vi ~/netconfig/instance/settings.py
+  vi instance/settings.py
 
 The only required settings that need to be changed in the file are as follows:
 
@@ -218,7 +220,7 @@ The only required settings that need to be changed in the file are as follows:
 
 If using local SQLAlchemy database, create the database (this step is not needed if using Netbox)
 
-  # ~/netconfig/db-create.py
+  python db_create.py
   
 
 ###############

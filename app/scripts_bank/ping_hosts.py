@@ -7,7 +7,6 @@ import socket
 import sys
 import os
 import lib.functions as fn
-import lib.user_functions as ufn
 import lib.netmiko_functions as nfn
 from time import sleep
 from flask import session

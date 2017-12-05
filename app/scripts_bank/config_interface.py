@@ -8,7 +8,6 @@ import sys
 import time
 import os
 import lib.functions as fn
-import lib.user_functions as ufn
 import lib.netmiko_functions as nfn
 from flask import session
 
