@@ -9,7 +9,7 @@ By Default, NetConfig is set to use a local SQLAlchemy database
 # Configure Netconfig for Netbox API Access #
 #############################################
 
-In the root Netconfig directory, open file 'config.py'
+In the root Netconfig directory, open file 'instance/settings.py' (this should be /home/netconfig/netconfig/instance/settings.py)
 
 	Navigate to the line that reads:
 		DATALOCATION = 'local'
@@ -87,7 +87,7 @@ Click Save
 ##################################################
 
 For any new or existing devices you want to use with Netconfig, when creating or editing a device, the following conditions must be met:
-	-For each device, set the field Netconfig under the Custom Fields section to Yes
-	-A Primary IPv4 address must be configured for each device (IPv6 is not supported at this time)
-	-The IP address must be reachable by Netconfig, and Netconfig must be able to SSH into the device
-	-The Device Type (assigned to a device you want pulled) must have one of the 4 supported OS's set in the Custom Fields: IOS, IOS-XE, NX-OS, or ASA
+	1.  For each device, set the field Netconfig under the Custom Fields section to Yes
+	2.  A Primary IPv4 address must be configured for each device (IPv6 is not supported at this time)
+	3.  The IP address must be reachable by Netconfig, and Netconfig must be able to SSH into the device
+	4.  The Device Type (assigned to a device you want pulled) must have one of the 4 supported OS's set in the Custom Fields: IOS, IOS-XE, NX-OS, or ASA

@@ -1,5 +1,12 @@
 Original Install Guide for Ubuntu 16.04 in home directory
 
+###############
+# Installation start
+###############
+
+This document starts with an initial, clean installation of Ubuntu 16.04 Server already setup and ready
+
+
 
 ###############
 # Update Ubuntu
@@ -9,7 +16,7 @@ Update Ubuntu, install required system packages, and reboot
 
   sudo apt-get update && sudo apt-get -y upgrade && sudo apt-get -y dist-upgrade && sudo apt -y autoremove
   sudo reboot now
-  sudo apt-get -y install python python-pip python-virtualenv nginx redis-server supervisor libssl-dev libsasl2-dev gunicorn
+  sudo apt-get -y install python python-pip nginx redis-server supervisor libssl-dev libsasl2-dev gunicorn
 
 
 ###############
@@ -37,10 +44,8 @@ Download NetConfig and install required Python packages in a virtualenv
   cd ~/
   git clone -b master https://github.com/v1tal3/netconfig.git
   cd netconfig
-  virtualenv netconfigenv
-  source netconfigenv/bin/activate
-  pip install --upgrade pip
-  pip install -r requirements.txt
+  sudo pip install --upgrade pip
+  sudo pip install -r requirements.txt
 
 
 ###############
@@ -83,6 +88,7 @@ server {
         alias  /home/netconfig/netconfig/app/;
     }
 }
+
 ###############
 # End contents of /etc/nginx/sites-available/netconfig
 ###############
@@ -114,8 +120,8 @@ After=network.target
 User=netconfig
 Group=www-data
 WorkingDirectory=/home/netconfig/netconfig
-Environment="PATH=/home/netconfig/netconfig/netconfigenv/bin"
-ExecStart=/home/netconfig/netconfig/netconfigenv/bin/uwsgi --ini netconfig.ini
+Environment="PATH=/usr/bin/python"
+ExecStart=/usr/bin/uwsgi --ini netconfig.ini
 
 [Install]
 WantedBy=multi-user.target
@@ -162,6 +168,7 @@ user = netconfig
   sudo pkill gunicorn
   sudo supervisorctl reread
   sudo supervisorctl update
+  sudo supervisorctl restart netconfig
 
 
 ###############
@@ -219,9 +226,14 @@ The only required settings that need to be changed in the file are as follows:
   NETBOXSERVER - If using an existing Netbox installation, this is the Netbox server hostname.  Otherwise this value is not used
 
 
+
+###############
+# Create local database
+###############
 If using local SQLAlchemy database, create the database (this step is not needed if using Netbox)
 
   python db_create.py
+
   
 
 ###############
@@ -231,3 +243,16 @@ If using local SQLAlchemy database, create the database (this step is not needed
 Restart Netconfig service
 
   sudo supervisorctl restart netconfig
+
+
+###############
+# Important next steps!
+###############
+
+If using Netbox, please consult NETBOX-INTEGRATION.txt for instructions on setting up Netbox to interface with Netconfig
+
+
+
+###############
+# Installation complete
+###############
