@@ -27,6 +27,7 @@ Switch to the new Netconfig user
 
   su - netconfig
 
+
 ###############
 # Download NetConfig
 ###############
@@ -47,7 +48,8 @@ Download NetConfig and install required Python packages in a virtualenv
 ###############
 
 
-Remove default in NGINX sites-enabled, and create a new site for Netconfig
+Remove default in NGINX sites-enabled, and create a new site for Netconfig.
+Replace "domain.com" with your actual Domain
 
   sudo rm /etc/nginx/sites-enabled/default
   sudo touch /etc/nginx/sites-available/netconfig
@@ -160,7 +162,6 @@ user = netconfig
   sudo pkill gunicorn
   sudo supervisorctl reread
   sudo supervisorctl update
-  sudo supervisorctl restart netconfig
 
 
 ###############
@@ -224,7 +225,7 @@ If using local SQLAlchemy database, create the database (this step is not needed
   
 
 ###############
-# Restart NetConfig
+# Restart NetConfig Service
 ###############
 
 Restart Netconfig service
