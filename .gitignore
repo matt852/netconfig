@@ -1,0 +1,10 @@
+# Add any directories, files, or patterns you don't want to be tracked by version control
+*.pyc
+*.log
+app.db
+app/scripts_bank/logs/
+app/scripts_bank/textfiles/
+app/log/
+app/instance/settings.py
+flask/
+flask/*
