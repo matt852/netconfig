@@ -33,13 +33,15 @@ def validateIPAddress(ip):
 
 # Validate input is a valid subnet mask. Returns True if valid, False if invalid
 def validateSubnetMask(mask):
+	if not isinstance(mask, str):
+		mask = str(mask)
 	validmask = re.compile('(0|128|192|224|240|252|254|255)')
 	octets = mask.split('.')
 	if not all(map(validmask.match, octets)):
 		return False
 	for index, octet in enumerate(octets):
 		if not octet == '255':
-			if not all(x == 0 for x in octets[index+1:]):
+			if not all(x == '0' for x in octets[index+1:]):
 				return False
 	return True
 
