@@ -6,6 +6,7 @@
 
 from platform import system as system_name # Returns the system/OS name
 from os import system as system_call       # Execute a shell command
+import re
 
 # Returns True if host (str) responds to a ping request
 def ping(host):
@@ -25,44 +26,21 @@ def isSubnetMaskAHost(x):
 
 # Validate input is a valid IP address. Returns True if valid, False if invalid
 def validateIPAddress(ip):
-	# Split string by decimals
-	a = ip.split('.')
-	# If there's more or less than 3 decimals (4 octets), return False
-	if len(a) != 4:
+	ipv4 = re.compile('(?!255)(?:\d+\.){3}\d+')
+	if not ipv4.match(ip):
 		return False
-	# For each octet in the string, split by decimal
-	for x in a:
-		# If it's not a number, return False
-		if not x.isdigit():
-			return False
-		# Convert string to integer
-		i = int(x)
-		# If octet is out of the valid IP address range, return False
-		if i < 0 or i > 255:
-			return False
-	# If all checks pass, return True
 	return True
 
 # Validate input is a valid subnet mask. Returns True if valid, False if invalid
 def validateSubnetMask(mask):
-	# List which inludes all valid options for each octet in a subnet mask
-	validMaskOctets = [0, 128, 192, 224, 240, 248, 252, 254, 255]
-	# Split string by decimals
-	a = mask.split('.')
-	# If there's more or less than 3 decimals (4 octets), return False
-	if len(a) != 4:
+	validmask = re.compile('(0|128|192|224|240|252|254|255)')
+	octets = mask.split('.')
+	if not all(map(validmask.match, octets)):
 		return False
-	# For each octet in the string, split by decimal
-	for x in a:
-		# If it's not a number, return False
-		if not x.isdigit():
-			return False
-		# Convert string to integer
-		x = int(x)
-		# Octets can be any in the validMaskOctets list
-		if x not in validMaskOctets:
-			return False
-	# If all checks pass, return True
+	for index, octet in enumerate(octets):
+		if not octet == '255':
+			if not all(x == 0 for x in octets[index+1:]):
+				return False
 	return True
 
 # Validate input is a valid port. Returns True if valid, False if invalid
