@@ -47,28 +47,15 @@ def validateSubnetMask(mask):
 
 # Validate input is a valid port. Returns True if valid, False if invalid
 def validatePortNumber(port):
-	# If it's not a number, return False
-	if not port.isdigit():
+	if (not isinstance(port, int)) or (port not in range(1, 65536)):
 		return False
-	# Convert string to integer
-	x = int(port)
-	# If port is out of the valid port range, return False
-	if x < 1 or x > 65535:
-		return False
-	# If all checks pass, return True
-	else:
-		return True
+	return True
 
 # Validate input is a valid port protocol. Returns True if valid, False if invalid
 def validatePortProtocol(proto):
-	# List which inludes all valid options for each octet in a subnet mask
-	validProtocol = ['TCP', 'UDP']
-	# If inputted string doesn't match a valid protocol, return False
-	if proto.upper() not in validProtocol:
+	if not re.match('([TtUu][CcDd][Pp])', proto):
 		return False
-	# If all checks pass, return True
-	else:
-		return True
+	return True
 
 # Increments an IP address by 1, then returns it to user (ex: 10.0.0.0 becomes 10.0.0.1)
 def incrementIPByOne(ip):
