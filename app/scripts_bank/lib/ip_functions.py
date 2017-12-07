@@ -26,7 +26,8 @@ def isSubnetMaskAHost(x):
 
 # Validate input is a valid IP address. Returns True if valid, False if invalid
 def validateIPAddress(ip):
-	ipv4 = re.compile('(?!255)(?:\d+\.){3}\d+')
+	ippatt = '^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$'
+	ipv4 = re.compile(ippatt)
 	if not ipv4.match(ip):
 		return False
 	return True
@@ -37,7 +38,7 @@ def validateSubnetMask(mask):
 		mask = str(mask)
 	validmask = re.compile('(0|128|192|224|240|252|254|255)')
 	octets = mask.split('.')
-	if not all(map(validmask.match, octets)):
+	if (not all(map(validmask.match, octets))) or (not len(octets) == 4):
 		return False
 	for index, octet in enumerate(octets):
 		if not octet == '255':
@@ -53,9 +54,14 @@ def validatePortNumber(port):
 
 # Validate input is a valid port protocol. Returns True if valid, False if invalid
 def validatePortProtocol(proto):
-	if not re.match('([TtUu][CcDd][Pp])', proto):
+	# List which inludes all valid options for each octet in a subnet mask
+	validProtocol = ['TCP', 'UDP']
+	# If inputted string doesn't match a valid protocol, return False
+	if proto.upper() not in validProtocol:
 		return False
-	return True
+	# If all checks pass, return True
+	else:
+		return True
 
 # Increments an IP address by 1, then returns it to user (ex: 10.0.0.0 becomes 10.0.0.1)
 def incrementIPByOne(ip):
