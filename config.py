@@ -32,4 +32,4 @@ LOGFILE = os.path.join(basedir, 'app/log/access.log')
 SYSLOGFILE = os.path.join(basedir, 'app/log/syslog.log')
 
 # Current version
-VERSION = '1.0 (beta)'
+VERSION = '1.1 (beta)'

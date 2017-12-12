@@ -57,6 +57,11 @@
 
 
 		$('#btnDisableInterfaces').click( function (e) {
+			// Get current table Length
+			var tableLength = table.page.len();
+			// Briefly redraw table with all pages, as the below function can only detect selected rows on visible pages
+			table.page.len(-1).draw();
+
 			var selectedInterfaces = [];
 			var rows = $('tr.selected');
 			var rowData = table.rows(rows).data();
@@ -72,6 +77,7 @@
 			// Gets host ID from current URL, aka everything after the last '/'
 			var loc = location.href.substr(location.href.lastIndexOf('/') + 1)
 			var url = '/confirm/confirmmultipleintdisable/' + loc + '/'// + selectedInterfaces
+
 			for (var i in selectedInterfaces)
 			{	
 				url = url + '&' + selectedInterfaces[i].replace(/\//g, '_');
@@ -79,11 +85,15 @@
 			// Loads next page on button click
 			// Pass URL with an '&' in front of each interface, in this format:
 			// /confirm/confirmmultipleintenable/[host.id]/&int1&int2&int3...etc
-			console.log(url)
 			window.location.href = url;
 		} );
 
 		$('#btnEditInterfaces').click( function (e) {
+			// Get current table Length
+			var tableLength = table.page.len();
+			// Briefly redraw table with all pages, as the below function can only detect selected rows on visible pages
+			table.page.len(-1).draw();
+
 			var selectedInterfaces = [];
 			var rows = $('tr.selected');
 			var rowData = table.rows(rows).data();
@@ -99,6 +109,7 @@
 			// Gets host ID from current URL, aka everything after the last '/'
 			var loc = location.href.substr(location.href.lastIndexOf('/') + 1);
 			var url = '/confirm/confirmmultipleintedit/' + loc + '/'// + selectedInterfaces
+
 			for (var i in selectedInterfaces)
 			{	
 				url = url + '&' + selectedInterfaces[i].replace(/\//g, '_');

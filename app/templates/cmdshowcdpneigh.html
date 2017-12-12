@@ -1,3 +1,4 @@
+<!-- This file needs to be completely redone properly to support multiple (non-Cisco) vendors -->
 <div class="container-fluid">
 	<div class="row">
 		<div class="col-md-12">
@@ -7,12 +8,13 @@
 					<h2 class="text-primary">CDP Neighbors for {{ host.hostname }}:</h2><br /><br />
 					<p>
 						{% autoescape false %}
-						{% for line in hostConfig %}
+						{% for line in result %}
 							{% if ',' not in line %}
 								{% if field1.append(line) %}{% endif %}
 							{% else %}
 				    			<tr>
 					    			{% if loop.index0 == 0 %}
+										{% set line = line.replace('Intrfce Hldtme', 'Intrfce,Hldtme') %} <!--NXOS-->
 										{% set line = line.replace('Hldtme Capability', 'Hldtme,Capability') %} <!--NXOS-->
 										{% for x in line.split(',') %}
 											<th>{{ x }}</th>
@@ -27,7 +29,7 @@
 											{% set line = line.replace(' Ten ', ',Ten ') %} <!--IOS-->
 											{% set line = line.replace(' Fas ', ',Fas ') %} <!--IOS-->
 											{% set line = line.replace(' Eth ', ',Eth ') %} <!--IOS-->
-											{% set line = line.replace(' eth', ',eth') %} <!--NXOS-->
+											{% set line = line.replace(' eth', ',eth') %} 	<!--NXOS-->
 											{% set line = line.replace(' Port ', ',Port ') %} <!--IOS Polycom Phones-->
 											{% for x in line.split(',') %}
 												{% if x %}

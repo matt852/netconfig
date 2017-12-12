@@ -10,12 +10,6 @@
 
 			<h2 class="text-primary">Disable Interface Results</h2>
 
-			{% if session['DEBUG'] %}
-				Host: {{ host.hostname }}<br />
-				Interface: {{ interface }}<br />
-				<br />
-			{% endif %}
-
 			{% if result %}
 				<p><b>SUCCESS:</b> Interface was successfully disabled</p>
 			{% else %}
@@ -24,12 +18,14 @@
 
 			<p><b>Here are the results:</b></p>
 
+			<code>
+				{% for x in result %}
+					{% if x %}
+						{{ x }}<br />
+					{% endif %}
+				{% endfor %}
+			</code>
 
-			{% for x in result %}
-				{% if host.hostname in x %}
-					{{ x }}<br />
-				{% endif %}
-			{% endfor %}
 		</div>
 	</div>
 	<div class="row">

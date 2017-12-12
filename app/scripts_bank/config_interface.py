@@ -19,7 +19,7 @@ def executeSSHConfigCmdsViaNFN(ssh, cmdList):
 	result = nfn.runMultipleSSHConfigCommandsInSession(cmdList, ssh)
 	return result
 
-def enableInterface(ssh, iface):
+def enableInterface(ssh, iface): # THIS GOES AWAY
 	cmdList = []
 	cmdList.append("interface %s" % iface)
 	cmdList.append("no shutdown")
@@ -27,7 +27,7 @@ def enableInterface(ssh, iface):
 	
 	return executeSSHConfigCmdsViaNFN(ssh, cmdList)
 
-def disableInterface(ssh, iface):
+def disableInterface(ssh, iface): # THIS GOES AWAY
 	cmdList = []
 	cmdList.append("interface %s" % iface)
 	cmdList.append("shutdown")

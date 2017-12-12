@@ -139,14 +139,14 @@ def runSSHCfgCommandInSessionNoCR(command, ssh):
 	return result
 
 # Enters 'configure terminal' mode on provided existing SSH session and returns output
-def runEnterConfigModeInSession(ssh):
+def runEnterConfigModeInSession(ssh): # THIS GOES AWAY
 	# Get command output from device
 	result = ssh.config_mode()
 	# Return output of command
 	return result
 
 # Exits 'configure terminal' mode on provided existing SSH session and returns output
-def runExitConfigModeInSession(ssh):
+def runExitConfigModeInSession(ssh): # THIS GOES AWAY
 	# Get command output from device
 	result = ssh.exit_config_mode()
 	# Return output of command

@@ -6,9 +6,6 @@
 	{% endif %}
     <td>{{ host.ipv4_addr }}</td>
     <td>{{ host.type }}</td>
-    {% if session['DEBUG'] %}
-    	<td>{{ host.ios_type }}</td>
-    {% endif %}
     {% if status[host.hostname] %}
 		<td class="text-center"><i class="glyphicon glyphicon-ok" aria-hidden="true" style="color:green"></i></td>
     {% else %}

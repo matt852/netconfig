@@ -5,6 +5,7 @@ from sqlalchemy import asc, desc, func
 from lib.ip_functions import validateIPAddress
 from lib.functions import stripNewline
 import netboxAPI
+from ..device_classes import deviceType as dt
 
 
 # Adds host to Database
@@ -93,19 +94,14 @@ def deleteHostInDB(x):
     
 
 def getHosts(page):
-    #hosts = models.Host.query.order_by(asc(models.Host.hostname)).all()
-    #hosts = models.Host.query.order_by(asc(models.Host.hostname)).paginate(page, POSTS_PER_PAGE, False).items
     hosts = models.Host.query.order_by(asc(models.Host.hostname)).paginate(page, app.config['POSTS_PER_PAGE'], False)
     return hosts
 
 def getHostsAll():
-    #hosts = models.Host.query.order_by(asc(models.Host.hostname)).all()
-    #hosts = models.Host.query.order_by(asc(models.Host.hostname)).paginate(page, POSTS_PER_PAGE, False).items
     hosts = models.Host.query.all()
     return hosts
 
 def getHostByHostname(x):
-    #host = models.Host.query.filter_by(hostname=x).first()  <-- this is case sesnsitve
     host = models.Host.query.filter(func.lower(models.Host.hostname) == func.lower(x)).first() # <-- not case sensitve
     return host
 
@@ -120,48 +116,33 @@ def getHostByID(x):
     elif app.config['DATALOCATION'] == 'netbox':
       host = netboxAPI.getHostByID(x)
 
-    return host
+    # Get host class based on device type
+    return dt.DeviceHandler(id=host.id, hostname=host.hostname, ipv4_addr=host.ipv4_addr, type=host.type, ios_type=host.ios_type)
 
 def getHostsByIOSType(x):
     hosts = models.Host.query.filter_by(ios_type=x)
     return hosts
 
-def editHostInDatabase(host, hostname, ipv4_addr, hosttype, ios_type):
-    try:
-        if hostname:
-            host.hostname = hostname
-        if ipv4_addr:
-            host.ipv4_addr = ipv4_addr
-        if hosttype:
-            host.type = hosttype
-        if ios_type:
-            host.ios_type = ios_type
-        db.session.commit()
-        return True
-    except:
+def editHostInDatabase(originalHostID, hostname, ipv4_addr, hosttype, ios_type):
+    # This is only supported when using the local database
+    if app.config['DATALOCATION'] == 'local':
+        try:
+            host = models.Host.query.filter_by(id=originalHostID).first()
+            if hostname:
+                host.hostname = hostname
+            if ipv4_addr:
+                host.ipv4_addr = ipv4_addr
+            if hosttype:
+                host.type = hosttype
+            if ios_type:
+                host.ios_type = ios_type
+            db.session.commit()
+            return True
+        except:
+            return False
+    else:
         return False
-'''
-def editInterface(host, iface, datavlan, voicevlan, other):
-    cmdList=[]
-    cmdList.append("interface %s" % iface)
 
-    if datavlan != '0':
-        cmdList.append("switchport access vlan %s" % datavlan)
-    if voicevlan != '0':
-        cmdList.append("switchport voice vlan %s" % voicevlan)
-    if other != '0':
-        # + is used to represent spaces
-        other = other.replace('+', ' ')
-
-        # & is used to represent new lines
-        for x in other.split('&'):
-            cmdList.append(x)
-
-    cmdList.append("end")
-    cmdList.append("wr mem")
-    
-    return executeSSHCmdsViaNFN(host, cmdList)
-'''
 # Return True if provided host IP address is in database, False if not
 # Also returns hostname of device
 def searchHostInDB(x):
@@ -174,6 +155,7 @@ def searchHostInDB(x):
     except:
         return False, ''
 
+'''
 # Sessions
 def addSessionToDB(ssh_session, hostID):
     try:
@@ -203,3 +185,4 @@ def addSessionToDB(ssh_session, hostID):
 def getSessionInDB(x):
     session = models.Session.query.filter_by(id=x).first()
     return session
+'''

@@ -9,12 +9,6 @@
 
 			<h2 class="text-primary">Disable Multiple Interface Results</h2>
 
-			{% if session['DEBUG'] %}
-				Host: {{ host.hostname }}<br />
-				Interface: {{ interface }}<br />
-				<br />
-			{% endif %}
-
 			{% if result %}
 				<p><b>SUCCESS:</b> Interfaces were successfully disabled</p>
 			{% else %}
@@ -23,17 +17,20 @@
 
 			<p><b>Here are the results:</b></p>
 
-			{% for x in result %}
-				{% if x %}
-					{% for y in x %}
-						{% if y %}
-							{% if host.hostname in y %}
-								{{ y }}<br />
+			<code>
+				{% for x in result %}
+					{% if x %}
+						{% for y in x %}
+							{% if y %}
+								{% if host.hostname in y %}
+									{{ y }}<br />
+								{% endif %}
 							{% endif %}
-						{% endif %}
-					{% endfor %}
-				{% endif %}
-			{% endfor %}
+						{% endfor %}
+					{% endif %}
+				{% endfor %}
+			</code>
+			
 		</div>
 	</div>
 	<div class="row">

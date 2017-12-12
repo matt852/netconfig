@@ -28,6 +28,42 @@ creds = UserCredentials('', '')		# Credentials class variable. Stores as creds.u
 stopword = "DONE"					# Word to signify the user is done entering data.  Can be blank
 ### /Variables ###
 
+
+###################
+# Logging - Begin #
+###################
+
+import logging
+from app import app
+
+# Syslogging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+# Create a file handler
+handler = logging.FileHandler(app.config['SYSLOGFILE'])
+handler.setLevel(logging.INFO)
+# Create a logging format
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', '%Y-%m-%d %H:%M:%S')
+handler.setFormatter(formatter)
+# Add the handlers to the logger
+logger.addHandler(handler)
+
+def writeToLog(msg):
+	# Local access.log
+	#newmsg = str(fn.getCurrentTime()) + ' - ' + session['USER'] + ' - ' + msg + '\n'
+	#fn.appendCommandToFile(newmsg, app.config['LOGFILE]')
+	# Try/catch in case User isn't logged in, and Netconfig URL is access directly
+	try:
+		# Syslog file
+		logger.info(session['USER'] + ' - ' + msg)
+	except:
+		logger.info('[unknown user] - ' + msg)
+
+#################
+# Logging - End #
+#################
+
+
 # For debugging purposes only
 def debugScript(x):
 	print x
@@ -96,6 +132,11 @@ def stripLastChar(x):
 # Strips everything in string 'x' that comes after character 'y'
 def stripAllAfterChar(x, y):
 	x = x.split(y, 1)[0]
+	return x
+
+# Splits string on newline, returns as array
+def splitOnNewline(x):
+	x = x.split('\n')
 	return x
 
 # Returns index of -1 or -2, as IOS-XE/NX-OS has a trailing whitespace at the end of strings
@@ -167,9 +208,9 @@ def isInt(x):
 
 # Removes key from dictionary
 def removeDictKey(d, key):
-    r = dict(d)
-    del r[key]
-    return r
+	r = dict(d)
+	del r[key]
+	return r
 
 # Get current timestamp for when starting a script
 def getCurrentTime():
@@ -385,11 +426,11 @@ def macFormatType(mac):
 # Determine MD5 checksum of file
 # Return MD5 checksum string
 def md5(fname):
-    hash_md5 = hashlib.md5()
-    with open(fname, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            hash_md5.update(chunk)
-    return hash_md5.hexdigest()
+	hash_md5 = hashlib.md5()
+	with open(fname, "rb") as f:
+		for chunk in iter(lambda: f.read(4096), b""):
+			hash_md5.update(chunk)
+	return hash_md5.hexdigest()
 
 # Removes all instances of a provided character from a string, then returns string
 def removeCharFromString(oldString, character):
@@ -488,14 +529,6 @@ def isHostIOSorNXOS(host):
 	else:
 		return "Inc"
 '''
-# Returns the correct command for saving the running-config on the host, as NX-OS does not support the "wr mem" command
-def returnSaveConfigCommand(host):
-	if host.ios_type == 'cisco_nxos':
-		return "copy running-config startup-config"
-	elif host.ios_type == 'cisco_ios' or host.ios_type == 'cisco_asa' or host.ios_type == 'cisco_xe':
-		return "wr mem"
-	else:
-		return "wr mem"
 
 # Return true if verification succeeds, otherwise return false
 def md5VerifyOnDeviceWithSession(command, child):

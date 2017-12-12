@@ -16,30 +16,17 @@
                     	<div class="panel-body">
 
             				<p>The following commands will be executed:</p>
-
-                            <code>
-                                config t<br />
-                                {% for x in interfaces.split('&') %}
-                                    {% set x = x|replace('_','/') %}
-                                    {% if x %}
-                                        &nbsp;int {{ x }}<br />
-                                        &nbsp;&nbsp;shutdown<br />
-                                    {% endif %}
-                                {% endfor %}
-                                end<br />
-                                {% if host.ios_type == 'cisco_nxos' %}
-                                copy running-config startup-config<br />
-                                {% elif host.ios_type == 'cisco_ios' or host.ios_type == 'cisco_asa' or host.ios_type == 'cisco_xe' %}
-                                wr mem<br />
-                                {% else %}
-                                wr mem<br />
-                                {% endif %}
-                            </code>
+<pre><code>{{ host.get_cmd_enter_configuration_mode() }}
+{% for x in interfaces.split('&') %}{% if x %}{% set x = x|replace('_','/') %}&nbsp;interface {{ x }}
+&nbsp;&nbsp;{{ host.get_cmd_disable_interface() }}
+{% endif %}{% endfor %}&nbsp;&nbsp;end
+{{ host.get_save_config_cmd() }}
+</code></pre>
                             <br />
 
         					<div class="text-right">
-                        		<a href="/results/resultsmultipleintdisabled/{{ hostid }}/{{ interfaces }}" class="btn btn-danger">Confirm</a>
-                        		<a href="/db/viewhosts/{{ hostid }}" class="btn btn-default">Cancel</a>
+                        		<a href="/results/resultsmultipleintdisabled/{{ host.id }}/{{ interfaces }}" class="btn btn-danger">Confirm</a>
+                        		<a href="/db/viewhosts/{{ host.id }}" class="btn btn-default">Cancel</a>
                     		</div>
                         </div>
                 	</div>

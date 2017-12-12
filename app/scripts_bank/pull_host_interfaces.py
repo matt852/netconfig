@@ -14,7 +14,7 @@ import xml.etree.cElementTree as ET
 from StringIO import StringIO
 from flask import session
 
-def cleanUpIOSOutput(x):
+def cleanUpIOSOutput(x): # THIS GOES AWAY
 	x = x.replace('OK?', '')
 	x = x.replace('Method', '')
 	x = x.replace('YES', '')
@@ -31,7 +31,7 @@ def cleanUpIOSOutput(x):
 	x = x.replace('unassigned ', 'unassigned,')
 	return x
 
-def cleanUpNXOSOutput(x):
+def cleanUpNXOSOutput(x): # THIS GOES AWAY
 	x = x.replace(' connected', ',connected')
 	x = x.replace('connected ', 'connected,')
 	x = x.replace(' sfpAbsent', ',sfpAbsent')
@@ -48,14 +48,7 @@ def cleanUpNXOSOutput(x):
 	x = x.replace('linkFlapE ', 'linkFlapE,')
 	return x
 
-def WIPcleanUpIOSOutput(x):
-	x = fn.replaceDoubleSpacesCommas(x)
-	x = x.replace('Port,Name,Status,Vlan,Duplex,Speed,Type', '')
-	x = x.replace('down down', 'down,down')
-
-	return x
-
-def pullHostInterfacesIOS(host, ssh):
+def pullHostInterfacesIOS(host, ssh): # THIS GOES AWAY
 	output = []
 
 	command = "show ip interface brief"
@@ -72,7 +65,7 @@ def pullHostInterfacesIOS(host, ssh):
 
 	return output
 
-def pullHostInterfacesASA(host, ssh):
+def pullHostInterfacesASA(host, ssh): # THIS GOES AWAY
 	output = []
 
 	command = "show interface ip brief"
@@ -89,7 +82,7 @@ def pullHostInterfacesASA(host, ssh):
 
 	return output
 
-def pullHostInterfacesNXOS(host, ssh):
+def pullHostInterfacesNXOS(host, ssh): # THIS GOES AWAY
 	output = []
 	outputResult = ''
 
@@ -102,8 +95,6 @@ def pullHostInterfacesNXOS(host, ssh):
 	# Returns False if nothing was returned
 	if not result:
 		return result
-
-	result = nfn.runSSHCommandInSession(command, ssh)
 
 	result = re.findall("\<\?xml.*reply\>", result, re.DOTALL)
 
@@ -188,7 +179,7 @@ def pullHostInterfacesNXOS(host, ssh):
 	# Return output as List
 	return output
 
-def pullInterfaceConfigSession(ssh, interface, host):
+def pullInterfaceConfigSession(ssh, interface, host): # THIS GOES AWAY
 	output = []
 	
 	if host.ios_type == 'cisco_nxos':
@@ -204,7 +195,7 @@ def pullInterfaceConfigSession(ssh, interface, host):
 	output = result.split('\n')
 	return output
 
-def pullInterfaceMacAddressesSession(ssh, interface, host):
+def pullInterfaceMacAddressesSession(ssh, interface, host): # THIS GOES AWAY
 	output = []
 
 	if host.ios_type == 'cisco_nxos':
@@ -236,7 +227,7 @@ def pullInterfaceMacAddressesSession(ssh, interface, host):
 	output = result.split('\n')
 	return output
 
-def pullInterfaceInfo(ssh, interface, host):	
+def pullInterfaceInfo(ssh, interface, host): # THIS GOES AWAY
 	intConfig = pullInterfaceConfigSession(ssh, interface, host)
 	if host.type == 'Switch':
 		intMac = pullInterfaceMacAddressesSession(ssh, interface, host)
@@ -246,7 +237,7 @@ def pullInterfaceInfo(ssh, interface, host):
 	return intConfig, intMac
 
 # Returns output of 'show interface'
-def pullInterfaceStats(ssh, interface, host):
+def pullInterfaceStats(ssh, interface, host): # THIS GOES AWAY
 	output = []
 	
 	if host.ios_type == 'cisco_nxos':
@@ -263,7 +254,7 @@ def pullInterfaceStats(ssh, interface, host):
 	return output
 
 # Counts number of up, down, and admin down ports in list
-def countInterfaceStatus(interfaces, ios_type):
+def countInterfaceStatus(interfaces, ios_type): #THIS GOES AWAY
 	up = 0
 	down = 0
 	disabled = 0

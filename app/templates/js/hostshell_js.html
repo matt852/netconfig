@@ -18,17 +18,18 @@
 	var loc = '';
 
 	function handle(e) {
-		if ((e.code == 'Enter') || (e.code == 'Slash' && e.shiftKey)) { // Supports submitting on Enter key or '?'
+		// Supports submitting on Enter key or '?'
+		if ((e.code == 'Enter') || (e.code == 'NumpadEnter') || (e.code == 'Slash' && e.shiftKey)) {
 			str = document.getElementById('cmdInput').value;
 
 			// Check needed if user enters "conf..." command, as entering config mode will not work with non-config send_command in netmiko
-			if ((e.code == 'Enter') && (str.substring(0,4).toLowerCase() == 'conf')) {
+			if (((e.code == 'Enter') || (e.code == 'NumpadEnter')) && (str.substring(0,4).toLowerCase() == 'conf')) {
 				// Toggle config mode checkbox
 				document.getElementById('chkConfigMode').checked = true;
 				// Toggle config mode
 				toggleConfigMode();
 			}
-			else if ((e.code == 'Enter') && (str.toLowerCase() == 'end')) {
+			else if (((e.code == 'Enter') || (e.code == 'NumpadEnter')) && (str.toLowerCase() == 'end')) {
 				// Toggle config mode checkbox
 				document.getElementById('chkConfigMode').checked = false;
 				// Toggle config mode
@@ -67,7 +68,7 @@
 						$("#loadIcon").hide();
 						$("#placeholderSpace").show();
 						// Erase input box once submitted
-						if (e.code == 'Enter') {
+						if ((e.code == 'Enter') || (e.code == 'NumpadEnter')) {
 							document.getElementById('cmdInput').value = "";
 						}
 						// If command submitted on '?' press, strip '?' and leave command in input box
@@ -83,7 +84,7 @@
 			}
 
 			// If Enter key pressed, store command in variable, to be used for history (up arrow)
-			if (e.code == 'Enter') {
+			if ((e.code == 'Enter') || (e.code == 'NumpadEnter')) {
 	    		// Only store command if not empty/blank
 	    		// This checks if string is empty/null, OR contains just whitespace
 	    		if ((str) && !(!str.replace(/\s/g, '').length)) {

@@ -9,7 +9,7 @@ from lib.functions import setUserCredentials, replaceDoubleSpacesCommas
 import lib.netmiko_functions as nfn
 from flask import session
 
-# Sae the config on an active SSH session
+# Save the config on an active SSH session
 def saveConfigOnSession(ssh, host):
 	output = []
 	if host.ios_type == 'cisco_nxos':
@@ -21,7 +21,7 @@ def saveConfigOnSession(ssh, host):
 	return output
 
 # Enter 'configuration terminal' from host by provided IP address
-def enterConfigModeInSession(ssh):
+def enterConfigModeInSession(ssh): # THIS GOES AWAY
 	output = []
 
 	# Get output from network device when entering config mode
@@ -34,7 +34,7 @@ def enterConfigModeInSession(ssh):
 	return output
 
 # Enter 'configuration terminal' from host by provided IP address
-def exitConfigModeInSession(ssh):
+def exitConfigModeInSession(ssh): # THIS GOES AWAY
 	output = []
 
 	# Get output from network device when exiting config mode
@@ -119,7 +119,7 @@ def getCmdOutputWithCommas(ssh, command):
 	# Return config
 	return output
 
-def getMultiCmdOutput(ssh, command, host):
+def getMultiCmdOutput(ssh, command, host): # THIS GOES AWAY
 	newCmd = []
 
 	for x in command.split('\n'):
@@ -130,7 +130,7 @@ def getMultiCmdOutput(ssh, command, host):
 
 	return result
 
-def getMultiConfigCmdOutput(ssh, command, host):
+def getMultiConfigCmdOutput(ssh, command, host): # THIS GOES AWAY
 	newCmd = []
 
 	for x in command.split('\n'):

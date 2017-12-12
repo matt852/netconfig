@@ -13,26 +13,53 @@
                         {% if hostname == '' and ipv4_addr == '' and hosttype == '' and ios_type == '' %}
                             No changes have been made<br />
                         {% else %}
-                            <p>Host <strong>{{ host.hostname }} successfully edited</p><br />
-
-                            {% if hostname != '' %}
-                                New hostname = {{ hostname }}<br />
-                            {% endif %}
-                            {% if ipv4_addr != '' %}
-                                New IP address = {{ ipv4_addr }}<br />
-                            {% endif %}
-                            {% if hosttype != '' %}
-                                New host type = {{ hosttype }}<br />
-                            {% endif %}
-                            {% if ios_type != '' %}
-                                New IOS type = {{ ios_type }}<br />
-                            {% endif %}
-                            <br />
-                        {% endif %}
-                        <div class="text-right">
-                            <a href="/db/viewhosts/{{ host.id }}" class="btn btn-success">Go to {{ host.hostname }}</a>
-                            <a href="/db/viewhosts" class="btn btn-primary">View All Hosts</a>
+                        <p>Host <strong>{{ originalHost.hostname }} successfully edited</strong></p><br />
+                        <div class="table-responsive">
+                            <table class="table table-striped table-condensed">
+                                <thead>
+                                    <tr>
+                                        <th>Field Name</th>
+                                        <th>Original Data</th>
+                                        <th>Updated Data</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if hostname != '' %}
+                                        <tr>
+                                            <td>Hostname</td>
+                                            <td>{{ originalHost.hostname }}</td>
+                                            <td>{{ updatedHost.hostname }}</td>
+                                        </tr>
+                                    {% endif %}
+                                    {% if ipv4_addr != '' %}
+                                        <tr>
+                                            <td>IPv4 Address</td>
+                                            <td>{{ originalHost.ipv4_addr }}</td>
+                                            <td>{{ updatedHost.ipv4_addr }}</td>
+                                        </tr>
+                                    {% endif %}
+                                    {% if hosttype != '' %}
+                                        <tr>
+                                            <td>Device Type</td>
+                                            <td>{{ originalHost.type }}</td>
+                                            <td>{{ updatedHost.type }}</td>
+                                        </tr>
+                                    {% endif %}
+                                    {% if ios_type != '' %}
+                                        <tr>
+                                            <td>IOS Type</td>
+                                            <td>{{ originalHost.ios_type }}</td>
+                                            <td>{{ updatedHost.ios_type }}</td>
+                                        </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                            <div class="text-right">
+                                <a href="/db/viewhosts/{{ updatedHost.id }}" class="btn btn-success">Go to {{ updatedHost.hostname }}</a>
+                                <a href="/db/viewhosts" class="btn btn-primary">View All Hosts</a>
+                            </div>
                         </div>
+                        {% endif %}
                     </div>
                 </div>
             </form>

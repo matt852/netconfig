@@ -8,3 +8,5 @@ log/*
 instance/settings.py
 flask/
 flask/*
+tests/
+tests/*

@@ -2,6 +2,9 @@
 # Begin Upgrading Instructions
 ###################
 
+# Change to NetConfig user
+su - netconfig
+
 # Change to NetConfig directory
 cd /home/netconfig/netconfig
 

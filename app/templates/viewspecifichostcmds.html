@@ -5,9 +5,11 @@
 	<br />
 	<hr />
 
+	{% if host.type != 'Firewall' %}
 	<a href="modalCmdShowCDPNeigh" data-toggle="modal" data-target="#modalCmdShowCDPNeigh" data-hostid="{{ host.id }}" data-hostname="{{ host.hostname }}"><button type="button" class="btn btn-default text-left"><span class="pull-left"><i class="glyphicon glyphicon-menu-right"></i> Show CDP Neighbors</span></button></a>
 
 	<br />
+	{% endif %}
 
 	<a href="modalCmdShowInventory" data-toggle="modal" data-target="#modalCmdShowInventory" data-hostid="{{ host.id }}" data-hostname="{{ host.hostname }}"><button type="button" class="btn btn-default text-left"><span class="pull-left"><i class="glyphicon glyphicon-menu-right"></i> Show Inventory</span></button></a>
 
@@ -25,7 +27,7 @@
 
 	<br />
 	<hr />
-
+<!-- Currently does not work in v1.1, need to fix
 	<a href="modalCmdCustom" data-toggle="modal" data-target="#modalCmdCustom" data-hostid="{{ host.id }}" data-hostname="{{ host.hostname }}"><button type="button" class="btn btn-default text-left"><span class="pull-left"><i class="glyphicon glyphicon-menu-right"></i> Bulk Commands</span></button></a>
 
 	<br />
@@ -34,6 +36,6 @@
 
 	<br />
 	<hr />
-
+-->
 	<a href="hostshell/{{ host.id }}" target="_blank" data-target="#hostShell" data-hostid="{{ host.id }}" data-hostname="{{ host.hostname }}"><button type="button" class="btn btn-default text-left"><span class="pull-left"><i class="glyphicon glyphicon-menu-right"></i> iShell - New Tab</span></button></a>
 </div>
