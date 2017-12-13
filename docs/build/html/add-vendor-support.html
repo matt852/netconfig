@@ -1,0 +1,358 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Add Vendor Support &#8212; NetConfig 1.1 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Netbox Integration" href="netbox-integration.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="add-vendor-support">
+<h1>Add Vendor Support<a class="headerlink" href="#add-vendor-support" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="getting-started">
+<h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
+<p>Currently as of version 1.0b, NetConfig only support Cisco routers, switches, and firewalls, running IOS, IOS-XE, NX-OS, or ASA’s.  However in version 1.1b, support was added for different vendors and different vendor model network devices.</p>
+<p>This guide intends to document how to create a base device class for a vendor, as well as individual device model classes, for support with integrating into NetConfig.  Any new device classes that work successfully and are tested thoroughly may be submitted as a Pull Request for official integration into the overall project.</p>
+</div>
+<div class="section" id="create-base-devive-class">
+<h2>Create Base Devive Class<a class="headerlink" href="#create-base-devive-class" title="Permalink to this headline">¶</a></h2>
+<p>The base device class is used for different vendors.  Currently, the only existing base device class is for Cisco, titled “cisco_base_device.py”.  In this example, we will create a new base device class for vendor “Acme”.</p>
+<p>Before creating any files, make sure to SSH in to the NetConfig server as user ‘netconfig’, or switch over to the user ‘netconfig’ once logging in.</p>
+<div class="highlight-text"><div class="highlight"><pre><span></span>su - netconfig
+</pre></div>
+</div>
+<div class="section" id="file-location">
+<h3>File Location<a class="headerlink" href="#file-location" title="Permalink to this headline">¶</a></h3>
+<p>In this example, the file is located in ~/netconfig/app/device_classes/device_definitions/acme_base_device.py.</p>
+<div class="highlight-text"><div class="highlight"><pre><span></span>cd ~/netconfig/app/device_classes/device_definitions
+touch acme_base_device.py
+vi acme_base_device.py
+</pre></div>
+</div>
+<p>The basic structure of this file is as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">base_device</span> <span class="kn">import</span> <span class="n">BaseDevice</span>
+
+<span class="k">class</span> <span class="nc">AcmeBaseDevice</span><span class="p">(</span><span class="n">BaseDevice</span><span class="p">):</span>
+    <span class="c1"># functions go here</span>
+</pre></div>
+</div>
+<p>The file has a few base functions that are required by the overall NetConfig program.  As NetConfig grows its feature set, more required functions may be added, and will need to be added/updated in here as necessary.</p>
+<p>All functions in here are expected to work with any/all network devices made by this vendor.  Model specific functions will go in the individual device model classes, explained at the end of this file.</p>
+<div class="section" id="required-functions">
+<h4>Required Functions<a class="headerlink" href="#required-functions" title="Permalink to this headline">¶</a></h4>
+<p>These functions and their specific names are required for NetConfig, including the required inputs and expected outputs.  How they process the inputs in order to return the required output varies for each specific network vendor.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Input: None required</span>
+<span class="c1"># Purpose: Provide the command used to enter a configuration mode in the device</span>
+<span class="c1"># Output:</span>
+<span class="c1">#    command (string) - Outputs the command used to enter configuration mode for all vendor devices</span>
+
+<span class="k">def</span> <span class="nf">get_cmd_enter_configuration_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="c1"># Function logic goes here</span>
+
+<span class="c1"># Input: None required</span>
+<span class="c1"># Purpose: Provide the command used to enable a specific interface</span>
+<span class="c1"># Output:</span>
+<span class="c1">#    command (string) - Outputs the command used to enable / activate / unshut / bring online an interface for all vendor devices</span>
+<span class="c1"># Output Type: String</span>
+
+<span class="k">def</span> <span class="nf">get_cmd_enable_interface</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="c1"># Function logic goes here</span>
+
+<span class="c1"># Input: None required</span>
+<span class="c1"># Purpose: Provide the command used to disable a specific interface</span>
+<span class="c1"># Output:</span>
+<span class="c1">#    command (string) - Outputs the command used to disable / deactivate / shutdown / bring offline an interface for all vendor devices</span>
+
+<span class="k">def</span> <span class="nf">get_cmd_disable_interface</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="c1"># Function logic goes here</span>
+
+<span class="c1"># Input:</span>
+<span class="c1">#    interface (string) - The name of the interface that is to be enabled</span>
+<span class="c1">#    activeSession (Netmiko class) - The active, existing SSH session for a device, stored as a Netmiko class</span>
+<span class="c1"># Purpose: Enable a specific interface</span>
+<span class="c1"># Output:</span>
+<span class="c1">#    resultsArray (array) - Outputs all command results as displayed the client network device when enabling an interface</span>
+
+<span class="k">def</span> <span class="nf">run_enable_interface_cmd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interface</span><span class="p">,</span> <span class="n">activeSession</span><span class="p">):</span>
+    <span class="c1"># Function logic goes here</span>
+
+<span class="c1"># Input:</span>
+<span class="c1">#    interface (string) - The name of the interface that is to be disabled</span>
+<span class="c1">#    activeSession (Netmiko class) - The active, existing SSH session for a device, stored as a Netmiko class</span>
+<span class="c1"># Purpose: Disable a specific interface</span>
+<span class="c1"># Output:</span>
+<span class="c1">#    resultsArray (array) - Outputs all command results as displayed the client network device when disabling an interface</span>
+
+<span class="k">def</span> <span class="nf">run_disable_interface_cmd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interface</span><span class="p">,</span> <span class="n">activeSession</span><span class="p">):</span>
+    <span class="c1"># Function logic goes here</span>
+
+<span class="c1"># Input:</span>
+<span class="c1">#    activeSession (Netmiko class) - The active, existing SSH session for a device, stored as a Netmiko class</span>
+<span class="c1"># Purpose: Saves the running-configuration settings on the device into memory</span>
+<span class="c1"># Output:</span>
+<span class="c1">#    resultsArray (array) - Outputs all command results as displayed the client network device when enabling an interface, with each new line (separated by carriage return) in its own line in the returned array</span>
+
+<span class="k">def</span> <span class="nf">save_config_on_device</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activeSession</span><span class="p">):</span>
+    <span class="c1"># Function logic goes here</span>
+
+<span class="c1"># Input:</span>
+<span class="c1">#    interface (string) - The name of the interface to edit the configuration settings</span>
+<span class="c1">#    datavlan (string) - The data vlan ID to set on the interface.  Note: This is an optional variable, and may submitted as an empty string instead</span>
+<span class="c1">#    voicevlan (string) - The voice vlan ID to set on the interface.  Note: This is an optional variable, and may submitted as an empty string instead</span>
+<span class="c1">#    other (array) - An array (separated by carriage returns) of any additional commands, manually entered by the user, needing to be configured for the specified interface.  Note: This is an optional variable, and may submitted as an empty string instead</span>
+<span class="c1">#    activeSession (Netmiko class) - The active, existing SSH session for a device, stored as a Netmiko class</span>
+<span class="c1"># Purpose: Edits the configuration settings for a specific interface on a device</span>
+<span class="c1"># Output:</span>
+<span class="c1">#    resultsArray (array) - Outputs all command results as displayed the client network device when edit an interface, with each new line (separated by carriage return) in its own line in the returned array</span>
+
+<span class="k">def</span> <span class="nf">run_edit_interface_cmd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interface</span><span class="p">,</span> <span class="n">datavlan</span><span class="p">,</span> <span class="n">voicevlan</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">activeSession</span><span class="p">):</span>
+    <span class="c1"># Function logic goes here</span>
+
+<span class="c1"># Input:</span>
+<span class="c1">#    activeSession (Netmiko class) - The active, existing SSH session for a device, stored as a Netmiko class</span>
+<span class="c1"># Purpose: Pulls any inventory information about the device (Cisco equivalent: &quot;show inventory&quot;)</span>
+<span class="c1"># Output:</span>
+<span class="c1">#    resultsArray (array) - Outputs all command results as displayed by the client network device as returned once executing the command, with each new line (separated by carriage return) in its own line in the returned array</span>
+
+<span class="k">def</span> <span class="nf">pull_inventory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activeSession</span><span class="p">):</span>
+    <span class="c1"># Function logic goes here</span>
+
+<span class="c1"># Input:</span>
+<span class="c1">#    activeSession (Netmiko class) - The active, existing SSH session for a device, stored as a Netmiko class</span>
+<span class="c1"># Purpose: Pulls any version information about the device (Cisco equivalent: &quot;show version&quot;)</span>
+<span class="c1"># Output:</span>
+<span class="c1">#    resultsArray (array) - Outputs all command results as displayed by the client network device as returned once executing the command.  The array is formatted where each new line of output (as determined by \n [carriage-return]) is separated in the returned array.</span>
+
+<span class="k">def</span> <span class="nf">pull_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activeSession</span><span class="p">):</span>
+    <span class="c1"># Function logic goes here</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="create-individual-devive-type-class">
+<h2>Create Individual Devive Type Class<a class="headerlink" href="#create-individual-devive-type-class" title="Permalink to this headline">¶</a></h2>
+<p>The specific device type class is used for the same vendor (as created above).  However a different device type file needs to be created for each type of device that uses different commands, unique commands, or returns output differently than other models by the same vendor.Currently, the only existing device type classeses are for Cisco, which are “cisco_ios.py”, “cisco_asa.py”, and “cisco_nxos.py”.  Note that NetConfig support both IOS and IOS-XE, however their commands and outputs are identical, so they both use “cisco_ios.py”.  In this example, we will create a new base device class for vendor “Acme”.</p>
+<p>Before creating any files, make sure to SSH in to the NetConfig server as user ‘netconfig’, or switch over to the user ‘netconfig’ once logging in.</p>
+<div class="highlight-text"><div class="highlight"><pre><span></span>su - netconfig
+</pre></div>
+</div>
+<div class="section" id="id1">
+<h3>File Location<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>Create a new directory for the vendor.</p>
+<div class="highlight-text"><div class="highlight"><pre><span></span>mkdir ~/netconfig/app/device_classes/device_definitions/acme
+cd ~/netconfig/app/device_classes/device_definitions/acme
+</pre></div>
+</div>
+<p>Create a new ‘init’ file</p>
+<div class="highlight-text"><div class="highlight"><pre><span></span>touch __init__.py
+vi __init__.py
+</pre></div>
+</div>
+<p>Add the following lines into the file:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">acme_os</span> <span class="kn">import</span> <span class="n">AcmeOS</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;AcmeOS&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Now create the new device file for Acme OS type devices:</p>
+<div class="highlight-text"><div class="highlight"><pre><span></span>touch acme_os.py
+vi acme_os.py
+</pre></div>
+</div>
+<p>The basic structure of this file is as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">..acme_base_device</span> <span class="kn">import</span> <span class="n">AcmeBaseDevice</span>
+
+<span class="k">class</span> <span class="nc">AcmeOS</span><span class="p">(</span><span class="n">AcmeBaseDevice</span><span class="p">):</span>
+    <span class="c1"># functions go here</span>
+</pre></div>
+</div>
+<p>The file has a few functions that are required by the overall NetConfig program.  As NetConfig grows its feature set, more required functions may be added, and will need to be added/updated in here as necessary.</p>
+<p>All functions in here are expected to work with only this specific network device type, by this specific vendor.  Any functions that function identically, and are supported by this vendor across all of their device models/types, may go in the acme_base_device.py file instead.</p>
+<div class="section" id="id2">
+<h4>Required Functions<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h4>
+<p>These functions and their specific names are required for NetConfig, including the required inputs and expected outputs.  How they process the inputs in order to return the required output varies for each specific network vendor.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Input:</span>
+<span class="c1">#    activeSession (Netmiko class) - The active, existing SSH session for a device, stored as a Netmiko class</span>
+<span class="c1"># Purpose: Pulls any version information about the device (Cisco equivalent: &quot;show version&quot;)</span>
+<span class="c1"># Output:</span>
+<span class="c1">#    resultsArray (array) - Outputs all command results as displayed by the client network device as returned once executing the command.  The array is formatted where each new line of output (as determined by \n [carriage-return]) is separated in the returned array.</span>
+
+<span class="k">def</span> <span class="nf">pull_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activeSession</span><span class="p">):</span>
+    <span class="c1"># Function logic goes here</span>
+
+<span class="c1"># Input: None required</span>
+<span class="c1"># Purpose: Provide the command used to display the active/running configuration settings</span>
+<span class="c1"># Output:</span>
+<span class="c1">#    command (string) - Outputs the command used to display the active/running configuration settings</span>
+
+<span class="k">def</span> <span class="nf">cmd_run_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="c1"># Function logic goes here</span>
+
+<span class="c1"># Input: None required</span>
+<span class="c1"># Purpose: Provide the command used to display the saved/startup configuration settings</span>
+<span class="c1"># Output:</span>
+<span class="c1">#    command (string) - Outputs the command used to display the saved/startup configuration settings</span>
+
+<span class="k">def</span> <span class="nf">cmd_start_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="c1"># Function logic goes here</span>
+
+<span class="c1"># Input: None required</span>
+<span class="c1"># Purpose: Provide the command used to display the the CDP/LLDP neighbors, with each new line (separated by carriage return) in its own line in the returned array</span>
+<span class="c1"># Output:</span>
+<span class="c1">#    command (string) - Outputs the command used to display the CDP/LLDP neighbors</span>
+
+<span class="k">def</span> <span class="nf">cmd_cdp_neighbor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="c1"># Function logic goes here</span>
+
+<span class="c1"># Input:</span>
+<span class="c1">#    activeSession (Netmiko class) - The active, existing SSH session for a device, stored as a Netmiko class</span>
+<span class="c1"># Purpose: Pulls the active/running configuration settings for the device</span>
+<span class="c1"># Output:</span>
+<span class="c1">#    resultsArray (array) - Outputs the active/running configuration settings, with each new line (separated by carriage return) in its own line in the returned array</span>
+
+<span class="k">def</span> <span class="nf">pull_run_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activeSession</span><span class="p">):</span>
+    <span class="c1"># Function logic goes here</span>
+
+<span class="c1"># Input:</span>
+<span class="c1">#    activeSession (Netmiko class) - The active, existing SSH session for a device, stored as a Netmiko class</span>
+<span class="c1"># Purpose: Pulls the saved/startup configuration settings for the device</span>
+<span class="c1"># Output:</span>
+<span class="c1">#    resultsArray (array) - Outputs the saved/startup configuration settings, with each new line (separated by carriage return) in its own line in the returned array</span>
+
+<span class="k">def</span> <span class="nf">pull_start_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activeSession</span><span class="p">):</span>
+    <span class="c1"># Function logic goes here</span>
+
+<span class="c1"># Input:</span>
+<span class="c1">#    activeSession (Netmiko class) - The active, existing SSH session for a device, stored as a Netmiko class</span>
+<span class="c1"># Purpose: Pulls the CDP/LLDP neighbors for the device</span>
+<span class="c1"># Output:</span>
+<span class="c1">#    resultsArray (array) - Outputs the CDP/LLDP neighbors, with each new line (separated by carriage return) in its own line in the returned array</span>
+
+<span class="k">def</span> <span class="nf">pull_cdp_neighbor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activeSession</span><span class="p">):</span>
+    <span class="c1"># Function logic goes here</span>
+
+<span class="c1"># Input:</span>
+<span class="c1">#    activeSession (Netmiko class) - The active, existing SSH session for a device, stored as a Netmiko class</span>
+<span class="c1"># Purpose: Pulls different information about a device, stored into 3 separate arrays:</span>
+<span class="c1">#    interfaceConfig (array) - Configuration settings for the interface</span>
+<span class="c1">#    interfaceMacAddresses (array) - The MAC address table information for the interface. Note: This should only be run on devices that store MAC addresses associated with their interface.  Otherwise simply return an empty string</span>
+<span class="c1">#    interfaceStatistics (array) - Any relevant interface statistics that should be shown for the interface (Cisco example: show interface FastEthernet0/1)</span>
+<span class="c1"># Output:</span>
+<span class="c1">#    interfaceConfig, interfaceMacAddresses, interfaceStatistics (arrays) - Array specifics detailed above</span>
+
+<span class="k">def</span> <span class="nf">pull_interface_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activeSession</span><span class="p">):</span>
+    <span class="c1"># Function logic goes here</span>
+
+<span class="c1"># Input:</span>
+<span class="c1">#    activeSession (Netmiko class) - The active, existing SSH session for a device, stored as a Netmiko class</span>
+<span class="c1"># Purpose: Pulls the current device uptime</span>
+<span class="c1"># Output:</span>
+<span class="c1">#    result (string) - Outputs the current uptime of the device as a string</span>
+
+<span class="k">def</span> <span class="nf">pull_device_uptime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activeSession</span><span class="p">):</span>
+    <span class="c1"># Function logic goes here</span>
+
+<span class="c1"># Input:</span>
+<span class="c1">#    activeSession (Netmiko class) - The active, existing SSH session for a device, stored as a Netmiko class</span>
+<span class="c1"># Purpose: Pulls the list of interfaces on the device</span>
+<span class="c1"># Output:</span>
+<span class="c1">#    resultsArray (array) - Outputs a list of interfaces and relevant status settings, with each new line (separated by carriage return) in its own line in the returned array (Cisco example: &quot;show ip interface brief&quot;)</span>
+
+<span class="k">def</span> <span class="nf">pull_host_interfaces</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activeSession</span><span class="p">):</span>
+    <span class="c1"># Function logic goes here</span>
+
+<span class="c1"># Input:</span>
+<span class="c1">#    interfaces (array) - Array of strings, returned from the device, where each string contains information on if the interface is up/online, down/offline, and administratively down/forced offline.  This function does not correctly interface status with the interface directly, so tracking the interface names is irrelevant here</span>
+<span class="c1"># Purpose: Returns the number of interfaces online, offline, forced offline, and total count</span>
+<span class="c1"># Output:</span>
+<span class="c1">#    upCount (int) - Total number of interfaces active/online</span>
+<span class="c1">#    downCount (int) - Total number of interfaces down/offline</span>
+<span class="c1">#    disabledCount (int) - Total number of interfaces administratvely down/forced offline</span>
+<span class="c1">#    totalCount (int) - Total number of interfaces</span>
+
+<span class="k">def</span> <span class="nf">count_interface_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interfaces</span><span class="p">):</span>
+    <span class="c1"># Function logic goes here</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="netbox-integration.html" title="previous chapter">Netbox Integration</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Matt Vitale.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/add-vendor-support.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

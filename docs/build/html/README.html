@@ -1,0 +1,155 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>NetConfig &#8212; NetConfig 1.1 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Installation Guide" href="install.html" />
+    <link rel="prev" title="NetConfig Documentation" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="netconfig">
+<h1>NetConfig<a class="headerlink" href="#netconfig" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="what-netconfig-is">
+<h2>What NetConfig Is<a class="headerlink" href="#what-netconfig-is" title="Permalink to this headline">¶</a></h2>
+<p>NetConfig started out as a graphical overlay for my existing Python scripts, and I’ve been expanding it’s features ever since.  It was originally built specifically for Cisco switches, routers, and firewalls, using IOS, IOS-XE, NX-OS, and ASA operating systems.  All device data is pulled in real-time via SSH and Netmiko.</p>
+<p>NetConfig can retrieve a list of devices in one of two ways:</p>
+<ul class="simple">
+<li>Stored in a local SQLAlchemy database file</li>
+<li>Retrieved via API calls on an existing NetBox installation</li>
+</ul>
+<p>In version 1.1, vendor neutral support was added using individual device files.</p>
+</div>
+<div class="section" id="what-netconfig-isn-t">
+<h2>What NetConfig Isn’t<a class="headerlink" href="#what-netconfig-isn-t" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Automation tool.</li>
+<li>Error checking tool.  All manual commands entered are submitted as is, just like if entered via a manual SSH session</li>
+</ul>
+</div>
+<div class="section" id="features">
+<h2>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h2>
+<p>NetConfig was originally built as a graphical overlay for common CLI based interactions with non-API supported Cisco networking equipment.  At the core of the program is a need to access accurate, real-time information about any SSH enabled network device.  NetConfig accomplishes this by refreshing all page contents each time the page is refreshed, by pulling the information via SSH at the time of the page refresh.</p>
+<p>NetConfig provides:</p>
+<ul class="simple">
+<li>Real-time information into your network devices</li>
+<li>Graphical overlay for existing Network devices without support for API’s or other web-based interfaces</li>
+</ul>
+</div>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>Reference the Installation Guide section for instructions how on how to install NetConfig.
+Install instructions were written for an Ubuntu 16.04 64-bit server.  NetConfig has not been tested with other OS’s.</p>
+</div>
+<div class="section" id="upgrade">
+<h2>Upgrade<a class="headerlink" href="#upgrade" title="Permalink to this headline">¶</a></h2>
+<p>Reference the Upgrading secion for instructions on upgrading the software</p>
+</div>
+<div class="section" id="netbox-integration">
+<h2>NetBox Integration<a class="headerlink" href="#netbox-integration" title="Permalink to this headline">¶</a></h2>
+<p>Reference the Netbox-Integration secion for instructions on pulling device inventory from an existing Netbox installation
+Netbox can be found here: <a class="reference external" href="https://github.com/digitalocean/netbox">https://github.com/digitalocean/netbox</a></p>
+</div>
+<div class="section" id="screenshots">
+<h2>Screenshots<a class="headerlink" href="#screenshots" title="Permalink to this headline">¶</a></h2>
+<img alt="_images/netbox-custom-field-2-1.jpg" src="_images/netbox-custom-field-2-1.jpg" />
+</div>
+<div class="section" id="important-caveats">
+<h2>Important Caveats<a class="headerlink" href="#important-caveats" title="Permalink to this headline">¶</a></h2>
+<p>For all devices, Netconfig expects the hostname configured to match the actual hostname of the device (case-sensitive).  If not, some features may not work properly.</p>
+</div>
+<div class="section" id="contribute">
+<h2>Contribute<a class="headerlink" href="#contribute" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Issue Tracker: github.com/v1tal3/$project/issues</li>
+<li>Source Code: github.com/v1tal3/$project</li>
+</ul>
+</div>
+<div class="section" id="support">
+<h2>Support<a class="headerlink" href="#support" title="Permalink to this headline">¶</a></h2>
+<p>If you are having issues, please let us know
+Please file an issue in the GitHub issue tracker</p>
+</div>
+<div class="section" id="license">
+<h2>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h2>
+<p>The project is licensed under the GPL v3.0 license.  You can download a copy of the license <a class="reference download internal" href="_downloads/license.txt" download=""><code class="xref download docutils literal"><span class="pre">here</span></code></a></p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">NetConfig Documentation</a></li>
+      <li>Next: <a href="install.html" title="next chapter">Installation Guide</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Matt Vitale.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/readme.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
