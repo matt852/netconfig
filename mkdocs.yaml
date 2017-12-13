@@ -1,0 +1,9 @@
+site_name: NetConfig
+
+pages:
+    - 'Introduction': 'index.rst'
+    - 'Installation': 'install.rst'
+    - 'Upgrade': 'upgrade.rst'
+    - 'NetBox Integration': 'netbox-integration.rst'
+    - 'Add Vendor Support':
+        - 'Instructions': add-vendor-support.rst'
