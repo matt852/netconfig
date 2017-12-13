@@ -2,7 +2,7 @@
 *.csv
 *.pyc
 *.log
-app.db
+*.db
 app/log/
 log/*
 scripts_bank/logs/*

@@ -49,7 +49,9 @@ Netbox can be found here: https://github.com/digitalocean/netbox
 Screenshots
 -----------
 
-.. image:: img/netbox-custom-field-2-1.jpg
+.. image:: img/index.jpg
+
+.. image:: img/example-switch.jpg
 
 Important Caveats
 -----------------
