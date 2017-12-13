@@ -1,0 +1,181 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Netbox Integration &#8212; NetConfig 1.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Add Vendor Support" href="add-vendor-support.html" />
+    <link rel="prev" title="Upgrading" href="upgrade.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="netbox-integration">
+<h1>Netbox Integration<a class="headerlink" href="#netbox-integration" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="configuring-netconfig">
+<h2>Configuring NetConfig<a class="headerlink" href="#configuring-netconfig" title="Permalink to this headline">¶</a></h2>
+<p>Netconfig supports two methods of tracking network device inventory:</p>
+<ol class="arabic simple">
+<li>Local database using SQLAlchemy</li>
+<li>API call through Netbox, an open source DCIM solution found here: <a class="reference external" href="https://github.com/digitalocean/netbox">https://github.com/digitalocean/netbox</a></li>
+</ol>
+<p>By default, NetConfig is set to use a local SQLAlchemy database</p>
+<div class="section" id="configure-netconfig-for-netbox-api-access">
+<h3>Configure Netconfig for Netbox API Access<a class="headerlink" href="#configure-netconfig-for-netbox-api-access" title="Permalink to this headline">¶</a></h3>
+<p>In the root Netconfig directory, open file ‘instance/settings.py’ (this should be /home/netconfig/netconfig/instance/settings.py)</p>
+<p>Navigate to the line that reads:</p>
+<blockquote>
+<div>DATALOCATION = ‘local’</div></blockquote>
+<p>Change it to read:</p>
+<blockquote>
+<div>DATALOCATION = ‘netbox’</div></blockquote>
+<p>Navigate to the line that reads:</p>
+<blockquote>
+<div>NETBOXSERVER = ‘’</div></blockquote>
+<p>Set the URL for your Netbox server using single quotes.  Example:</p>
+<blockquote>
+<div>NETBOXSERVER = ‘<a class="reference external" href="http://netbox.domain.com">http://netbox.domain.com</a>’</div></blockquote>
+<p>Save and close the file</p>
+</div>
+</div>
+<div class="section" id="configuring-netbox">
+<h2>Configuring Netbox<a class="headerlink" href="#configuring-netbox" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="create-two-custom-fields">
+<h3>Create Two Custom Fields<a class="headerlink" href="#create-two-custom-fields" title="Permalink to this headline">¶</a></h3>
+<p>In Netbox, go to the site admin page.  Log in as an admin user.  Then click on your username, then select Admin.</p>
+<p>Under Extras, click on Custom Fields</p>
+<div class="section" id="custom-field-1">
+<h4><strong>Custom Field #1</strong><a class="headerlink" href="#custom-field-1" title="Permalink to this headline">¶</a></h4>
+<p>Click the Add Custom Field + button, and use the following settings.  The Description field and the checkbox for ‘Required’ are both optional and up to you.  Additonally the fields with “weight” in the name can be any number from 1-100, and are up to you.</p>
+<div class="highlight-text"><div class="highlight"><pre><span></span>Object:                   dcim &gt; device
+Type:                     Selection
+Name:                     Netconfig
+Label:                    [blank]
+Is Filterable:            Checked
+Weight:                   100
+Custom Field Choices
+    1st Value field:      No
+    1st Value weight:     99
+    2nd Value field:      Yes
+    2nd Value weight:     100
+</pre></div>
+</div>
+<p>Click Save</p>
+<p>Screenshot example:</p>
+<img alt="_images/netbox-custom-field-1-1.jpg" src="_images/netbox-custom-field-1-1.jpg" />
+<img alt="_images/netbox-custom-field-1-2.jpg" src="_images/netbox-custom-field-1-2.jpg" />
+</div>
+<div class="section" id="custom-field-2">
+<h4><strong>Custom Field #2</strong><a class="headerlink" href="#custom-field-2" title="Permalink to this headline">¶</a></h4>
+<p>Click the Add Custom Field + button, and use the below settings.  The Description field and the checkbox for ‘Required’ are both optional and up to you.  Additonally the fields with “weight” in the name can be any number from 1-100, and are up to you.</p>
+<div class="highlight-text"><div class="highlight"><pre><span></span>Object:                   dcim &gt; device type
+Type:                     Selection
+Name:                     Netconfig_OS
+Label:                    [blank]
+Is Filterable:            Checked
+Weight:                   100
+Custom Field Choices
+    1st Value field:      IOS
+    1st Value weight:     97
+    2nd Value field:      IOS-XE
+    2nd Value weight:     98
+    3rd Value field:      NX-OS
+    3rd Value weight:     99
+    4th Value field:      ASA
+    4th Value weight:     100
+</pre></div>
+</div>
+<p>Click Save</p>
+<p>Screenshot example:</p>
+<img alt="_images/netbox-custom-field-2-1.jpg" src="_images/netbox-custom-field-2-1.jpg" />
+<img alt="_images/netbox-custom-field-2-2.jpg" src="_images/netbox-custom-field-2-2.jpg" />
+</div>
+</div>
+</div>
+<div class="section" id="configuring-devices-in-netbox-to-be-used-by-netconfig">
+<h2>Configuring Devices in Netbox to be used by NetConfig<a class="headerlink" href="#configuring-devices-in-netbox-to-be-used-by-netconfig" title="Permalink to this headline">¶</a></h2>
+<p>For any new or existing devices you want to use with Netconfig, when creating or editing a device, the following conditions must be met:</p>
+<ul class="simple">
+<li>For each device, set the field Netconfig under the Custom Fields section to Yes</li>
+<li>A Primary IPv4 address must be configured for each device (IPv6 is not supported at this time)</li>
+<li>The IP address must be reachable by Netconfig, and Netconfig must be able to SSH into the device</li>
+<li>The Device Type (assigned to a device you want pulled) must have one of the 4 currently supported OS’s set in the Custom Fields: IOS, IOS-XE, NX-OS, or ASA</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="upgrade.html" title="previous chapter">Upgrading</a></li>
+      <li>Next: <a href="add-vendor-support.html" title="next chapter">Add Vendor Support</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Matt Vitale.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/netbox-integration.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

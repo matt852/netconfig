@@ -83,7 +83,7 @@ class CiscoBaseDevice(BaseDevice):
 		command = self.get_save_config_cmd()
 		return self.split_on_newline(nfn.runSSHCommandInSession(command, activeSession))
 
-	def run_edit_interface_cmd(self, interface, datavlan, voicevlan, other, activeSession):
+	def run_edit_interface_cmd(self, interface, datavlan, voicevlan, other, activeSession): #required
 		cmdList=[]
 		cmdList.append("interface %s" % interface)
 

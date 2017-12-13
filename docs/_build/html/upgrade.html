@@ -1,0 +1,137 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Upgrading &#8212; NetConfig 1.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Netbox Integration" href="netbox-integration.html" />
+    <link rel="prev" title="Installation Guide" href="install.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="upgrading">
+<h1>Upgrading<a class="headerlink" href="#upgrading" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="upgrading-netconfig-to-latest-version">
+<h2>Upgrading NetConfig to Latest Version<a class="headerlink" href="#upgrading-netconfig-to-latest-version" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="before-starting">
+<h3>Before Starting<a class="headerlink" href="#before-starting" title="Permalink to this headline">¶</a></h3>
+<p>If running NetConfig on a VM, it is <em>highly</em> recommended to take a snapshot prior to upgrading.  In case of any issues, you can roll back any changes by reverting to the previous snapshot.</p>
+</div>
+<div class="section" id="upgrade-process">
+<h3>Upgrade Process<a class="headerlink" href="#upgrade-process" title="Permalink to this headline">¶</a></h3>
+<p>Change to NetConfig user</p>
+<div class="highlight-text"><div class="highlight"><pre><span></span>su - netconfig
+</pre></div>
+</div>
+<p>Change to NetConfig directory</p>
+<div class="highlight-text"><div class="highlight"><pre><span></span>cd /home/netconfig/netconfig
+</pre></div>
+</div>
+<p>Checkout master branch</p>
+<div class="highlight-text"><div class="highlight"><pre><span></span>git checkout master
+</pre></div>
+</div>
+<p>Pull new files</p>
+<div class="highlight-text"><div class="highlight"><pre><span></span>git pull origin master
+</pre></div>
+</div>
+<p>Verify git status</p>
+<div class="highlight-text"><div class="highlight"><pre><span></span>git status
+</pre></div>
+</div>
+<p>Restart NetConfig service</p>
+<div class="highlight-text"><div class="highlight"><pre><span></span>sudo supervisorctl restart netconfig
+</pre></div>
+</div>
+</div>
+<div class="section" id="verifying-upgrade">
+<h3>Verifying Upgrade<a class="headerlink" href="#verifying-upgrade" title="Permalink to this headline">¶</a></h3>
+<p>In your web browser, navigate to the home NetConfig page.  In the Top Menu, under About, you should see the latest software version displayed.</p>
+<img alt="_images/version-info.jpg" src="_images/version-info.jpg" />
+</div>
+<div class="section" id="potential-caveats">
+<h3>Potential Caveats<a class="headerlink" href="#potential-caveats" title="Permalink to this headline">¶</a></h3>
+<p>If any manual changes are made to any NetConfig files (except for the settings and log files), the command ‘git pull origin master’ may fail or throw an error.  If so, you can stash (delete) any manual changes made, then repull from NetConfig’s GitHub respository.  This will replace any custom changes made in files with the standard NetConfig system files, so be careful if any custom changes are critical to your environment.</p>
+<p>The command is:</p>
+<blockquote>
+<div>git checkout – .</div></blockquote>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="install.html" title="previous chapter">Installation Guide</a></li>
+      <li>Next: <a href="netbox-integration.html" title="next chapter">Netbox Integration</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Matt Vitale.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/upgrade.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
