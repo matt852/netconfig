@@ -61,8 +61,10 @@ For all devices, Netconfig expects the hostname configured to match the actual h
 Contribute
 ----------
 
-- Issue Tracker: github.com/v1tal3/$project/issues
-- Source Code: github.com/v1tal3/$project
+* Source Code: https://github.com/v1tal3/netconfig
+* Issue Tracker: https://github.com/v1tal3/netconfig/issues
+* Documentation: https://netconfig.readthedocs.io/en/latest/
+* Subreddit: https://www.reddit.com/r/netconfig/
 
 Support
 -------
@@ -73,4 +75,4 @@ Please file an issue in the GitHub issue tracker
 License
 -------
 
-The project is licensed under the GPL v3.0 license.  You can download a copy of the license :download:`here <license.txt>`
+NetConfig is licensed under the GPL v3.0 license.  You can download a copy of the license :download:`here <license.txt>`
