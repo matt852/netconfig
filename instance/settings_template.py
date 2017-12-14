@@ -1,20 +1,26 @@
 #!/usr/bin/python
 
 
-# Generate a Secret Key to be used with NetConfig.  Do not share or reuse this outside of this file/program
-# A secret-key generation script has been provided in the NetConfig root directory, and can be run with 'python generate_secret_key.py'
+# Generate a Secret Key to be used with NetConfig.
+# Do not share or reuse this outside of this file/program
+# A secret-key generation script has been provided in the NetConfig
+#  root directory, and can be run with 'python generate_secret_key.py'
 SECRET_KEY = ''
 
 # Netconfig has the option of tracking device inventory in 2 locations:
-#  1) In a local SQLAlchemy database, with devices manually added, updated, and deleted
-#  2) In an existing Netbox installation, pulled via Netbox's database via API call
+#  1) In a local SQLAlchemy database, with devices
+#      manually added, updated, and deleted
+#  2) In an existing Netbox installation
+#      pulled via Netbox's database via API call
 #
-# Here you can specify whether to use a local SQLAlchemy database or pull from Netbox via API
+# Here you can specify whether to use a local SQLAlchemy database
+#  or pull from Netbox via API
 # Valid options: 'local', 'netbox'
 # Default = local
 DATALOCATION = 'local'
 
-# If using a Netbox server - URL for accessing Netbox.  Example: 'http://netbox.domain.com' or 'http://10.0.0.1' if not using DNS
+# If using a Netbox server - URL for accessing Netbox.
+# Example: 'http://netbox.domain.com' or 'http://10.0.0.1' if not using DNS
 NETBOXSERVER = ''
 
 
@@ -34,8 +40,11 @@ SESSIONTIMEOUT = 60
 
 # Redis user information inactivity timer
 # Set timeout for clearing username in Redis, in seconds
-# This sets the username 'key' to expire, and any password left associated with it, if the user forgets to log out (passwords are cleared after a user logs out)
-# Default/Recommended is set to SESSIONTIMEOUT, but can be changed to something different
+# This sets the username 'key' to expire,
+#  and any password left associated with it,
+#  if the user forgets to log out (passwords are cleared after a user logs out)
+# Default/Recommended is set to SESSIONTIMEOUT,
+#  but can be changed to something different
 REDISKEYTIMEOUT = SESSIONTIMEOUT * 60
 
 # Increase number if more than 10k devices in database
@@ -47,5 +56,3 @@ POSTS_PER_PAGE = 10000
 # Debug settings - only enable True for debugging issues (WIP)
 # Default = False
 DEBUG = False
-
-
