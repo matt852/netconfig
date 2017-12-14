@@ -14,7 +14,3 @@ manager = Manager(app)
 if __name__ == "__main__":
     app.secret_key = os.urandom(25)
     manager.run()
-
-# Notes:
-# To install python-ldap on Mac OSX, run this command from Terminal:
-# export CFLAGS="-I$(xcrun --show-sdk-path)/usr/include/sasl"
