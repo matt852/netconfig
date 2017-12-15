@@ -3,7 +3,8 @@
 # Original script from Netbox, found here:
 # https://github.com/digitalocean/netbox
 
-# This script will generate a random 50-character string suitable for use as a SECRET_KEY.
+# This script will generate a random 50-character string
+#  suitable for use as a SECRET_KEY.
 import random
 
 charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*(-_=+)'

@@ -10,6 +10,7 @@ NetConfig Documentation
    upgrade
    netbox-integration
    add-vendor-support
+   contributing
 
 
 Index

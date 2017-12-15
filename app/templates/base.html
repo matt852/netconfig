@@ -9,7 +9,7 @@
     <meta name="author" content="Matt Vitale">
     <link href="/static/css/bootstrap.min.css" rel="stylesheet"/>
     <link href="/static/css/font-awesome.min.css" rel="stylesheet"/>
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs/dt-1.10.16/b-1.4.2/fh-3.1.3/r-2.2.0/sl-1.2.3/datatables.min.css"/> <!-- https://datatables.net/download/index -->
+    <link rel="stylesheet" type="text/css" href="/static/DataTables/datatables.min.css"/> <!-- https://datatables.net/download/#bs/dt-1.10.16/b-1.4.2/fh-3.1.3/r-2.2.0/sl-1.2.3 -->
     <link href="/static/css/styles.css" rel="stylesheet"/>   <!-- custom CSS -->
 
     <script src="/static/js/jquery-3.2.1.min.js"></script>
@@ -17,8 +17,7 @@
     <script src="/static/js/validator.min.js"></script>      <!-- https://github.com/1000hz/bootstrap-validator -->
     <script src="/static/js/loadingoverlay.min.js"></script> <!-- http://gasparesganga.com/labs/jquery-loading-overlay/-->
     <script src="/static/js/loading.js"></script>            <!-- custom loading JS -->
-    <!--<script src="/static/js/count_active_sessions.js"></script>--> <!-- custom JS -->
-    <script type="text/javascript" src="https://cdn.datatables.net/v/bs/dt-1.10.16/b-1.4.2/fh-3.1.3/r-2.2.0/sl-1.2.3/datatables.min.js"></script> <!-- https://datatables.net/download/index -->
+    <script type="text/javascript" src="/static/DataTables/datatables.min.js"></script> <!-- https://datatables.net/download/#bs/dt-1.10.16/b-1.4.2/fh-3.1.3/r-2.2.0/sl-1.2.3 -->
     {% block scripts %}{% endblock %}                        <!-- block for JS added on pages on demand -->
   </head>
   <body>
@@ -94,6 +93,8 @@
         </div>
       </div>
     </div>
-    {% include "/js/count_active_sessions_js.html" %}
+    {% if session['USER'] %}
+      {% include "/js/count_active_sessions_js.html" %}
+    {% endif %}
   </body>
 </HTML>

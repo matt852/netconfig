@@ -1,8 +1,7 @@
-from flask import Flask, flash, redirect, render_template, request, session, abort
+from flask import Flask
 import os
 from flask_sqlalchemy import SQLAlchemy
 from flask_script import Manager
-from config import basedir
 
 app = Flask(__name__, instance_relative_config=True)
 app.config.from_object('config')
@@ -15,7 +14,3 @@ manager = Manager(app)
 if __name__ == "__main__":
     app.secret_key = os.urandom(25)
     manager.run()
-
-# Notes:
-# To install python-ldap on Mac OSX, run this command from Terminal:
-# export CFLAGS="-I$(xcrun --show-sdk-path)/usr/include/sasl"

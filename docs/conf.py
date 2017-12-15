@@ -163,6 +163,3 @@ texinfo_documents = [
      author, 'NetConfig', 'One line description of project.',
      'Miscellaneous'),
 ]
-
-
-
