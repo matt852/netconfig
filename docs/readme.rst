@@ -32,19 +32,19 @@ NetConfig provides:
 Installation
 ------------
 
-Reference the Installation Guide section for instructions how on how to install NetConfig.
+Reference the Installation Guide section for instructions how on how to install NetConfig at readthedocs.io `install guide <http://netconfig.readthedocs.io/en/latest/install.html>`_
 Install instructions were written for an Ubuntu 16.04 64-bit server.  NetConfig has not been tested with other OS's.
 
 Upgrade
 -------
 
-Reference the Upgrading secion for instructions on upgrading the software
+Reference the Upgrading secion for instructions on upgrading the software at the readthedocs.io `upgrade guide <http://netconfig.readthedocs.io/en/latest/upgrade.html>`_.  See the `latest release <https://github.com/v1tal3/netconfig/releases>`_ page to download the most recent NetConfig version.
 
 NetBox Integration
 ------------------
 
-Reference the Netbox-Integration secion for instructions on pulling device inventory from an existing Netbox installation
-Netbox can be found here: https://github.com/digitalocean/netbox
+Reference the Netbox-Integration secion for instructions on pulling device inventory from an existing Netbox installation readthedocs.io `Netbox integration guide <http://netconfig.readthedocs.io/en/latest/readme.html#netbox-integration>`_.
+Netbox can be found at their `GitHub repository <https://github.com/digitalocean/netbox>`_.
 
 Screenshots
 -----------
@@ -61,10 +61,10 @@ For all devices, Netconfig expects the hostname configured to match the actual h
 Contribute
 ----------
 
-* Source Code: https://github.com/v1tal3/netconfig
-* Issue Tracker: https://github.com/v1tal3/netconfig/issues
-* Documentation: https://netconfig.readthedocs.io/en/latest/
-* Subreddit: https://www.reddit.com/r/netconfig/
+* Source Code: `NetConfig on GitHub <https://github.com/v1tal3/netconfig>`_
+* Issue Tracker: `NetConfig Issue Tracker <https://github.com/v1tal3/netconfig/issues>`_
+* Documentation: `NetConfig on ReadTheDocs <https://netconfig.readthedocs.io/en/latest/>`_
+* Subreddit: `NetConfig on Reddit <https://www.reddit.com/r/netconfig/>`_
 
 Support
 -------
