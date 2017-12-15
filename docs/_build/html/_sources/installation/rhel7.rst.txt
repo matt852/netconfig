@@ -259,4 +259,4 @@ If using Netbox, please consult the Netbox Integration section for instructions 
 Credit
 ^^^^^^
 
-Credit to Reddit user /u/thewhitedragon for writing up these instructions
+Credit to Reddit user /u/thewhitedragon for adapting the existing Install instructions to work on RHEL7
