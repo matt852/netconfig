@@ -75,4 +75,4 @@ Please file an issue in the GitHub issue tracker
 License
 -------
 
-NetConfig is licensed under the GPL v3.0 license.  You can download a copy of the license :download:`here <license.txt>`
+NetConfig is licensed under the GPL v3.0 license.  A copy of the license is provided in the root NetConfig directory, or you can view it online `here <https://www.gnu.org/licenses/gpl-3.0.en.html>`_
