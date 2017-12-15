@@ -17,8 +17,7 @@ platforms_str = "\n" + platforms_str
 def DeviceHandler(*args, **kwargs):
     """Select the proper class and creates object based on ios_type."""
     if kwargs['ios_type'] not in platforms:
-        raise ValueError('Unsupported ios_type: currently supported platforms'
-                         ' are: {}'.format(platforms_str))
+        raise ValueError('Unsupported ios_type: currently supported platforms are: {}'.format(platforms_str))
     DeviceClass = device_dispatcher(kwargs['ios_type'])
     return DeviceClass(*args, **kwargs)
 
