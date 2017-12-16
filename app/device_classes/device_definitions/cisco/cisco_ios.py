@@ -33,7 +33,8 @@ class CiscoIOS(CiscoBaseDevice):
         """Retrieve CDP/LLDP neighbor information from device."""
         command = self.cmd_cdp_neighbor()
         result = self.get_cmd_output_with_commas(command, activeSession)
-        return result
+        tableHeader, tableBody = self.cleanup_cdp_neighbor_output(result)
+        return tableHeader, tableBody
 
     def pull_interface_config(self, activeSession):
         """Retrieve configuration for interface on device."""

@@ -35,10 +35,12 @@ class CiscoNXOS(CiscoBaseDevice):
     def pull_cdp_neighbor(self, activeSession):
         """Retrieve CDP/LLDP neighbor information from device.
 
-        This needs to be completely redone properly using XML pulls/parsing.
+        This should be redone using XML pulls/parsing.
         """
         command = self.cmd_cdp_neighbor()
-        return self.get_cmd_output_with_commas(command, activeSession)
+        result = self.get_cmd_output_with_commas(command, activeSession)
+        tableHeader, tableBody = self.cleanup_cdp_neighbor_output(result)
+        return tableHeader, tableBody
 
     def pull_interface_config(self, activeSession):
         """Retrieve configuration for interface on device."""
