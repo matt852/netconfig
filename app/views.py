@@ -150,7 +150,11 @@ def disconnectAllSSHSessions():
             ssh = fn.removeDictKey(ssh, x)
             writeToLog('disconnected SSH session to device %s for user %s' % (host.hostname, y[1]))
 
-    writeToLog('disconnected all SSH sessions for user %s' % (session['USER']))
+    # Try statement needed as 500 error thrown if user is not currently logged in.
+    try:
+        writeToLog('disconnected all SSH sessions for user %s' % (session['USER']))
+    except:
+        writeToLog('disconnected all SSH sessions without an active user logged in')
 
 
 def countAllSSHSessions():
@@ -282,10 +286,20 @@ def logout():
     writeToLog('logged out')
 
     # Delete user saved in Redis
-    user_id = str(g.db.hget('users', session['USER']))
-    g.db.delete(str(user_id))
+    try:
+        user_id = str(g.db.hget('users', session['USER']))
+        g.db.delete(str(user_id))
+        writeToLog('deleted user %s data stored in Redis' % (session['USER']))
+    except:
+        writeToLog('did not delete user data stored in Redis as no user currently logged in')
     # Remove the username from the session if it is there
-    session.pop('USER', None)
+    try:
+        t = session['USER']
+        session.pop('USER', None)
+        writeToLog('deleted user %s as stored in session variable' % (t))
+    except:
+        writeToLog('did not delete user data stored in session variable as no user currently logged in')
+
     return redirect(url_for('index'))
 
 

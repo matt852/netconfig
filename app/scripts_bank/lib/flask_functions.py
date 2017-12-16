@@ -9,9 +9,13 @@ def checkUserLoggedInStatus():
     Return True if they are logged in.
     Return False if not.
     """
-    if 'USER' in session and session['USER']:
-        return True
-    else:
+    try:
+        # Try statement as 500 error thrown if no existing session['USER'] variable set
+        if 'USER' in session and session['USER']:
+            return True
+        else:
+            return False
+    except:
         return False
 
 
