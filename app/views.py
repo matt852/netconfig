@@ -18,7 +18,6 @@ from redis import StrictRedis
 from scripts_bank import db_modifyDatabase
 from scripts_bank import netboxAPI
 from scripts_bank import ping_hosts as ph
-from scripts_bank import pull_host_interfaces as phi
 from scripts_bank.lib import functions as fn
 from scripts_bank.lib.flask_functions import checkUserLoggedInStatus
 from scripts_bank.lib.netmiko_functions import disconnectFromSSH, getSSHSession
@@ -798,8 +797,10 @@ def modalEditInterfaceOnHost(x, y):
 
     # Removes dashes from interface in URL
     interface = interfaceReplaceSlash(y)
+    # Replace's '_' with '.'
+    host.interface = interface.replace('=', '.')
 
-    intConfig = phi.pullInterfaceConfigSession(activeSession, interface, host)
+    intConfig = host.pull_interface_config(activeSession)
     # Edit form
     form = EditInterfaceForm(request.values, host=host, interface=interface)
 
@@ -832,7 +833,7 @@ def modalInterfaceInfo(x, y):
     # Removes dashes from interface in URL
     interface = interfaceReplaceSlash(y)
 
-    intConfig = phi.pullInterfaceConfigSession(activeSession, interface, host)
+    intConfig = host.pull_interface_config(activeSession)
 
     return render_template("/interfaceinfo.html",
                            host=host,

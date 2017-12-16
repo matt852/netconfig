@@ -111,7 +111,6 @@ class CiscoBaseDevice(BaseDevice):
                 cmdList.append(x)
 
         cmdList.append("end")
-        cmdList.append(self.get_save_config_cmd())
 
         return self.run_ssh_config_commands(cmdList, activeSession)
 
