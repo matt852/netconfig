@@ -52,7 +52,7 @@ def getDeviceTypeOS(x):
     if netconfigOS == 'IOS':
         return 'cisco_ios'
     elif netconfigOS == 'IOS-XE':
-        return 'cisco_iosxe'
+        return 'cisco_xe'
     elif netconfigOS == 'NX-OS':
         return 'cisco_nxos'
     elif netconfigOS == 'ASA':

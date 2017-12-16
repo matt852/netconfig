@@ -420,8 +420,10 @@ def deviceUptime(x):
 
 @app.route('/db/viewhosts/<x>', methods=['GET'])
 def viewSpecificHost(x):
-    """Display specific device page."""
-    # x is host.id
+    """Display specific device page.
+
+    x is host.id
+    """
     initialChecks()
 
     # This fixes page refresh issue when clicking on a Modal

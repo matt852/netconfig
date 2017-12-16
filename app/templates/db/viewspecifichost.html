@@ -59,7 +59,7 @@
 					<table id="tblViewSpecificHost" class="table table-striped table-hover table-condensed display">
 						<thead>
 							<tr>
-			    				{% if host.ios_type == 'cisco_ios' or host.ios_type == 'cisco_asa' %}
+			    				{% if host.ios_type == 'cisco_ios' or host.ios_type == 'cisco_asa' or host.ios_type == 'cisco_xe' %}
 			    					<th></th>
 									<th>Interface</th>
 									<th>IPv4 Address</th>

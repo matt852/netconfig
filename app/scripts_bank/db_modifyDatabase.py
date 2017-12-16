@@ -91,7 +91,6 @@ def deleteHostInDB(x):
         return True
     except:
         return False
-    
 
 def getHosts(page):
     hosts = models.Host.query.order_by(asc(models.Host.hostname)).paginate(page, app.config['POSTS_PER_PAGE'], False)
@@ -112,9 +111,9 @@ def getHostIDbyHostname(x):
 def getHostByID(x):
     # Adds support for Netbox API queries
     if app.config['DATALOCATION'] == 'local':
-      host = models.Host.query.filter_by(id=x).first()
+        host = models.Host.query.filter_by(id=x).first()
     elif app.config['DATALOCATION'] == 'netbox':
-      host = netboxAPI.getHostByID(x)
+        host = netboxAPI.getHostByID(x)
 
     # Get host class based on device type
     return dt.DeviceHandler(id=host.id, hostname=host.hostname, ipv4_addr=host.ipv4_addr, type=host.type, ios_type=host.ios_type)

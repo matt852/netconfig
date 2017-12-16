@@ -16,7 +16,7 @@
 				    {% for mac in intMac %}
 		    			<tr>
 			    			{% if loop.index0 == 0 %}
-			    				{% if host.ios_type == 'cisco_ios' %}
+			    				{% if host.ios_type == 'cisco_ios' or host.ios_type == 'cisco_xe' %}
 				    				<th>Vlan</th>
 				    				<th>Mac Address</th>
 				    				<!--<th>IP Address</th>-->

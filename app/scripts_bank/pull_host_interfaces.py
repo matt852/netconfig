@@ -260,7 +260,7 @@ def countInterfaceStatus(interfaces, ios_type): #THIS GOES AWAY
 	disabled = 0
 	total = 0
 
-	if ios_type == 'cisco_ios' or ios_type == 'cisco_asa' or ios_type == 'cisco_iosxe':
+	if ios_type == 'cisco_ios' or ios_type == 'cisco_asa' or ios_type == 'cisco_xe':
 		for interface in interfaces:
 			if not 'Interface' in interface:
 				if 'administratively down,down' in interface:
