@@ -254,7 +254,10 @@ These functions and their specific names are required for NetConfig, including t
     #    activeSession (Netmiko class) - The active, existing SSH session for a device, stored as a Netmiko class
     # Purpose: Pulls the CDP/LLDP neighbors for the device
     # Output:
-    #    resultsArray (array) - Outputs the CDP/LLDP neighbors, with each new line (separated by carriage return) in its own line in the returned array
+    #    tableHeader (string) - String containing the table header lines, as retrieved from (usually) the first line of output, with each category separated by comma.
+    #        Example: Hostname,Src Port,Model,Dest Port,etc
+    #    tableBody (list) - List with each line an output row retrieved from the devices CDP/LLDP table.  Each column separated by comma.  There should be the same number of columns in each row, and the same number of columns as in the tableHeader.
+    Outputs the CDP/LLDP neighbors, with each new line (separated by carriage return) in its own line in the returned array
     
     def pull_cdp_neighbor(self, activeSession):
         # Function logic goes here
