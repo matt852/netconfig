@@ -84,6 +84,18 @@ def setUserCredentials(username, password):
     return creds
 
 
+def rreplace(s, old, new, occurrence):
+    """Replace last occurence of character in string.
+
+    s is string original string.
+    old is the character to be replaced.
+    new is the character to be used instead of old character.
+    occurence is how many occurrence's to replace, starting from the end.
+    """
+    li = s.rsplit(old, occurrence)
+    return new.join(li)
+
+
 def replaceDoubleSpaces(x):
     """Return string with all double spaces removed, leaving only a single space."""
     while "  " in x:

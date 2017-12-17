@@ -1,5 +1,6 @@
 from base_device import BaseDevice
 from ...scripts_bank.lib import netmiko_functions as nfn
+from ...scripts_bank.lib import functions as fn
 
 
 class CiscoBaseDevice(BaseDevice):
@@ -93,10 +94,10 @@ class CiscoBaseDevice(BaseDevice):
                     bodyString += field1[0] + ','
                     field1.remove(field1[0])
                 # Clean up IOS output
-                line = line.replace(' Gig ', ',Gig ')
-                line = line.replace(' Ten ', ',Ten ')
-                line = line.replace(' Fas ', ',Fas ')
-                line = line.replace(' Eth ', ',Eth ')
+                line = line.replace(' Gig', ',Gig')
+                line = line.replace(' Ten', ',Ten')
+                line = line.replace(' Fas', ',Fas')
+                line = line.replace(' Eth', ',Eth')
                 # This line is for IOS Polycom phones
                 line = line.replace(' Port ', ',Port ')
                 # This line is for NX-OS output
@@ -105,8 +106,44 @@ class CiscoBaseDevice(BaseDevice):
                 line = line.replace(' ,', ',')
                 # If empty space at start of string, it's misinterpreted as a word
                 line = line.replace(',,', ',')
-                # Add cleaned up string to end of bodyString, to append to tableBody array later
-                bodyString += line
+
+                # This is needed in case the capability column comes right next to the platform column,
+                #  then there is no comma separating the two, only a whitespace.
+                # Count commas in tableHead
+
+                # if same # of commans in line, continue
+                # Possible interface names in last column
+                interfaceNames = ['Eth', 'eth', 'Ten', 'ten', 'Gig', 'gig', 'Fas', 'fas', 'Port', 'port', 'Mgmt', 'mgmt']
+                if tableHeader.count(',') != line.count(','):
+                    lineSplit = line.split(',')
+                    decrementCounter = -1
+                    nextWord = False
+                    # If any interface names in the word in line, counting backwards using commas as separators
+                    #  This is because some platforms display interfaces as "Eth1/1", others as "Eth 1/1"
+                    # We don't use 'a' here.  We just have a for loop so we only run the length of the string,
+                    #  and not encounter an accidental infinite loop.
+                    for a in lineSplit:
+                        if nextWord:
+                            lineSplit[decrementCounter] = fn.rreplace(lineSplit[decrementCounter], ' ', ',', 1)
+                            break
+                        # If true, then the next word needs the last whitespace occurance replaced with a comma
+                        if any(x in lineSplit[decrementCounter] for x in interfaceNames):
+                            nextWord = True
+                        decrementCounter -= 1
+
+                    newLine = ''
+                    for x in lineSplit:
+                        if ',' in x:
+                            y = x.split(',')
+                            for z in y:
+                                newLine += ',' + z
+                        else:
+                            newLine += ',' + x
+
+                    bodyString += newLine
+                else:
+                    # Add cleaned up string to end of bodyString, to append to tableBody array later
+                    bodyString += line
                 # Add cleaned up output string to returned tableBody array
                 tableBody.append(bodyString)
 
