@@ -10,6 +10,25 @@ code {
 .pre-scrollable {  /* Overrides bootstrap settings for pre-scrollable */
     max-height: 100vh;
 }
+#inlineSSHLine {
+    padding-bottom: 5px;
+    padding-top: 5px;
+    padding-right:10px;
+}
+#inlineBtnText {
+    display:inline;
+    padding-top: 3px;
+    padding-right: 5px;
+    padding-bottom: 3px;
+    padding-left: 10px;
+}
+#inlineBtnIcon {
+    display:inline;
+    padding-top: 3px;
+    padding-right: 5px;
+    padding-bottom: 3px;
+    padding-left: 5px;
+}
 #loading {
   display: none;
 }
