@@ -174,6 +174,24 @@ def countAllSSHSessions():
     return i
 
 
+def getNamesOfSSHSessionDevices():
+    """Return list of hostnames for all devices with an existing active connection."""
+    global ssh
+
+    hostList = []
+    for x in ssh:
+        # x is id-uuid
+        y = x.split('--')
+        # y[0] is host id
+        # y[1] is uuid
+        if str(y[1]) == str(session['UUID']):
+            # Get hostname of device by y[0] (host.id)
+            # hostList.append(db_modifyDatabase.getHostnameByID(y[0]))
+            hostList.append(db_modifyDatabase.retrieveHostByID(y[0]))
+
+    return hostList
+
+
 def interfaceReplaceSlash(x):
     """Replace all forward slashes in string 'x' with an underscore."""
     x = x.replace('_', '/')
@@ -313,11 +331,25 @@ def disconnectAllSSH():
 
 @app.route('/getsshsessionscount')
 def getSSHSessionsCount():
-    """Get number of saved/stored SSH sessions."""
-    # x = host id
+    """Get number of saved/stored SSH sessions.
+
+    x = host id
+    """
     initialChecks()
     count = countAllSSHSessions()
-    return jsonify(count)
+    return jsonify(count=count)
+
+
+@app.route('/displayactivedevicenames')
+def displayActiveDeviceNames():
+    """Get names of devices with existing saved/stored SSH sessions.
+
+    x = host id
+    """
+    initialChecks()
+    hosts = getNamesOfSSHSessionDevices()
+    return render_template("/activesessionmenu.html",
+                           hosts=hosts)
 
 
 @app.route('/db/addhosts', methods=['GET', 'POST'])
@@ -783,14 +815,15 @@ def modalSpecificInterfaceOnHost(x, y):
     # Replace's '_' with '.'
     host.interface = interface.replace('=', '.')
 
-    intConfig, intMac, intStats = host.pull_interface_info(activeSession)
+    intConfig, intMacHead, intMacBody, intStats = host.pull_interface_info(activeSession)
     macToIP = ''
     writeToLog('viewed interface %s on host %s' % (interface, host.hostname))
     return render_template("/viewspecificinterfaceonhost.html",
                            host=host,
                            interface=interface,
                            intConfig=intConfig,
-                           intMac=intMac,
+                           intMacHead=intMacHead,
+                           intMacBody=intMacBody,
                            macToIP=macToIP,
                            intStats=intStats)
 

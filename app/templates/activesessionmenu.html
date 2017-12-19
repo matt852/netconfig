@@ -1,0 +1,10 @@
+  {% if session['USER'] %}
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Active Sessions <b class="caret"></b></a>
+    <ul class="dropdown-menu">
+      {% for host in hosts %}
+        <li><a href="/db/viewhosts/{{ host.id }}">{{ host.hostname }}</a></li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <a href="#">Active Sessions</a>
+  {% endif %}

@@ -120,18 +120,40 @@ def getHostIDbyHostname(x):
     return host.id
 
 
-def getHostByID(x):
-    """Get device by ID.
+def retrieveHostByID(x):
+    """Get device by ID, regardless of data store location.
 
     Support local database or Netbox inventory.
+    Does not return SSH session.
+    x = host id
     """
     if app.config['DATALOCATION'] == 'local':
         host = models.Host.query.filter_by(id=x).first()
     elif app.config['DATALOCATION'] == 'netbox':
         host = netboxAPI.getHostByID(x)
 
+    return host
+
+
+def getHostByID(x):
+    """Get device by ID along with active Netmiko SSH session.
+
+    x = host id
+    """
+    host = retrieveHostByID(x)
+
     # Get host class based on device type
     return dt.DeviceHandler(id=host.id, hostname=host.hostname, ipv4_addr=host.ipv4_addr, type=host.type, ios_type=host.ios_type)
+
+
+def getHostnameByID(x):
+    """Get device name by ID.
+
+    x = id
+    """
+    host = retrieveHostByID(x)
+
+    return str(host.hostname)
 
 
 def getHostsByIOSType(x):

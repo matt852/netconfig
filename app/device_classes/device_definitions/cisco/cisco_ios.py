@@ -1,3 +1,4 @@
+import re
 from ..cisco_base_device import CiscoBaseDevice
 
 
@@ -54,7 +55,54 @@ class CiscoIOS(CiscoBaseDevice):
         if self.check_invalid_input_detected(result):
             return ''
         else:
-            return self.split_on_newline(self.replace_double_spaces_commas(result).replace('*', ''))
+            # Stores table headers as string
+            tableHeader = ''
+            # Stores table body data as array
+            tableBody = []
+
+            result = result.replace('*', '')
+
+            # In IOS-XE, there are multiple protocols separated by commas.
+            # Separate these by underscores instead to preserve formatting in HTML output
+            result = result.replace(',', '_')
+            result = self.replace_double_spaces_commas(result)
+            result = self.split_on_newline(result)
+
+            for index, line in enumerate(result):
+                # This is primarily for IOS-XE devices.  We only want Unicast Entries
+                # We want to stop output once we reach Multicast Entries
+                if 'Unicast Entries' in line:
+                    # Do not store this line as output
+                    pass
+                elif 'Multicast Entries' in line:
+                    # We are done with Unicast entries, so break out of loop
+                    break
+                # Loop until header is filled, as the header isn't always in the very first line
+                elif not tableHeader and ',' in line:
+                    # Skip this iteration if there's only a single comma.  The header should have multiple fields
+                    if line.count(',') > 1:
+                        # Store table header line in string, with commas to separate fields
+                        tableHeader = line
+                elif line and 'Mac' not in line and '-' not in line:
+                    # Regexp to search for any substring in line that contains an underscore.
+                    # Then replaces the whitespace around it with commas.
+                    # This is for IOS-XE devices with multiple protocols that interface with HTML formatting.
+                    regExp = re.compile(r'\s[a-zA-Z0-9]*_[a-zA-Z0-9_]*\s')
+                    if regExp.search(line):
+                        # Save matched string to variable
+                        regexMatchList = regExp.findall(line)
+                        # Strip first and last character (whitespace) of string
+                        regexMatchStr = regexMatchList[0][1:-1]
+                        # Add commas back in to beginning and end of line
+                        regexMatchStr = ',' + regexMatchStr + ','
+                        # Insert modified substring back into line
+                        line = re.sub(regExp, regexMatchStr, line)
+
+                    # Remove any single spaces in front of commas
+                    line = line.replace(' ,', ',')
+                    tableBody.append(line)
+
+            return tableHeader, tableBody
 
     def pull_interface_statistics(self, activeSession):
         """Retrieve statistics for interface on device."""
@@ -64,10 +112,10 @@ class CiscoIOS(CiscoBaseDevice):
     def pull_interface_info(self, activeSession):
         """Retrieve various informational command output for interface on device."""
         intConfig = self.pull_interface_config(activeSession)
-        intMac = self.pull_interface_mac_addresses(activeSession)
+        intMacHead, intMacBody = self.pull_interface_mac_addresses(activeSession)
         intStats = self.pull_interface_statistics(activeSession)
 
-        return intConfig, intMac, intStats
+        return intConfig, intMacHead, intMacBody, intStats
 
     def pull_device_uptime(self, activeSession):
         """Retrieve device uptime."""

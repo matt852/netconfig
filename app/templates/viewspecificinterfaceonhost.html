@@ -13,13 +13,29 @@
 			<br /><br />
 			<div class="table-responsive">
 				<table class="table table-striped table-hover table-condensed">
+					{% autoescape false %}
+					<tr>
+						{% for x in intMacHead.split(',') %}
+							<th>{{ x }}</th>
+						{% endfor %}
+					</tr>
+					{% for x in intMacBody %} <!-- x is a single line in the array -->
+						<tr>
+							{% for y in x.split(',') %} <!-- y is a single word in the line -->
+								{% if y %}
+									<td>{{ y }}</td>
+								{% endif %}
+							{% endfor %}
+						</tr>
+					{% endfor %}
+					{% endautoescape %}
+					<!--
 				    {% for mac in intMac %}
 		    			<tr>
 			    			{% if loop.index0 == 0 %}
 			    				{% if host.ios_type == 'cisco_ios' or host.ios_type == 'cisco_xe' %}
 				    				<th>Vlan</th>
 				    				<th>Mac Address</th>
-				    				<!--<th>IP Address</th>-->
 				    				<th>Type</th>
 				    				<th>Ports</th>
 				    			{% elif host.ios_type == 'cisco_nxos' %}
@@ -46,7 +62,7 @@
 								{% endif %}
 							{% endif %}
 		     			</tr>
-					{% endfor %}
+					{% endfor %}-->
 				</table>
 			</div>
 		</div>

@@ -280,10 +280,11 @@ vi acme_os.py
 <span class="c1">#    activeSession (Netmiko class) - The active, existing SSH session for a device, stored as a Netmiko class</span>
 <span class="c1"># Purpose: Pulls different information about a device, stored into 3 separate arrays:</span>
 <span class="c1">#    interfaceConfig (array) - Configuration settings for the interface</span>
-<span class="c1">#    interfaceMacAddresses (array) - The MAC address table information for the interface. Note: This should only be run on devices that store MAC addresses associated with their interface.  Otherwise simply return an empty string</span>
+<span class="c1">#    interfaceMacAddressesHeader (string) - A string containing the table header for the MAC Address table output, with each column separated by a comma</span>
+<span class="c1">#    interfaceMacAddressesBody (list) - A list with each row containing each line of data in the interface MAC Address table output, with each column separated by a comma.  Note: This should only be run on devices that store MAC addresses associated with their interface.  Otherwise simply return an empty string</span>
 <span class="c1">#    interfaceStatistics (array) - Any relevant interface statistics that should be shown for the interface (Cisco example: show interface FastEthernet0/1)</span>
 <span class="c1"># Output:</span>
-<span class="c1">#    interfaceConfig, interfaceMacAddresses, interfaceStatistics (arrays) - Array specifics detailed above</span>
+<span class="c1">#    interfaceConfig, interfaceMacAddressesHeader, interfaceMacAddressesBody, interfaceStatistics (arrays) - Array specifics detailed above</span>
 
 <span class="k">def</span> <span class="nf">pull_interface_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activeSession</span><span class="p">):</span>
     <span class="c1"># Function logic goes here</span>

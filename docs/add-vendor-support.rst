@@ -266,10 +266,11 @@ These functions and their specific names are required for NetConfig, including t
     #    activeSession (Netmiko class) - The active, existing SSH session for a device, stored as a Netmiko class
     # Purpose: Pulls different information about a device, stored into 3 separate arrays:
     #    interfaceConfig (array) - Configuration settings for the interface
-    #    interfaceMacAddresses (array) - The MAC address table information for the interface. Note: This should only be run on devices that store MAC addresses associated with their interface.  Otherwise simply return an empty string
+    #    interfaceMacAddressesHeader (string) - A string containing the table header for the MAC Address table output, with each column separated by a comma
+    #    interfaceMacAddressesBody (list) - A list with each row containing each line of data in the interface MAC Address table output, with each column separated by a comma.  Note: This should only be run on devices that store MAC addresses associated with their interface.  Otherwise simply return an empty string
     #    interfaceStatistics (array) - Any relevant interface statistics that should be shown for the interface (Cisco example: show interface FastEthernet0/1)
     # Output:
-    #    interfaceConfig, interfaceMacAddresses, interfaceStatistics (arrays) - Array specifics detailed above
+    #    interfaceConfig, interfaceMacAddressesHeader, interfaceMacAddressesBody, interfaceStatistics (arrays) - Array specifics detailed above
     
     def pull_interface_info(self, activeSession):
         # Function logic goes here

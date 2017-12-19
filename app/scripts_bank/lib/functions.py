@@ -179,6 +179,15 @@ def textBlock_len(x):
     return i
 
 
+def countCharOccurences(x, y):
+    """Return number of occurences of a given character in provided string.
+
+    x = the string to check against.
+    y = the character to check for in the string.
+    """
+    return x.count(y)
+
+
 def errorCheckEmptyIncResult(x):
     """Check if variable is empty or Incomplete.
 
