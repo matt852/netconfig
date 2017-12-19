@@ -1,10 +1,39 @@
-  {% if session['USER'] %}
-    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Active Sessions <b class="caret"></b></a>
-    <ul class="dropdown-menu">
+
+  {% if session['USER'] and hosts %}
+    <a href="#" class="dropdown dropdown-toggle" data-toggle="dropdown">Active Sessions <b class="caret"></b></a>
+    <ul class="dropdown-menu" role="menu">
       {% for host in hosts %}
-        <li><a href="/db/viewhosts/{{ host.id }}">{{ host.hostname }}</a></li>
+        <div class="input-group">
+          <li><a href="/db/viewhosts/{{ host.id }}">{{ host.hostname }}</a> <a href="/calldisconnectspecificsshsession/{{ host.id }}" class="btn btn-xs btn-danger" title="Disconnect SSH Session"><i class="glyphicon glyphicon-ban-circle" aria-hidden="true"></i></a></li>
+        </div>
       {% endfor %}
     </ul>
   {% else %}
     <a href="#">Active Sessions</a>
   {% endif %}
+
+<!--
+{% if session['USER'] and hosts %}
+  <div class="dropdown">
+    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Active Sessions <b class="caret"></b>
+    </button>
+    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+      {% for host in hosts %}
+        <a class="dropdown-item" href="/db/viewhosts/{{ host.id }}">{{ host.hostname }}</a> <a href="/calldisconnectspecificsshsession/{{ host.id }}" class="btn btn-xs btn-danger" title="Disconnect SSH Session"><i class="glyphicon glyphicon-ban-circle" aria-hidden="true"></i></a>
+      {% endfor %}
+    </div>
+  </div>
+{% endif %}
+-->
+<!--
+{% if session['USER'] and hosts %}
+    <a href="#" class="dropdown dropdown-toggle" data-toggle="dropdown">Active Sessions <b class="caret"></b></a>
+    <ul class="dropdown-menu" role="menu">
+      {% for host in hosts %}
+        <a class="dropdown-item" href="/db/viewhosts/{{ host.id }}">{{ host.hostname }}</a> <a href="/calldisconnectspecificsshsession/{{ host.id }}" class="btn btn-xs btn-danger" title="Disconnect SSH Session"><i class="glyphicon glyphicon-ban-circle" aria-hidden="true"></i></a>
+      {% endfor %}
+    </div>
+  </div>
+{% endif %}
+-->

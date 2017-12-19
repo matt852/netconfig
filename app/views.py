@@ -507,6 +507,22 @@ def viewSpecificHost(x):
                                totalInt=totalInt)
 
 
+@app.route('/calldisconnectspecificsshsession/<hostID>')
+def callDisconnectSpecificSSHSession(hostID):
+    """Disconnect any SSH sessions for a specific host from all users.
+
+    hostID = ID of host to disconnect.
+    """
+    host = db_modifyDatabase.retrieveHostByID(hostID)
+    # Disconnect device.
+    try:
+        disconnectSpecificSSHSession(host)
+    except:
+        # Log error if unable to disconnect specific SSH session
+        writeToLog('unable to disconnect SSH session to provided host %s from user %s' % (host.hostname, session['USER']))
+    return redirect(url_for('viewHosts'))
+
+
 ######################
 # Confirmation pages #
 ######################
