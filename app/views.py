@@ -1,5 +1,7 @@
 import logging
 
+import operator
+
 import socket
 
 from datetime import timedelta
@@ -185,9 +187,11 @@ def getNamesOfSSHSessionDevices():
         # y[0] is host id
         # y[1] is uuid
         if str(y[1]) == str(session['UUID']):
-            # Get hostname of device by y[0] (host.id)
-            # hostList.append(db_modifyDatabase.getHostnameByID(y[0]))
+            # Get host by y[0] (host.id)
             hostList.append(db_modifyDatabase.retrieveHostByID(y[0]))
+
+    # Reorder list in alphabetical order
+    hostList = sorted(hostList, key=operator.attrgetter('hostname'))
 
     return hostList
 

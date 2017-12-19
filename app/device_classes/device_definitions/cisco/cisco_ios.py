@@ -60,6 +60,7 @@ class CiscoIOS(CiscoBaseDevice):
             # Stores table body data as array
             tableBody = []
 
+            # Remove any asterisks
             result = result.replace('*', '')
 
             # In IOS-XE, there are multiple protocols separated by commas.

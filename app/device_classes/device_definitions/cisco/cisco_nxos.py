@@ -49,9 +49,42 @@ class CiscoNXOS(CiscoBaseDevice):
 
     def pull_interface_mac_addresses(self, activeSession):
         """Retrieve MAC address table for interface on device."""
-        command = "show mac address-table interface %s | exclude VLAN | exclude Legend" % (self.interface)
+        command = "show mac address-table interface %s" % (self.interface)
+        # command = "show mac address-table interface %s | exclude VLAN | exclude Legend" % (self.interface)
         result = self.run_ssh_command(command, activeSession)
-        return self.split_on_newline(self.replace_double_spaces_commas(result).replace('*', ''))
+
+        if self.check_invalid_input_detected(result):
+            return ''
+        else:
+            # Statically configure the table header as string
+            # Need to configure to dynamically pull it later, as it is the line before the ----- seperator line
+            tableHeader = "Vlan,Mac Address,Type,Age,Secure,NTFY,Ports"
+            # Stores table body data as array
+            tableBody = []
+
+            # Remove any asterisks
+            result = result.replace('*', '')
+
+            # In IOS-XE, there are multiple protocols separated by commas.
+            # Separate these by underscores instead to preserve formatting in HTML output
+            result = result.replace(',', '_')
+            result = self.replace_double_spaces_commas(result)
+            result = self.split_on_newline(result)
+
+            # Set to False while we cycle through any unnecessary header info in the output
+            loopData = False
+
+            for line in result:
+                if loopData:
+                    # Remove any single spaces in front of commas
+                    line = line.replace(' ,', ',')
+                    tableBody.append(line)
+                # Continue until we find the line separator of all dashes
+                elif '---' in line:
+                    # The rest of the output is the data we want
+                    loopData = True
+
+            return tableHeader, tableBody
 
     def pull_interface_statistics(self, activeSession):
         """Retrieve statistics for interface on device."""
@@ -61,10 +94,10 @@ class CiscoNXOS(CiscoBaseDevice):
     def pull_interface_info(self, activeSession):
         """Retrieve various informational command output for interface on device."""
         intConfig = self.pull_interface_config(activeSession)
-        intMac = self.pull_interface_mac_addresses(activeSession)
+        intMacHead, intMacBody = self.pull_interface_mac_addresses(activeSession)
         intStats = self.pull_interface_statistics(activeSession)
 
-        return intConfig, intMac, intStats
+        return intConfig, intMacHead, intMacBody, intStats
 
     def pull_device_uptime(self, activeSession):
         """Retrieve device uptime."""
