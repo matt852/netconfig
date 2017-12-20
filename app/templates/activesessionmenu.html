@@ -2,7 +2,11 @@
     <a href="#" class="dropdown dropdown-toggle" data-toggle="dropdown">Active Sessions <b class="caret"></b></a>
     <ul class="dropdown-menu" role="menu">
       {% for host in hosts %}
-          <li id="inlineSSHLine"><a id="inlineBtnText" href="/db/viewhosts/{{ host.id }}">{{ host.hostname }}</a> <a id="inlineBtnIcon" href="/calldisconnectspecificsshsession/{{ host.id }}" class="btn btn-xs btn-danger pull-right" title="Disconnect SSH Session to {{ host.hostname }}"><i class="glyphicon glyphicon-ban-circle" style="color:white" aria-hidden="true"></i></a></li>
+          <li>
+            <div class="inlineSSHLine">
+              <a class="pull-left inlineBtnText" href="/db/viewhosts/{{ host.id }}">{{ host.hostname }}</a> <a href="/calldisconnectspecificsshsession/{{ host.id }}" class="btn btn-xs btn-danger pull-right inlineBtnIcon" title="Disconnect SSH Session to {{ host.hostname }}"><i class="glyphicon glyphicon-ban-circle" style="color:white" aria-hidden="true"></i></a>
+            </div>
+          </li>
       {% endfor %}
     </ul>
   {% else %}

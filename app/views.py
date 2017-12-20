@@ -192,8 +192,15 @@ def getNamesOfSSHSessionDevices():
 
     # Reorder list in alphabetical order
     hostList = sorted(hostList, key=operator.attrgetter('hostname'))
-
     return hostList
+    '''
+    newList = []
+    for a in hostList:
+        a = (hostList[:8] + '..') if len(hostList) > 8 else hostList
+        newList.append(a)
+
+    return newList
+    '''
 
 
 def interfaceReplaceSlash(x):
