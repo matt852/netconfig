@@ -10,6 +10,38 @@ code {
 .pre-scrollable {  /* Overrides bootstrap settings for pre-scrollable */
     max-height: 100vh;
 }
+.inlineSSHLine {
+    width: 30ch;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;"
+    display: inline!important;
+    padding-top: 6px;
+    padding-right:10px;
+    padding-left: 10px;
+}
+.inlineSSHLine:focus, .inlineSSHLine:hover {
+    color: #262626;
+    text-decoration: none;
+    background-color: #f5f5f5;
+}
+.inlineBtnText {
+    width: 80%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;"
+    display: inline!important;
+    padding-right: 5px;
+    padding-bottom: 3px;
+    padding-left: 10px;
+    color: #333;
+    text-decoration: none;
+}
+.inlineBtnText:focus, .inlineBtnText:hover {
+    color: #262626;
+    background-color: #f5f5f5;
+    text-decoration: none;
+}
 #loading {
   display: none;
 }

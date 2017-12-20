@@ -1,5 +1,7 @@
 import logging
 
+import operator
+
 import socket
 
 from datetime import timedelta
@@ -18,7 +20,6 @@ from redis import StrictRedis
 from scripts_bank import db_modifyDatabase
 from scripts_bank import netboxAPI
 from scripts_bank import ping_hosts as ph
-from scripts_bank import pull_host_interfaces as phi
 from scripts_bank.lib import functions as fn
 from scripts_bank.lib.flask_functions import checkUserLoggedInStatus
 from scripts_bank.lib.netmiko_functions import disconnectFromSSH, getSSHSession
@@ -151,7 +152,11 @@ def disconnectAllSSHSessions():
             ssh = fn.removeDictKey(ssh, x)
             writeToLog('disconnected SSH session to device %s for user %s' % (host.hostname, y[1]))
 
-    writeToLog('disconnected all SSH sessions for user %s' % (session['USER']))
+    # Try statement needed as 500 error thrown if user is not currently logged in.
+    try:
+        writeToLog('disconnected all SSH sessions for user %s' % (session['USER']))
+    except:
+        writeToLog('disconnected all SSH sessions without an active user logged in')
 
 
 def countAllSSHSessions():
@@ -169,6 +174,33 @@ def countAllSSHSessions():
             i += 1
 
     return i
+
+
+def getNamesOfSSHSessionDevices():
+    """Return list of hostnames for all devices with an existing active connection."""
+    global ssh
+
+    hostList = []
+    for x in ssh:
+        # x is id-uuid
+        y = x.split('--')
+        # y[0] is host id
+        # y[1] is uuid
+        if str(y[1]) == str(session['UUID']):
+            # Get host by y[0] (host.id)
+            hostList.append(db_modifyDatabase.retrieveHostByID(y[0]))
+
+    # Reorder list in alphabetical order
+    hostList = sorted(hostList, key=operator.attrgetter('hostname'))
+    return hostList
+    '''
+    newList = []
+    for a in hostList:
+        a = (hostList[:8] + '..') if len(hostList) > 8 else hostList
+        newList.append(a)
+
+    return newList
+    '''
 
 
 def interfaceReplaceSlash(x):
@@ -283,10 +315,20 @@ def logout():
     writeToLog('logged out')
 
     # Delete user saved in Redis
-    user_id = str(g.db.hget('users', session['USER']))
-    g.db.delete(str(user_id))
+    try:
+        user_id = str(g.db.hget('users', session['USER']))
+        g.db.delete(str(user_id))
+        writeToLog('deleted user %s data stored in Redis' % (session['USER']))
+    except:
+        writeToLog('did not delete user data stored in Redis as no user currently logged in')
     # Remove the username from the session if it is there
-    session.pop('USER', None)
+    try:
+        t = session['USER']
+        session.pop('USER', None)
+        writeToLog('deleted user %s as stored in session variable' % (t))
+    except:
+        writeToLog('did not delete user data stored in session variable as no user currently logged in')
+
     return redirect(url_for('index'))
 
 
@@ -300,11 +342,25 @@ def disconnectAllSSH():
 
 @app.route('/getsshsessionscount')
 def getSSHSessionsCount():
-    """Get number of saved/stored SSH sessions."""
-    # x = host id
+    """Get number of saved/stored SSH sessions.
+
+    x = host id
+    """
     initialChecks()
     count = countAllSSHSessions()
-    return jsonify(count)
+    return jsonify(count=count)
+
+
+@app.route('/displayactivedevicenames')
+def displayActiveDeviceNames():
+    """Get names of devices with existing saved/stored SSH sessions.
+
+    x = host id
+    """
+    initialChecks()
+    hosts = getNamesOfSSHSessionDevices()
+    return render_template("/activesessionmenu.html",
+                           hosts=hosts)
 
 
 @app.route('/db/addhosts', methods=['GET', 'POST'])
@@ -420,8 +476,10 @@ def deviceUptime(x):
 
 @app.route('/db/viewhosts/<x>', methods=['GET'])
 def viewSpecificHost(x):
-    """Display specific device page."""
-    # x is host.id
+    """Display specific device page.
+
+    x is host.id
+    """
     initialChecks()
 
     # This fixes page refresh issue when clicking on a Modal
@@ -458,6 +516,22 @@ def viewSpecificHost(x):
                                downInt=downInt,
                                disabledInt=disabledInt,
                                totalInt=totalInt)
+
+
+@app.route('/calldisconnectspecificsshsession/<hostID>')
+def callDisconnectSpecificSSHSession(hostID):
+    """Disconnect any SSH sessions for a specific host from all users.
+
+    hostID = ID of host to disconnect.
+    """
+    host = db_modifyDatabase.retrieveHostByID(hostID)
+    # Disconnect device.
+    try:
+        disconnectSpecificSSHSession(host)
+    except:
+        # Log error if unable to disconnect specific SSH session
+        writeToLog('unable to disconnect SSH session to provided host %s from user %s' % (host.hostname, session['USER']))
+    return redirect(url_for('viewHosts'))
 
 
 ######################
@@ -768,14 +842,15 @@ def modalSpecificInterfaceOnHost(x, y):
     # Replace's '_' with '.'
     host.interface = interface.replace('=', '.')
 
-    intConfig, intMac, intStats = host.pull_interface_info(activeSession)
+    intConfig, intMacHead, intMacBody, intStats = host.pull_interface_info(activeSession)
     macToIP = ''
     writeToLog('viewed interface %s on host %s' % (interface, host.hostname))
     return render_template("/viewspecificinterfaceonhost.html",
                            host=host,
                            interface=interface,
                            intConfig=intConfig,
-                           intMac=intMac,
+                           intMacHead=intMacHead,
+                           intMacBody=intMacBody,
                            macToIP=macToIP,
                            intStats=intStats)
 
@@ -796,8 +871,10 @@ def modalEditInterfaceOnHost(x, y):
 
     # Removes dashes from interface in URL
     interface = interfaceReplaceSlash(y)
+    # Replace's '_' with '.'
+    host.interface = interface.replace('=', '.')
 
-    intConfig = phi.pullInterfaceConfigSession(activeSession, interface, host)
+    intConfig = host.pull_interface_config(activeSession)
     # Edit form
     form = EditInterfaceForm(request.values, host=host, interface=interface)
 
@@ -830,7 +907,7 @@ def modalInterfaceInfo(x, y):
     # Removes dashes from interface in URL
     interface = interfaceReplaceSlash(y)
 
-    intConfig = phi.pullInterfaceConfigSession(activeSession, interface, host)
+    intConfig = host.pull_interface_config(activeSession)
 
     return render_template("/interfaceinfo.html",
                            host=host,
@@ -885,11 +962,12 @@ def modalCmdShowCDPNeigh(x):
 
     host = db_modifyDatabase.getHostByID(x)
     activeSession = retrieveSSHSession(host)
-    result = host.pull_cdp_neighbor(activeSession)
+    tableHeader, tableBody = host.pull_cdp_neighbor(activeSession)
     writeToLog('viewed CDP neighbors via button on host %s' % (host.hostname))
     return render_template("/cmdshowcdpneigh.html",
                            host=host,
-                           result=result)
+                           tableHeader=tableHeader,
+                           tableBody=tableBody)
 
 
 @app.route('/modalcmdshowinventory/', methods=['GET', 'POST'])

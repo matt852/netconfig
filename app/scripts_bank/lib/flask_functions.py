@@ -1,21 +1,31 @@
 #!/usr/bin/python
 
-import sys
-import os
 from flask import session
 
-# Checks if user is currently logged in
-# Returns True if so, False if not
-def checkUserLoggedInStatus():
-	if 'USER' in session and session['USER']:
-		return True
-	else:
-		return False
 
-# Checks if there's any existing SSH connection
-# Returns True is so, False if not
+def checkUserLoggedInStatus():
+    """Check if user is currently logged in.
+
+    Return True if they are logged in.
+    Return False if not.
+    """
+    try:
+        # Try statement as 500 error thrown if no existing session['USER'] variable set
+        if 'USER' in session and session['USER']:
+            return True
+        else:
+            return False
+    except:
+        return False
+
+
 def checkSSHSessionMatchesID(sshid, hostid):
-	if sshid == hostid:
-		return True
-	else:
-		return False
+    """Check if there's any existing SSH connections.
+
+    Return True if there are.
+    Return False if not.
+    """
+    if sshid == hostid:
+        return True
+    else:
+        return False

@@ -1,45 +1,24 @@
-<!-- This file needs to be completely redone properly to support multiple (non-Cisco) vendors -->
 <div class="container-fluid">
 	<div class="row">
 		<div class="col-md-12">
 			<div class="table-responsive">
 				<table class="table table-striped table-hover table-condensed">
-					{% set field1 = [] %}
 					<h2 class="text-primary">CDP Neighbors for {{ host.hostname }}:</h2><br /><br />
 					<p>
 						{% autoescape false %}
-						{% for line in result %}
-							{% if ',' not in line %}
-								{% if field1.append(line) %}{% endif %}
-							{% else %}
-				    			<tr>
-					    			{% if loop.index0 == 0 %}
-										{% set line = line.replace('Intrfce Hldtme', 'Intrfce,Hldtme') %} <!--NXOS-->
-										{% set line = line.replace('Hldtme Capability', 'Hldtme,Capability') %} <!--NXOS-->
-										{% for x in line.split(',') %}
-											<th>{{ x }}</th>
-										{% endfor %}
-					    			{% else %}
-										{% if line != '' and 'Device' not in line %}
-											{% if field1 %}
-												<td>{{ field1[0] }}</td>
-												{% if field1.remove(field1[0]) %}{% endif %}
-											{% endif %}
-											{% set line = line.replace(' Gig ', ',Gig ') %} <!--IOS-->
-											{% set line = line.replace(' Ten ', ',Ten ') %} <!--IOS-->
-											{% set line = line.replace(' Fas ', ',Fas ') %} <!--IOS-->
-											{% set line = line.replace(' Eth ', ',Eth ') %} <!--IOS-->
-											{% set line = line.replace(' eth', ',eth') %} 	<!--NXOS-->
-											{% set line = line.replace(' Port ', ',Port ') %} <!--IOS Polycom Phones-->
-											{% for x in line.split(',') %}
-												{% if x %}
-													<td>{{ x }}</td>
-												{% endif %}
-											{% endfor %}
-										{% endif %}
+						<tr>
+							{% for x in tableHeader.split(',') %}
+								<th>{{ x }}</th>
+							{% endfor %}
+						</tr>
+						{% for x in tableBody %} <!-- x is a single line in the array -->
+							<tr>
+								{% for y in x.split(',') %} <!-- y is a single word in the line -->
+									{% if y %}
+										<td>{{ y }}</td>
 									{% endif %}
-				     			</tr>
-							{% endif %}
+								{% endfor %}
+							</tr>
 						{% endfor %}
 						{% endautoescape %}
 					</p>

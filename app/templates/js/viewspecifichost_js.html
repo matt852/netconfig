@@ -1,5 +1,6 @@
 <script>
 	 $(document).ready(function() {
+		$("#loadUptimeIcon").show();
 	    var events = $('#events');
 	    var table = $('#tblViewSpecificHost').DataTable( {
 	    	"pageLength": {{ config.DEFAULT_DATATABLES_ENTRY_COUNT }},
@@ -121,6 +122,7 @@
 		} );
 
 		// Start Uptime section
+		// Get ID of current device from URL, which are the numbers after the last '/'
 		var loc = location.href.substr(location.href.lastIndexOf('/') + 1);
 		$.ajax({
 			url: '/deviceuptime/' + loc, 
@@ -129,6 +131,7 @@
 				result = result.replace(/\"/g, "") // Remove double quotes from string
 				var divuptime = document.getElementById('hostUptime'); // Get DIV element from HTML page
 				divuptime.innerHTML = result; // Pass string to DIV on HTML page
+				$("#loadUptimeIcon").hide();
 		   }
 		});
 		// End Uptime section

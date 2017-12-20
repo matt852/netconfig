@@ -1,8 +1,6 @@
 <script>
 	$(document).ready(function() {
 		$("#loadIcon").hide();
-		$("#placeholderSpace").show();
-		$("#placeholderConfigMode").hide();
 	} );
 </script>
 <script>
@@ -40,7 +38,6 @@
 				// Do only if cmd box is not empty or contains just a single '?'
 				if ((str) || (e.code == 'Slash' && e.shiftKey)) {
 					$("#loadIcon").show();
-					$("#placeholderSpace").hide();
 
 					// Replace '/' with '_'
 					// '/' doesn't get encoded in 'encodeURI'
@@ -66,7 +63,6 @@
 					$.get(url, function( my_var ) {
 						$('#outputID').prepend(my_var);
 						$("#loadIcon").hide();
-						$("#placeholderSpace").show();
 						// Erase input box once submitted
 						if ((e.code == 'Enter') || (e.code == 'NumpadEnter')) {
 							document.getElementById('cmdInput').value = "";

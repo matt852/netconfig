@@ -3,7 +3,7 @@ from device_definitions.cisco import CiscoIOS, CiscoNXOS, CiscoASA
 # The keys of this dictionary are the supported device_types
 CLASS_MAPPER = {
     'cisco_ios': CiscoIOS,
-    'cisco_iosxe': CiscoIOS,
+    'cisco_xe': CiscoIOS,
     'cisco_nxos': CiscoNXOS,
     'cisco_asa': CiscoASA
 }

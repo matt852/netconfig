@@ -1,16 +1,13 @@
 from app import app, db, models
-from urllib2 import urlopen
-from json import load
-from sqlalchemy import asc, desc, func
+from sqlalchemy import asc, func
 from lib.ip_functions import validateIPAddress
 from lib.functions import stripNewline
 import netboxAPI
 from ..device_classes import deviceType as dt
 
 
-# Adds host to Database
-# Returns True if successful
 def addHostToDB(hostname, ipv4_addr, type, ios_type):
+    """Add host to database.  Returns True if successful."""
     try:
         host = models.Host(hostname=hostname, ipv4_addr=ipv4_addr, type=type, ios_type=ios_type)
         db.session.add(host)
@@ -21,10 +18,13 @@ def addHostToDB(hostname, ipv4_addr, type, ios_type):
     except:
         return False, 0
 
-# Import hosts to Database
-# Returns True if successful
-# Format: Hostname,IPAddress,DeviceType,IOSType
+
 def importHostsToDB(csvImport):
+    """Import hosts to database.
+
+    Returns True if successful
+    Format: Hostname,IPAddress,DeviceType,IOSType
+    """
     # For each line in csvImport, run validation checks
     for x in csvImport.split('\n'):
         if x:
@@ -50,13 +50,13 @@ def importHostsToDB(csvImport):
             ipv4_addr = xArray[1]
 
             if xArray[2].lower() == 'switch':
-                type="Switch"
+                type = "Switch"
             elif xArray[2].lower() == 'router':
-                type="Router"
+                type = "Router"
             elif xArray[2].lower() == 'firewall':
-                type="Firewall"
+                type = "Firewall"
             else:
-                type="Error"
+                type = "Error"
 
             if stripNewline(xArray[3].lower()) == 'ios':
                 ios_type = "cisco_ios"
@@ -77,13 +77,16 @@ def importHostsToDB(csvImport):
                 db.session.commit()
             except:
                 return False, "Error during import of devices into database"
-    
+
     return True, "Successfully added all %s devices" % (len(csvImport))
 
-# Removes host from Database
-# Returns True if successful
+
 def deleteHostInDB(x):
-    # x is the host ID
+    """Remove host from database.
+
+    Returns True if successful.
+    x is the host ID
+    """
     try:
         host = models.Host.query.filter_by(id=x).first()
         db.session.delete(host)
@@ -91,40 +94,79 @@ def deleteHostInDB(x):
         return True
     except:
         return False
-    
+
 
 def getHosts(page):
+    """Get certain number of devices in database."""
     hosts = models.Host.query.order_by(asc(models.Host.hostname)).paginate(page, app.config['POSTS_PER_PAGE'], False)
     return hosts
 
+
 def getHostsAll():
+    """Get all devices in database."""
     hosts = models.Host.query.all()
     return hosts
 
+
 def getHostByHostname(x):
-    host = models.Host.query.filter(func.lower(models.Host.hostname) == func.lower(x)).first() # <-- not case sensitve
+    """Get device in database by hostname."""
+    host = models.Host.query.filter(func.lower(models.Host.hostname) == func.lower(x)).first()  # <-- not case sensitve
     return host
 
+
 def getHostIDbyHostname(x):
+    """Get device ID in database by hostname."""
     host = models.Host.query.filter_by(hostname=x).first()
     return host.id
 
-def getHostByID(x):
-    # Adds support for Netbox API queries
+
+def retrieveHostByID(x):
+    """Get device by ID, regardless of data store location.
+
+    Support local database or Netbox inventory.
+    Does not return SSH session.
+    x = host id
+    """
     if app.config['DATALOCATION'] == 'local':
-      host = models.Host.query.filter_by(id=x).first()
+        host = models.Host.query.filter_by(id=x).first()
     elif app.config['DATALOCATION'] == 'netbox':
-      host = netboxAPI.getHostByID(x)
+        host = netboxAPI.getHostByID(x)
+
+    return host
+
+
+def getHostByID(x):
+    """Get device by ID along with active Netmiko SSH session.
+
+    x = host id
+    """
+    host = retrieveHostByID(x)
 
     # Get host class based on device type
     return dt.DeviceHandler(id=host.id, hostname=host.hostname, ipv4_addr=host.ipv4_addr, type=host.type, ios_type=host.ios_type)
 
+
+def getHostnameByID(x):
+    """Get device name by ID.
+
+    x = id
+    """
+    host = retrieveHostByID(x)
+
+    return str(host.hostname)
+
+
 def getHostsByIOSType(x):
+    """Get devices by IOS type."""
     hosts = models.Host.query.filter_by(ios_type=x)
     return hosts
 
+
 def editHostInDatabase(originalHostID, hostname, ipv4_addr, hosttype, ios_type):
-    # This is only supported when using the local database
+    """Edit device in database.
+
+    This is only supported when using the local database.
+    """
     if app.config['DATALOCATION'] == 'local':
         try:
             host = models.Host.query.filter_by(id=originalHostID).first()
@@ -143,9 +185,14 @@ def editHostInDatabase(originalHostID, hostname, ipv4_addr, hosttype, ios_type):
     else:
         return False
 
-# Return True if provided host IP address is in database, False if not
-# Also returns hostname of device
+
 def searchHostInDB(x):
+    """Determine if provided IP address is in database.
+
+    Return True if provided host IP address is in database.
+    False if it is not.
+    Also returns hostname of device.
+    """
     try:
         host = models.Host.query.filter_by(ipv4_addr=x).first()
         if host:
@@ -154,35 +201,3 @@ def searchHostInDB(x):
             return False, ''
     except:
         return False, ''
-
-'''
-# Sessions
-def addSessionToDB(ssh_session, hostID):
-    try:
-        x = models.Session(ssh_session=ssh_session, hostID=hostID)
-        db.session.add(x)
-        db.session.commit()
-        print('Storing in DB works')
-
-    except IOError:
-        print('An error occured trying to read the file.')
-    
-    except ValueError:
-        print('Non-numeric data found in the file.')
-
-    except ImportError:
-        print "No module found"
-        
-    except EOFError:
-        print('Why did you do an EOF on me?')
-
-    except KeyboardInterrupt:
-        print('You cancelled the operation.')
-
-    except:
-        print('An error occured.')
-
-def getSessionInDB(x):
-    session = models.Session.query.filter_by(id=x).first()
-    return session
-'''
