@@ -29,40 +29,6 @@
 						</tr>
 					{% endfor %}
 					{% endautoescape %}
-					<!--
-				    {% for mac in intMac %}
-		    			<tr>
-			    			{% if loop.index0 == 0 %}
-			    				{% if host.ios_type == 'cisco_ios' or host.ios_type == 'cisco_xe' %}
-				    				<th>Vlan</th>
-				    				<th>Mac Address</th>
-				    				<th>Type</th>
-				    				<th>Ports</th>
-				    			{% elif host.ios_type == 'cisco_nxos' %}
-				    				<th>Vlan</th>
-				    				<th>Mac Address</th>
-				    				<th>Type</th>
-				    				<th>Age</th>
-				    				<th>Secure</th>
-				    				<th>NTFY</th>
-				    				<th>Ports</th>
-				    			{% endif %}
-			    			{% else %}
-								{% if 'Mac' not in mac and '-' not in mac %}
-									{% for x in mac.split(',') %}
-										{% if x %}
-											{% if macToIP[x] %}
-												<td>{{ x }}</td>
-												<td>{{ macToIP[x] }}</td>
-											{% else %}
-						    					<td>{{ x }}</td>
-											{% endif %}
-					    				{% endif %}
-									{% endfor %}
-								{% endif %}
-							{% endif %}
-		     			</tr>
-					{% endfor %}-->
 				</table>
 			</div>
 		</div>
