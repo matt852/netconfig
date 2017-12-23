@@ -2,6 +2,7 @@ from ..cisco_base_device import CiscoBaseDevice
 import re
 import xml.etree.cElementTree as ET
 from StringIO import StringIO
+from ....scripts_bank.lib.functions import containsSkipped
 
 
 class CiscoNXOS(CiscoBaseDevice):
@@ -113,84 +114,101 @@ class CiscoNXOS(CiscoBaseDevice):
         command = "show interface status | xml"
         result = self.run_ssh_command(command, activeSession)
 
-        # Returns False if nothing was returned
-        if not result:
-            return result
-        result = re.findall("\<\?xml.*reply\>", result, re.DOTALL)
-        # Strip namespaces
-        it = ET.iterparse(StringIO(result[0]))
-        for _, el in it:
-            if '}' in el.tag:
-                el.tag = el.tag.split('}', 1)[1]  # strip all namespaces
-        root = it.root
+        tableHeader = 'Interface,IPv4 Address,Name,State,Speed,Options'
 
-        # This variable is to skip the first instance of "ROW_interface" in the XML output
-        a = False
-        nameStatus = False
-        for elem in root.iter():
-            if a:
-                if not elem.tag.isspace() and not elem.text.isspace():
-                    # This is in case there is no name/description:
-                    # Reset counter var to True on each loop back to a new 'interface'
-                    if elem.tag == 'interface':
-                        nameStatus = True
-                    # Name input provided, set var to False to skip the '--' ahead
-                    elif elem.tag == 'name':
-                        nameStatus = False
-                    # No Name column provided, use '--' instead
-                    elif elem.tag == 'state' and nameStatus:
-                        outputResult = outputResult + 'ip,--,'
+        # If unable to pull interfaces, return False for both variables
+        if containsSkipped(result) or not result:
+            return False, False
+        else:
+            result = re.findall("\<\?xml.*reply\>", result, re.DOTALL)
+            # Strip namespaces
+            it = ET.iterparse(StringIO(result[0]))
+            for _, el in it:
+                if '}' in el.tag:
+                    el.tag = el.tag.split('}', 1)[1]  # strip all namespaces
+            root = it.root
 
-                    # Skip certain columns
-                    if elem.tag == 'vlan' or elem.tag == 'duplex' or elem.tag == 'type':
-                        pass
-                    # Placeholder 'ip' for upcoming IP address lookup in new function
-                    elif elem.tag == 'name':
-                        # Truncate description (name column) to 25 characters only
-                        outputResult = outputResult + 'ip,' + elem.text[:25] + ','
-                    # Otherwise store output to string
-                    else:
-                        outputResult = outputResult + elem.text + ','
+            # This variable is to skip the first instance of "ROW_interface" in the XML output
+            a = False
+            nameStatus = False
+            for elem in root.iter():
+                if a:
+                    if not elem.tag.isspace() and not elem.text.isspace():
+                        # This is in case there is no name/description:
+                        # Reset counter var to True on each loop back to a new 'interface'
+                        if elem.tag == 'interface':
+                            nameStatus = True
+                        # Name input provided, set var to False to skip the '--' ahead
+                        elif elem.tag == 'name':
+                            nameStatus = False
+                        # No Name column provided, use '--' instead
+                        elif elem.tag == 'state' and nameStatus:
+                            outputResult = outputResult + 'ip,--,'
 
-            # This is to skip the first instance of "ROW_interface" in the XML output
-            if elem.tag == 'ROW_interface':
-                outputResult = outputResult + '\n'
-                a = True
+                        # Skip certain columns
+                        if elem.tag == 'vlan' or elem.tag == 'duplex' or elem.tag == 'type':
+                            pass
+                        # Placeholder 'ip' for upcoming IP address lookup in new function
+                        elif elem.tag == 'name':
+                            # Truncate description (name column) to 25 characters only
+                            outputResult = outputResult + 'ip,' + elem.text[:25] + ','
+                        elif elem.tag == 'speed':
+                            if elem.text == 'a-1000' or elem.text == '1000':
+                                elem.text = '1 Gbps'
+                            elif elem.text == 'auto':
+                                elem.text = 'Auto'
+                            elif elem.text == 'a-10G' or elem.text == '10G':
+                                elem.text = '10 Gbps'
+                            elif elem.text == 'a-100' or elem.text == '100':
+                                elem.text = '100 Mbps'
+                            else:
+                                pass
+                            outputResult = outputResult + elem.text + ','
+                        # Otherwise store output to string
+                        else:
+                            outputResult = outputResult + elem.text + ','
 
-        command = 'sh run int | egrep interface|ip.address | ex passive | ex !'
+                # This is to skip the first instance of "ROW_interface" in the XML output
+                if elem.tag == 'ROW_interface':
+                    outputResult = outputResult + '\n'
+                    a = True
 
-        result = self.run_ssh_command(command, activeSession)
+            command = 'sh run int | egrep interface|ip.address | ex passive | ex !'
 
-        # Set intStatus var to False initially
-        intStatus = 0
-        # Keeps track of the name of the interface we're on currently
-        currentInt = ''
-        realIP = ''
-        realIPList = []
-        # This extracts the IP addresses for each interface, and inserts them into the outputResult string
-        for x in self.split_on_newline(result):
-            # Line is an interface
-            if 'interface' in x:
-                currentInt = x.split(' ')
-                intStatus += 1
+            result = self.run_ssh_command(command, activeSession)
 
-            # No IP address, so use '--' instead
-            if 'interface' in x and intStatus == 2:
-                # Reset counter
-                intStatus = 1
-                a = currentInt[1] + ',ip'
-                b = currentInt[1] + ',--'
-            else:
-                realIPList = x.split(' ')
-                realIP = realIPList[-1]
-                a = currentInt[1] + ',ip'
-                b = currentInt[1] + ',' + realIP
-                outputResult = outputResult.replace(a, b)
+            # Set intStatus var to False initially
+            intStatus = 0
+            # Keeps track of the name of the interface we're on currently
+            currentInt = ''
+            realIP = ''
+            realIPList = []
+            # This extracts the IP addresses for each interface, and inserts them into the outputResult string
+            for x in self.split_on_newline(result):
+                # Line is an interface
+                if 'interface' in x:
+                    currentInt = x.split(' ')
+                    intStatus += 1
 
-        # Cleanup any remaining instances of 'ip' in outputResult
-        outputResult = outputResult.replace(',ip,', ',--,')
-        # Split by newlines and return as list
-        return self.split_on_newline(outputResult)
+                # No IP address, so use '--' instead
+                if 'interface' in x and intStatus == 2:
+                    # Reset counter
+                    intStatus = 1
+                    a = currentInt[1] + ',ip'
+                    b = currentInt[1] + ',--'
+                else:
+                    realIPList = x.split(' ')
+                    realIP = realIPList[-1]
+                    a = currentInt[1] + ',ip'
+                    b = currentInt[1] + ',' + realIP
+                    outputResult = outputResult.replace(a, b)
+
+            # Cleanup any remaining instances of 'ip' in outputResult
+            outputResult = outputResult.replace(',ip,', ',--,')
+            # Split by newlines
+            outputResult = self.split_on_newline(outputResult)
+            # Return interfaces
+            return tableHeader, outputResult
 
     def count_interface_status(self, interfaces):
         """Return count of interfaces.

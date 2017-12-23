@@ -1,4 +1,5 @@
 from ..cisco_base_device import CiscoBaseDevice
+from ....scripts_bank.lib.functions import containsSkipped
 
 
 class CiscoASA(CiscoBaseDevice):
@@ -67,10 +68,16 @@ class CiscoASA(CiscoBaseDevice):
         """Retrieve list of interfaces on device."""
         command = "show interface ip brief"
         result = self.run_ssh_command(command, activeSession)
-        # Returns False if nothing was returned
-        if not result:
-            return result
-        return self.split_on_newline(self.cleanup_ios_output(result))
+        result = self.cleanup_ios_output(result)
+        result = self.split_on_newline(result)
+
+        tableHeader = 'Interface,IPv4 Address,Status,Protocol,Options'
+
+        # If unable to pull interfaces, return False for both variables
+        if containsSkipped(result) or not result:
+            return False, False
+        else:
+            return tableHeader, result
 
     def count_interface_status(self, interfaces):
         """Return count of interfaces.

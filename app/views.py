@@ -497,7 +497,7 @@ def viewSpecificHost(x):
     # Get any existing SSH sessions
     activeSession = retrieveSSHSession(host)
 
-    interfaces = host.pull_host_interfaces(activeSession)
+    tableHeader, interfaces = host.pull_host_interfaces(activeSession)
 
     if interfaces:
         upInt, downInt, disabledInt, totalInt = host.count_interface_status(interfaces)
@@ -511,6 +511,7 @@ def viewSpecificHost(x):
     else:
         return render_template("/db/viewspecifichost.html",
                                host=host,
+                               tableHeader=tableHeader,
                                interfaces=interfaces,
                                upInt=upInt,
                                downInt=downInt,

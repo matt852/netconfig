@@ -59,22 +59,11 @@
 					<table id="tblViewSpecificHost" class="table table-striped table-hover table-condensed display">
 						<thead>
 							<tr>
-			    				{% if host.ios_type == 'cisco_ios' or host.ios_type == 'cisco_asa' or host.ios_type == 'cisco_xe' %}
-			    					<th></th>
-									<th>Interface</th>
-									<th>IPv4 Address</th>
-									<th>Status</th>
-									<th>Protocol</th>
-									<th>Options</th>
-								{% elif host.ios_type == 'cisco_nxos' %}
-			    					<th></th>
-									<th>Interface</th>
-									<th>IPv4 Address</th>
-									<th>Name</th>
-									<th>State</th>
-									<th>Speed</th>
-									<th>Options</th>
-								{% endif %}
+								<!-- Blank column used for checkbox -->
+								<th></th>
+								{% for x in tableHeader.split(',') %}
+									<th>{{ x }}</th>
+								{% endfor %}
 							</tr>
 						</thead>
 						<tbody>
@@ -90,25 +79,7 @@
 														<td id="tdInterface"><a href="modalConfigInterface" data-toggle="modal" data-target="#modalConfigInterface" data-interface="{{ ifaceURL['iface'] }}" onclick="loading();return false;">{{ x }}</a></td>
 													{% else %}
 														{% if not x or x != ' ' %}
-															{% if host.ios_type == 'cisco_nxos' %}
-																{% if loop.index0 == 4 %} <!-- Speed Column -->
-																	{% if x == 'a-1000' or x == '1000' %}
-																		<td>1 Gbps</td>
-																	{% elif x == 'auto' %}
-																		<td>Auto</td>
-																	{% elif x == 'a-10G' or x == '10G' %}
-																		<td>10 Gbps</td>
-																	{% elif x == 'a-100' or x == '100' %}
-																		<td>100 Mbps</td>
-																	{% else %}
-																		<td>{{ x }}</td>
-																	{% endif %}
-																{% else %}
-																	<td>{{ x }}</td>
-																{% endif %}
-															{% else %}
-								    							<td>{{ x }}</td>
-															{% endif %}
+															<td>{{ x }}</td>
 														{% endif %}
 								    				{% endif %}
 							    				{% endif %}
