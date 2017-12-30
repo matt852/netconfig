@@ -65,7 +65,6 @@ Replace "domain.com" with your actual domain name (lines highlighted)
 """"""""""""""""""""""""""""""""""""""""""""""""""
 
 .. code-block:: text
-  :linenos:
   :emphasize-lines: 3, 9
 
     server {
@@ -117,7 +116,6 @@ Create and fill out netconfig.service file
 """""""""""""""""""""""""""""""""""""""""""""""""""
 
 .. code-block:: text
-  :linenos:
 
     [Unit]
     Description=uWSGI instance to serve NetConfig
@@ -158,7 +156,6 @@ Create and fill out netconfig.conf for gUnicorn
 """""""""""""""""""""""""""""""""""""""""""""""""""
 
 .. code-block:: text
-  :linenos:
 
     [program:netconfig]
     command = gunicorn app:app -b localhost:8000
