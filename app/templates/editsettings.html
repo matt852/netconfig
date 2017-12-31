@@ -1,0 +1,30 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+	<div class="row">
+    	<div class="col-md-9">
+			<h2 class="text-primary">NetConfig Settings</h2>
+			<div class="table-responsive">
+				<table id="tblSettings" class="table table-striped table-hover table-condensed display">
+			    <tbody>
+					{% for x in file %}
+						{% if x != '\n' and x != '\r' and '#' not in x %}
+						<tr>
+							<th>{{ x.split('=')[0].rstrip(' ') }}</th>
+							{% if x.split('=')[0].rstrip(' ') == 'SECRET_KEY' %}
+								<td>*</td>
+							{% else %}
+								<td>{{ x.split('=')[1].rstrip('\n') }}</td>
+							{% endif %}
+						</tr>
+						{% endif %}
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+{% endblock %}

@@ -22,6 +22,7 @@ from scripts_bank import netboxAPI
 from scripts_bank import ping_hosts as ph
 from scripts_bank.lib import functions as fn
 from scripts_bank.lib.flask_functions import checkUserLoggedInStatus
+from scripts_bank.lib.functions import readFromFile
 from scripts_bank.lib.netmiko_functions import disconnectFromSSH, getSSHSession
 from scripts_bank.lib.netmiko_functions import sessionIsAlive
 from scripts_bank.run_command import getCfgCmdOutput, getCmdOutputNoCR
@@ -497,7 +498,7 @@ def viewSpecificHost(x):
     # Get any existing SSH sessions
     activeSession = retrieveSSHSession(host)
 
-    interfaces = host.pull_host_interfaces(activeSession)
+    tableHeader, interfaces = host.pull_host_interfaces(activeSession)
 
     if interfaces:
         upInt, downInt, disabledInt, totalInt = host.count_interface_status(interfaces)
@@ -511,6 +512,7 @@ def viewSpecificHost(x):
     else:
         return render_template("/db/viewspecifichost.html",
                                host=host,
+                               tableHeader=tableHeader,
                                interfaces=interfaces,
                                upInt=upInt,
                                downInt=downInt,
@@ -1298,3 +1300,19 @@ def resultsMultiIntEdit(x, y):
 #####################################
 # End Multiple Interface Selections #
 #####################################
+
+
+############
+# Settings #
+############
+
+@app.route('/editsettings', methods=['GET', 'POST'])
+def editSettings():
+    """Modify Netconfig settings."""
+    initialChecks()
+
+    # Import contents of settings file
+    file = readFromFile(app.config['SETTINGSFILE'])
+    return render_template('/editsettings.html',
+                           title='Edit Netconfig settings',
+                           file=file)

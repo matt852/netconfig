@@ -89,83 +89,92 @@ vi acme_base_device.py
 
 <span class="k">def</span> <span class="nf">get_cmd_enter_configuration_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="c1"># Function logic goes here</span>
+    <span class="k">return</span> <span class="n">commandStr</span>
 
 <span class="c1"># Input: None required</span>
 <span class="c1"># Purpose: Provide the command used to enable a specific interface</span>
 <span class="c1"># Output:</span>
-<span class="c1">#    command (string) - Outputs the command used to enable / activate / unshut / bring online an interface for all vendor devices</span>
+<span class="c1">#    commandStr (string) - Outputs the command used to enable / activate / unshut / bring online an interface for all vendor devices</span>
 <span class="c1"># Output Type: String</span>
 
 <span class="k">def</span> <span class="nf">get_cmd_enable_interface</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="c1"># Function logic goes here</span>
+    <span class="k">return</span> <span class="n">commandStr</span>
 
 <span class="c1"># Input: None required</span>
 <span class="c1"># Purpose: Provide the command used to disable a specific interface</span>
 <span class="c1"># Output:</span>
-<span class="c1">#    command (string) - Outputs the command used to disable / deactivate / shutdown / bring offline an interface for all vendor devices</span>
+<span class="c1">#    commandStr (string) - Outputs the command used to disable / deactivate / shutdown / bring offline an interface for all vendor devices</span>
 
 <span class="k">def</span> <span class="nf">get_cmd_disable_interface</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="c1"># Function logic goes here</span>
+    <span class="k">return</span> <span class="n">commandStr</span>
 
 <span class="c1"># Input:</span>
 <span class="c1">#    interface (string) - The name of the interface that is to be enabled</span>
 <span class="c1">#    activeSession (Netmiko class) - The active, existing SSH session for a device, stored as a Netmiko class</span>
 <span class="c1"># Purpose: Enable a specific interface</span>
 <span class="c1"># Output:</span>
-<span class="c1">#    resultsArray (array) - Outputs all command results as displayed the client network device when enabling an interface</span>
+<span class="c1">#    resultsList (list) - Outputs all command results as displayed the client network device when enabling an interface</span>
 
 <span class="k">def</span> <span class="nf">run_enable_interface_cmd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interface</span><span class="p">,</span> <span class="n">activeSession</span><span class="p">):</span>
     <span class="c1"># Function logic goes here</span>
+    <span class="k">return</span> <span class="n">resultsList</span>
 
 <span class="c1"># Input:</span>
 <span class="c1">#    interface (string) - The name of the interface that is to be disabled</span>
 <span class="c1">#    activeSession (Netmiko class) - The active, existing SSH session for a device, stored as a Netmiko class</span>
 <span class="c1"># Purpose: Disable a specific interface</span>
 <span class="c1"># Output:</span>
-<span class="c1">#    resultsArray (array) - Outputs all command results as displayed the client network device when disabling an interface</span>
+<span class="c1">#    resultsList (list) - Outputs all command results as displayed the client network device when disabling an interface</span>
 
 <span class="k">def</span> <span class="nf">run_disable_interface_cmd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interface</span><span class="p">,</span> <span class="n">activeSession</span><span class="p">):</span>
     <span class="c1"># Function logic goes here</span>
+    <span class="k">return</span> <span class="n">resultsList</span>
 
 <span class="c1"># Input:</span>
 <span class="c1">#    activeSession (Netmiko class) - The active, existing SSH session for a device, stored as a Netmiko class</span>
 <span class="c1"># Purpose: Saves the running-configuration settings on the device into memory</span>
 <span class="c1"># Output:</span>
-<span class="c1">#    resultsArray (array) - Outputs all command results as displayed the client network device when enabling an interface, with each new line (separated by carriage return) in its own line in the returned array</span>
+<span class="c1">#    resultsList (list) - Outputs all command results as displayed the client network device when enabling an interface, with each new line (separated by carriage return) in its own line in the returned list</span>
 
 <span class="k">def</span> <span class="nf">save_config_on_device</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activeSession</span><span class="p">):</span>
     <span class="c1"># Function logic goes here</span>
+    <span class="k">return</span> <span class="n">resultsList</span>
 
 <span class="c1"># Input:</span>
 <span class="c1">#    interface (string) - The name of the interface to edit the configuration settings</span>
 <span class="c1">#    datavlan (string) - The data vlan ID to set on the interface.  Note: This is an optional variable, and may submitted as an empty string instead</span>
 <span class="c1">#    voicevlan (string) - The voice vlan ID to set on the interface.  Note: This is an optional variable, and may submitted as an empty string instead</span>
-<span class="c1">#    other (array) - An array (separated by carriage returns) of any additional commands, manually entered by the user, needing to be configured for the specified interface.  Note: This is an optional variable, and may submitted as an empty string instead</span>
+<span class="c1">#    other (list) - A list (separated by carriage returns) of any additional commands, manually entered by the user, needing to be configured for the specified interface.  Note: This is an optional variable, and may submitted as an empty string instead</span>
 <span class="c1">#    activeSession (Netmiko class) - The active, existing SSH session for a device, stored as a Netmiko class</span>
 <span class="c1"># Purpose: Edits the configuration settings for a specific interface on a device</span>
 <span class="c1"># Output:</span>
-<span class="c1">#    resultsArray (array) - Outputs all command results as displayed the client network device when edit an interface, with each new line (separated by carriage return) in its own line in the returned array</span>
+<span class="c1">#    resultsList (list) - Outputs all command results as displayed the client network device when edit an interface, with each new line (separated by carriage return) in its own line in the returned list</span>
 
 <span class="k">def</span> <span class="nf">run_edit_interface_cmd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interface</span><span class="p">,</span> <span class="n">datavlan</span><span class="p">,</span> <span class="n">voicevlan</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">activeSession</span><span class="p">):</span>
     <span class="c1"># Function logic goes here</span>
+    <span class="k">return</span> <span class="n">resultsList</span>
 
 <span class="c1"># Input:</span>
 <span class="c1">#    activeSession (Netmiko class) - The active, existing SSH session for a device, stored as a Netmiko class</span>
 <span class="c1"># Purpose: Pulls any inventory information about the device (Cisco equivalent: &quot;show inventory&quot;)</span>
 <span class="c1"># Output:</span>
-<span class="c1">#    resultsArray (array) - Outputs all command results as displayed by the client network device as returned once executing the command, with each new line (separated by carriage return) in its own line in the returned array</span>
+<span class="c1">#    resultsList (list) - Outputs all command results as displayed by the client network device as returned once executing the command, with each new line (separated by carriage return) in its own line in the returned list</span>
 
 <span class="k">def</span> <span class="nf">pull_inventory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activeSession</span><span class="p">):</span>
     <span class="c1"># Function logic goes here</span>
+    <span class="k">return</span> <span class="n">resultsList</span>
 
 <span class="c1"># Input:</span>
 <span class="c1">#    activeSession (Netmiko class) - The active, existing SSH session for a device, stored as a Netmiko class</span>
 <span class="c1"># Purpose: Pulls any version information about the device (Cisco equivalent: &quot;show version&quot;)</span>
 <span class="c1"># Output:</span>
-<span class="c1">#    resultsArray (array) - Outputs all command results as displayed by the client network device as returned once executing the command.  The array is formatted where each new line of output (as determined by \n [carriage-return]) is separated in the returned array.</span>
+<span class="c1">#    resultsList (list) - Outputs all command results as displayed by the client network device as returned once executing the command.  The list is formatted where each new line of output (as determined by \n [carriage-return]) is separated in the returned list.</span>
 
 <span class="k">def</span> <span class="nf">pull_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activeSession</span><span class="p">):</span>
     <span class="c1"># Function logic goes here</span>
+    <span class="k">return</span> <span class="n">resultsList</span>
 </pre></div>
 </div>
 </div>
@@ -206,6 +215,7 @@ vi acme_os.py
 
 <span class="k">class</span> <span class="nc">AcmeOS</span><span class="p">(</span><span class="n">AcmeBaseDevice</span><span class="p">):</span>
     <span class="c1"># functions go here</span>
+    <span class="k">return</span> <span class="n">x</span>
 </pre></div>
 </div>
 <p>The file has a few functions that are required by the overall NetConfig program.  As NetConfig grows its feature set, more required functions may be added, and will need to be added/updated in here as necessary.</p>
@@ -217,52 +227,58 @@ vi acme_os.py
 <span class="c1">#    activeSession (Netmiko class) - The active, existing SSH session for a device, stored as a Netmiko class</span>
 <span class="c1"># Purpose: Pulls any version information about the device (Cisco equivalent: &quot;show version&quot;)</span>
 <span class="c1"># Output:</span>
-<span class="c1">#    resultsArray (array) - Outputs all command results as displayed by the client network device as returned once executing the command.  The array is formatted where each new line of output (as determined by \n [carriage-return]) is separated in the returned array.</span>
+<span class="c1">#    resultsList (list) - Outputs all command results as displayed by the client network device as returned once executing the command.  The list is formatted where each new line of output (as determined by \n [carriage-return]) is separated in the returned list.</span>
 
 <span class="k">def</span> <span class="nf">pull_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activeSession</span><span class="p">):</span>
     <span class="c1"># Function logic goes here</span>
+    <span class="k">return</span> <span class="n">resultsList</span>
 
 <span class="c1"># Input: None required</span>
 <span class="c1"># Purpose: Provide the command used to display the active/running configuration settings</span>
 <span class="c1"># Output:</span>
-<span class="c1">#    command (string) - Outputs the command used to display the active/running configuration settings</span>
+<span class="c1">#    commandStr (string) - Outputs the command used to display the active/running configuration settings</span>
 
 <span class="k">def</span> <span class="nf">cmd_run_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="c1"># Function logic goes here</span>
+    <span class="k">return</span> <span class="n">commandStr</span>
 
 <span class="c1"># Input: None required</span>
 <span class="c1"># Purpose: Provide the command used to display the saved/startup configuration settings</span>
 <span class="c1"># Output:</span>
-<span class="c1">#    command (string) - Outputs the command used to display the saved/startup configuration settings</span>
+<span class="c1">#    commandStr (string) - Outputs the command used to display the saved/startup configuration settings</span>
 
 <span class="k">def</span> <span class="nf">cmd_start_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="c1"># Function logic goes here</span>
+    <span class="k">return</span> <span class="n">commandStr</span>
 
 <span class="c1"># Input: None required</span>
-<span class="c1"># Purpose: Provide the command used to display the the CDP/LLDP neighbors, with each new line (separated by carriage return) in its own line in the returned array</span>
+<span class="c1"># Purpose: Provide the command used to display the the CDP/LLDP neighbors, with each new line (separated by carriage return) in its own line in the returned list</span>
 <span class="c1"># Output:</span>
-<span class="c1">#    command (string) - Outputs the command used to display the CDP/LLDP neighbors</span>
+<span class="c1">#    commandStr (string) - Outputs the command used to display the CDP/LLDP neighbors</span>
 
 <span class="k">def</span> <span class="nf">cmd_cdp_neighbor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="c1"># Function logic goes here</span>
+    <span class="k">return</span> <span class="n">commandStr</span>
 
 <span class="c1"># Input:</span>
 <span class="c1">#    activeSession (Netmiko class) - The active, existing SSH session for a device, stored as a Netmiko class</span>
 <span class="c1"># Purpose: Pulls the active/running configuration settings for the device</span>
 <span class="c1"># Output:</span>
-<span class="c1">#    resultsArray (array) - Outputs the active/running configuration settings, with each new line (separated by carriage return) in its own line in the returned array</span>
+<span class="c1">#    resultsList (list) - Outputs the active/running configuration settings, with each new line (separated by carriage return) in its own line in the returned list</span>
 
 <span class="k">def</span> <span class="nf">pull_run_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activeSession</span><span class="p">):</span>
     <span class="c1"># Function logic goes here</span>
+    <span class="k">return</span> <span class="n">resultsList</span>
 
 <span class="c1"># Input:</span>
 <span class="c1">#    activeSession (Netmiko class) - The active, existing SSH session for a device, stored as a Netmiko class</span>
 <span class="c1"># Purpose: Pulls the saved/startup configuration settings for the device</span>
 <span class="c1"># Output:</span>
-<span class="c1">#    resultsArray (array) - Outputs the saved/startup configuration settings, with each new line (separated by carriage return) in its own line in the returned array</span>
+<span class="c1">#    resultsList (list) - Outputs the saved/startup configuration settings, with each new line (separated by carriage return) in its own line in the returned list</span>
 
 <span class="k">def</span> <span class="nf">pull_start_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activeSession</span><span class="p">):</span>
     <span class="c1"># Function logic goes here</span>
+    <span class="k">return</span> <span class="n">resultsList</span>
 
 <span class="c1"># Input:</span>
 <span class="c1">#    activeSession (Netmiko class) - The active, existing SSH session for a device, stored as a Netmiko class</span>
@@ -271,13 +287,19 @@ vi acme_os.py
 <span class="c1">#    tableHeader (string) - String containing the table header lines, as retrieved from (usually) the first line of output, with each category separated by comma.</span>
 <span class="c1">#        Example: Hostname,Src Port,Model,Dest Port,etc</span>
 <span class="c1">#    tableBody (list) - List with each line an output row retrieved from the devices CDP/LLDP table.  Each column separated by comma.  There should be the same number of columns in each row, and the same number of columns as in the tableHeader.</span>
+<<<<<<< HEAD
 <span class="n">Outputs</span> <span class="n">the</span> <span class="n">CDP</span><span class="o">/</span><span class="n">LLDP</span> <span class="n">neighbors</span><span class="p">,</span> <span class="k">with</span> <span class="n">each</span> <span class="n">new</span> <span class="n">line</span> <span class="p">(</span><span class="n">separated</span> <span class="n">by</span> <span class="n">carriage</span> <span class="k">return</span><span class="p">)</span> <span class="ow">in</span> <span class="n">its</span> <span class="n">own</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">returned</span> <span class="n">array</span>
+=======
+<span class="n">Outputs</span> <span class="n">the</span> <span class="n">CDP</span><span class="o">/</span><span class="n">LLDP</span> <span class="n">neighbors</span><span class="p">,</span> <span class="k">with</span> <span class="n">each</span> <span class="n">new</span> <span class="n">line</span> <span class="p">(</span><span class="n">separated</span> <span class="n">by</span> <span class="n">carriage</span> <span class="k">return</span><span class="p">)</span> <span class="ow">in</span> <span class="n">its</span> <span class="n">own</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">returned</span> <span class="nb">list</span>
+>>>>>>> development
 
 <span class="k">def</span> <span class="nf">pull_cdp_neighbor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activeSession</span><span class="p">):</span>
     <span class="c1"># Function logic goes here</span>
+    <span class="k">return</span> <span class="n">tableHeader</span><span class="p">,</span> <span class="n">tableBody</span>
 
 <span class="c1"># Input:</span>
 <span class="c1">#    activeSession (Netmiko class) - The active, existing SSH session for a device, stored as a Netmiko class</span>
+<<<<<<< HEAD
 <span class="c1"># Purpose: Pulls different information about a device, stored into 3 separate arrays:</span>
 <span class="c1">#    interfaceConfig (array) - Configuration settings for the interface</span>
 <span class="c1">#    interfaceMacAddressesHeader (string) - A string containing the table header for the MAC Address table output, with each column separated by a comma</span>
@@ -285,30 +307,43 @@ vi acme_os.py
 <span class="c1">#    interfaceStatistics (array) - Any relevant interface statistics that should be shown for the interface (Cisco example: show interface FastEthernet0/1)</span>
 <span class="c1"># Output:</span>
 <span class="c1">#    interfaceConfig, interfaceMacAddressesHeader, interfaceMacAddressesBody, interfaceStatistics (arrays) - Array specifics detailed above</span>
+=======
+<span class="c1"># Purpose: Pulls different information about a device, stored into 3 separate lists:</span>
+<span class="c1">#    interfaceConfig (list) - Configuration settings for the interface</span>
+<span class="c1">#    interfaceMacAddressesHeader (string) - A string containing the table header for the MAC Address table output, with each column separated by a comma</span>
+<span class="c1">#    interfaceMacAddressesBody (list) - A list with each row containing each line of data in the interface MAC Address table output, with each column separated by a comma.  Note: This should only be run on devices that store MAC addresses associated with their interface.  Otherwise simply return an empty string</span>
+<span class="c1">#    interfaceStatistics (list) - Any relevant interface statistics that should be shown for the interface (Cisco example: show interface FastEthernet0/1)</span>
+<span class="c1"># Output:</span>
+<span class="c1">#    interfaceConfig, interfaceMacAddressesHeader, interfaceMacAddressesBody, interfaceStatistics (lists) - Array specifics detailed above</span>
+>>>>>>> development
 
 <span class="k">def</span> <span class="nf">pull_interface_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activeSession</span><span class="p">):</span>
     <span class="c1"># Function logic goes here</span>
+    <span class="k">return</span> <span class="n">interfaceConfig</span><span class="p">,</span> <span class="n">interfaceMacAddressesHeader</span><span class="p">,</span> <span class="n">interfaceMacAddressesBody</span><span class="p">,</span> <span class="n">interfaceStatistics</span>
 
 <span class="c1"># Input:</span>
 <span class="c1">#    activeSession (Netmiko class) - The active, existing SSH session for a device, stored as a Netmiko class</span>
 <span class="c1"># Purpose: Pulls the current device uptime</span>
 <span class="c1"># Output:</span>
-<span class="c1">#    result (string) - Outputs the current uptime of the device as a string</span>
+<span class="c1">#    resultsStr (string) - Outputs the current uptime of the device as a string</span>
 
 <span class="k">def</span> <span class="nf">pull_device_uptime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activeSession</span><span class="p">):</span>
     <span class="c1"># Function logic goes here</span>
+    <span class="k">return</span> <span class="n">resultsStr</span>
 
 <span class="c1"># Input:</span>
 <span class="c1">#    activeSession (Netmiko class) - The active, existing SSH session for a device, stored as a Netmiko class</span>
 <span class="c1"># Purpose: Pulls the list of interfaces on the device</span>
 <span class="c1"># Output:</span>
-<span class="c1">#    resultsArray (array) - Outputs a list of interfaces and relevant status settings, with each new line (separated by carriage return) in its own line in the returned array (Cisco example: &quot;show ip interface brief&quot;)</span>
+<span class="c1">#    tableHeader (string) - String containing the table header lines.</span>
+<span class="c1">#    resultsList (list) - Outputs a list of interfaces and relevant status settings, with each new line (separated by carriage return) in its own line in the returned list (Cisco example: &quot;show ip interface brief&quot;)</span>
 
 <span class="k">def</span> <span class="nf">pull_host_interfaces</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activeSession</span><span class="p">):</span>
     <span class="c1"># Function logic goes here</span>
+    <span class="k">return</span> <span class="n">tableHeader</span><span class="p">,</span> <span class="n">resultsList</span>
 
 <span class="c1"># Input:</span>
-<span class="c1">#    interfaces (array) - Array of strings, returned from the device, where each string contains information on if the interface is up/online, down/offline, and administratively down/forced offline.  This function does not correctly interface status with the interface directly, so tracking the interface names is irrelevant here</span>
+<span class="c1">#    interfaces (list) - Array of strings, returned from the device, where each string contains information on if the interface is up/online, down/offline, and administratively down/forced offline.  This function does not correctly interface status with the interface directly, so tracking the interface names is irrelevant here</span>
 <span class="c1"># Purpose: Returns the number of interfaces online, offline, forced offline, and total count</span>
 <span class="c1"># Output:</span>
 <span class="c1">#    upCount (int) - Total number of interfaces active/online</span>
@@ -318,6 +353,7 @@ vi acme_os.py
 
 <span class="k">def</span> <span class="nf">count_interface_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interfaces</span><span class="p">):</span>
     <span class="c1"># Function logic goes here</span>
+    <span class="k">return</span> <span class="n">upCount</span><span class="p">,</span> <span class="n">downCount</span><span class="p">,</span> <span class="n">disabledCount</span><span class="p">,</span> <span class="n">totalCount</span>
 </pre></div>
 </div>
 </div>

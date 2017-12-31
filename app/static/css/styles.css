@@ -14,8 +14,7 @@ code {
     width: 30ch;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;"
-    display: inline!important;
+    white-space: nowrap;
     padding-top: 6px;
     padding-right:10px;
     padding-left: 10px;
@@ -29,8 +28,7 @@ code {
     width: 80%;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;"
-    display: inline!important;
+    white-space: nowrap;
     padding-right: 5px;
     padding-bottom: 3px;
     padding-left: 10px;
