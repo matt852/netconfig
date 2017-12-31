@@ -34,5 +34,8 @@ DB_NO = 0
 LOGFILE = os.path.join(basedir, 'app/log/access.log')
 SYSLOGFILE = os.path.join(basedir, 'app/log/syslog.log')
 
+# Settings file location
+SETTINGSFILE = os.path.join(basedir, 'instance/settings.py')
+
 # Current version
 VERSION = '1.2.0 (beta)'
