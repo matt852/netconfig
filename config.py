@@ -38,4 +38,4 @@ SYSLOGFILE = os.path.join(basedir, 'app/log/syslog.log')
 SETTINGSFILE = os.path.join(basedir, 'instance/settings.py')
 
 # Current version
-VERSION = '1.2.0 (beta)'
+VERSION = '1.2.1 (beta)'
