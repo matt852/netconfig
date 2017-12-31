@@ -11,12 +11,16 @@
 				<table id="tblSettings" class="table table-striped table-hover table-condensed display">
 			    <tbody>
 					{% for x in file %}
-						<tr>
 						{% if x != '\n' and x != '\r' and '#' not in x %}
+						<tr>
 							<th>{{ x.split('=')[0].rstrip(' ') }}</th>
-							<td>{{ x.split('=')[1].rstrip('\n') }}</td>
-						{% endif %}
+							{% if x.split('=')[0].rstrip(' ') == 'SECRET_KEY' %}
+								<td>*</td>
+							{% else %}
+								<td>{{ x.split('=')[1].rstrip('\n') }}</td>
+							{% endif %}
 						</tr>
+						{% endif %}
 					{% endfor %}
 				</tbody>
 			</table>
