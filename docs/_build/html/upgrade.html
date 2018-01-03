@@ -24,7 +24,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Netbox Integration" href="netbox-integration.html" />
-    <link rel="prev" title="Installation Guide" href="install.html" /> 
+    <link rel="prev" title="Installation Guides" href="install.html" /> 
   </head>
   <body>
     <div class="related" role="navigation" aria-label="related navigation">
@@ -37,7 +37,7 @@
           <a href="netbox-integration.html" title="Netbox Integration"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="install.html" title="Installation Guide"
+          <a href="install.html" title="Installation Guides"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">NetConfig 1.0 documentation</a> &#187;</li> 
       </ul>
@@ -78,6 +78,11 @@
 <div class="highlight-text"><div class="highlight"><pre><span></span>git status
 </pre></div>
 </div>
+<p>Run Upgrade script.  If upgrade script is not executable, run the ‘chmod’ command below first</p>
+<div class="highlight-text"><div class="highlight"><pre><span></span>chmod +x upgrade.sh
+./upgrade.sh
+</pre></div>
+</div>
 <p>Restart NetConfig service</p>
 <div class="highlight-text"><div class="highlight"><pre><span></span>sudo supervisorctl restart netconfig
 </pre></div>
@@ -92,8 +97,23 @@
 <h3>Potential Caveats<a class="headerlink" href="#potential-caveats" title="Permalink to this headline">¶</a></h3>
 <p>If any manual changes are made to any NetConfig files (except for the settings and log files), the command ‘git pull origin master’ may fail or throw an error.  If so, you can stash (delete) any manual changes made, then repull from NetConfig’s GitHub respository.  This will replace any custom changes made in files with the standard NetConfig system files, so be careful if any custom changes are critical to your environment.</p>
 <p>The command is:</p>
-<blockquote>
-<div>git checkout – .</div></blockquote>
+<div class="section" id="upgrade-script-doesn-t-run">
+<h4>Upgrade Script doesn’t run:<a class="headerlink" href="#upgrade-script-doesn-t-run" title="Permalink to this headline">¶</a></h4>
+<p>If the upgrade script doesn’t run, make sure it is executable first.</p>
+<div class="highlight-text"><div class="highlight"><pre><span></span>ls -lah
+# -rw-r--r--   1 netconfig  staff   1.2K Jan  2 14:30 upgrade.sh
+</pre></div>
+</div>
+<p>If it is missing an ‘x’ in the above output, run this command:</p>
+<div class="highlight-text"><div class="highlight"><pre><span></span>chmod +x upgrade.sh
+</pre></div>
+</div>
+<p>The ‘ls -lah’ output should now read as follows:</p>
+<div class="highlight-text"><div class="highlight"><pre><span></span>ls -lah
+# -rwxr-xr-x   1 netconfig  staff   1.2K Jan  2 14:30 upgrade.sh
+</pre></div>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -106,7 +126,7 @@
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
   <p class="topless"><a href="install.html"
-                        title="previous chapter">Installation Guide</a></p>
+                        title="previous chapter">Installation Guides</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="netbox-integration.html"
                         title="next chapter">Netbox Integration</a></p>
@@ -134,7 +154,7 @@
           <a href="netbox-integration.html" title="Netbox Integration"
              >next</a> |</li>
         <li class="right" >
-          <a href="install.html" title="Installation Guide"
+          <a href="install.html" title="Installation Guides"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">NetConfig 1.0 documentation</a> &#187;</li> 
       </ul>

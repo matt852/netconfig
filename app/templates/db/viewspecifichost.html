@@ -4,7 +4,7 @@
 <!-- Setting the variable up here is necessary to allow it to be used throughout page
 	Otherwise it is locked into an if/for instance and can't be used outside of it -->
 {% set ifaceURL = {'iface': ''} %}
-	
+
 <div class="container-fluid">
 	<div class="row">
 		<div class="col-md-8">
@@ -53,7 +53,7 @@
 				</div>
 			{% endif %}
 			<br />
-			
+
 			<span class="text-nowrap">
 				<div class="table-responsive">
 					<table id="tblViewSpecificHost" class="table table-striped table-hover table-condensed display">
@@ -76,7 +76,7 @@
 													{% if loop.index0 == 0 %}
 														<td></td>
 														{% if ifaceURL.update({'iface': x|replace('/','_')}) %}{% endif %}
-														<td id="tdInterface"><a href="modalConfigInterface" data-toggle="modal" data-target="#modalConfigInterface" data-interface="{{ ifaceURL['iface'] }}" onclick="loading();return false;">{{ x }}</a></td>
+														<td id="tdInterface"><a href="modalConfigInterface" data-toggle="modal" data-target="#modalConfigInterface" data-interface="{{ ifaceURL['iface'] }}" data-hostid="{{ host.id }}" onclick="loading();return false;">{{ x }}</a></td>
 													{% else %}
 														{% if not x or x != ' ' %}
 															<td>{{ x }}</td>
@@ -86,9 +86,9 @@
 											{% endfor %}
 											<td>
 												<a href="/confirm/confirmintenable/{{ host.id }}/{{ ifaceURL['iface'] }}" class="btn btn-xs btn-success" title="Enable Interface"><i class="glyphicon glyphicon-arrow-up" aria-hidden="true"></i></a>
-												<a href="modalEditInterface" data-toggle="modal" data-target="#modalEditInterface" class="btn btn-xs btn-warning" data-interface="{{ ifaceURL['iface'] }}" title="Edit Interface"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
+												<a href="modalEditInterface" data-toggle="modal" data-target="#modalEditInterface" class="btn btn-xs btn-warning" data-interface="{{ ifaceURL['iface'] }}" data-hostid="{{ host.id }}" title="Edit Interface"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
 												<a href="/confirm/confirmintdisable/{{ host.id }}/{{ ifaceURL['iface'] }}" class="btn btn-xs btn-danger" title="Disable Interface"><i class="glyphicon glyphicon-arrow-down" aria-hidden="true"></i></a>&nbsp;
-												<a href="modalConfigInterface" data-toggle="modal" data-target="#modalConfigInterface" class="btn btn-xs btn-info" data-interface="{{ ifaceURL['iface'] }}" title="Interface Info" onclick="loading();return false;"><i class="glyphicon glyphicon-info-sign" aria-hidden="true"></i></a>
+												<a href="modalConfigInterface" data-toggle="modal" data-target="#modalConfigInterface" class="btn btn-xs btn-info" data-interface="{{ ifaceURL['iface'] }}" data-hostid="{{ host.id }}" title="Interface Info" onclick="loading();return false;"><i class="glyphicon glyphicon-info-sign" aria-hidden="true"></i></a>
 											</td>
 										{% endif %}
 									</tr>
@@ -129,9 +129,5 @@
 </div>
 
 {% include "/modals/viewspecifichost_modals.html" %}
-
-{% include "/js/viewspecifichost_js.html" %}
-
-{% include "/js/hostshell_js.html" %}
 
 {% endblock %}

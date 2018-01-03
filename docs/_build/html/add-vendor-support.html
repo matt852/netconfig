@@ -287,11 +287,7 @@ vi acme_os.py
 <span class="c1">#    tableHeader (string) - String containing the table header lines, as retrieved from (usually) the first line of output, with each category separated by comma.</span>
 <span class="c1">#        Example: Hostname,Src Port,Model,Dest Port,etc</span>
 <span class="c1">#    tableBody (list) - List with each line an output row retrieved from the devices CDP/LLDP table.  Each column separated by comma.  There should be the same number of columns in each row, and the same number of columns as in the tableHeader.</span>
-<<<<<<< HEAD
-<span class="n">Outputs</span> <span class="n">the</span> <span class="n">CDP</span><span class="o">/</span><span class="n">LLDP</span> <span class="n">neighbors</span><span class="p">,</span> <span class="k">with</span> <span class="n">each</span> <span class="n">new</span> <span class="n">line</span> <span class="p">(</span><span class="n">separated</span> <span class="n">by</span> <span class="n">carriage</span> <span class="k">return</span><span class="p">)</span> <span class="ow">in</span> <span class="n">its</span> <span class="n">own</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">returned</span> <span class="n">array</span>
-=======
 <span class="n">Outputs</span> <span class="n">the</span> <span class="n">CDP</span><span class="o">/</span><span class="n">LLDP</span> <span class="n">neighbors</span><span class="p">,</span> <span class="k">with</span> <span class="n">each</span> <span class="n">new</span> <span class="n">line</span> <span class="p">(</span><span class="n">separated</span> <span class="n">by</span> <span class="n">carriage</span> <span class="k">return</span><span class="p">)</span> <span class="ow">in</span> <span class="n">its</span> <span class="n">own</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">returned</span> <span class="nb">list</span>
->>>>>>> development
 
 <span class="k">def</span> <span class="nf">pull_cdp_neighbor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activeSession</span><span class="p">):</span>
     <span class="c1"># Function logic goes here</span>
@@ -299,15 +295,6 @@ vi acme_os.py
 
 <span class="c1"># Input:</span>
 <span class="c1">#    activeSession (Netmiko class) - The active, existing SSH session for a device, stored as a Netmiko class</span>
-<<<<<<< HEAD
-<span class="c1"># Purpose: Pulls different information about a device, stored into 3 separate arrays:</span>
-<span class="c1">#    interfaceConfig (array) - Configuration settings for the interface</span>
-<span class="c1">#    interfaceMacAddressesHeader (string) - A string containing the table header for the MAC Address table output, with each column separated by a comma</span>
-<span class="c1">#    interfaceMacAddressesBody (list) - A list with each row containing each line of data in the interface MAC Address table output, with each column separated by a comma.  Note: This should only be run on devices that store MAC addresses associated with their interface.  Otherwise simply return an empty string</span>
-<span class="c1">#    interfaceStatistics (array) - Any relevant interface statistics that should be shown for the interface (Cisco example: show interface FastEthernet0/1)</span>
-<span class="c1"># Output:</span>
-<span class="c1">#    interfaceConfig, interfaceMacAddressesHeader, interfaceMacAddressesBody, interfaceStatistics (arrays) - Array specifics detailed above</span>
-=======
 <span class="c1"># Purpose: Pulls different information about a device, stored into 3 separate lists:</span>
 <span class="c1">#    interfaceConfig (list) - Configuration settings for the interface</span>
 <span class="c1">#    interfaceMacAddressesHeader (string) - A string containing the table header for the MAC Address table output, with each column separated by a comma</span>
@@ -315,7 +302,6 @@ vi acme_os.py
 <span class="c1">#    interfaceStatistics (list) - Any relevant interface statistics that should be shown for the interface (Cisco example: show interface FastEthernet0/1)</span>
 <span class="c1"># Output:</span>
 <span class="c1">#    interfaceConfig, interfaceMacAddressesHeader, interfaceMacAddressesBody, interfaceStatistics (lists) - Array specifics detailed above</span>
->>>>>>> development
 
 <span class="k">def</span> <span class="nf">pull_interface_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activeSession</span><span class="p">):</span>
     <span class="c1"># Function logic goes here</span>

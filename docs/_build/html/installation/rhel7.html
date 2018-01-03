@@ -88,33 +88,7 @@ sudo vi /etc/nginx/sites-available/netconfig
 </div>
 <div class="section" id="contents-of-etc-nginx-sites-available-netconfig">
 <h3><em>Contents of /etc/nginx/sites-available/netconfig</em><a class="headerlink" href="#contents-of-etc-nginx-sites-available-netconfig" title="Permalink to this headline">¶</a></h3>
-<<<<<<< HEAD
-<div class="highlight-text"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
- 2
- 3
- 4
- 5
- 6
- 7
- 8
- 9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22
-23</pre></div></td><td class="code"><div class="highlight"><pre><span></span>  server {
-=======
 <div class="highlight-text"><div class="highlight"><pre><span></span>  server {
->>>>>>> development
       listen            80;
 <span class="hll">      server_name       netconfig.domain.com;
 </span>      return            301 https://$host$request_uri;
@@ -138,11 +112,7 @@ sudo vi /etc/nginx/sites-available/netconfig
       }
   }
 </pre></div>
-<<<<<<< HEAD
-</td></tr></table></div>
-=======
 </div>
->>>>>>> development
 </div>
 </div>
 <div class="section" id="create-symlink">
@@ -161,35 +131,6 @@ sudo vi /etc/systemd/system/netconfig.service
 </div>
 <div class="section" id="contents-of-etc-systemd-system-netconfig-service">
 <h3><em>Contents of /etc/systemd/system/netconfig.service</em><a class="headerlink" href="#contents-of-etc-systemd-system-netconfig-service" title="Permalink to this headline">¶</a></h3>
-<<<<<<< HEAD
-<div class="highlight-text"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
- 2
- 3
- 4
- 5
- 6
- 7
- 8
- 9
-10
-11
-12
-13</pre></div></td><td class="code"><div class="highlight"><pre><span></span>  [Unit]
-  Description=uWSGI instance to serve NetConfig
-  After=network.target
-
-  [Service]
-  User=netconfig
-  Group=nginx
-  WorkingDirectory=/home/netconfig/netconfig
-  Environment=&quot;PATH=/usr/bin/python&quot;
-  ExecStart=/usr/bin/uwsgi --ini netconfig.ini
-
-  [Install]
-  WantedBy=multi-user.target
-</pre></div>
-</td></tr></table></div>
-=======
 <div class="highlight-text"><div class="highlight"><pre><span></span>[Unit]
 Description=uWSGI instance to serve NetConfig
 After=network.target
@@ -205,7 +146,6 @@ ExecStart=/usr/bin/uwsgi --ini netconfig.ini
 WantedBy=multi-user.target
 </pre></div>
 </div>
->>>>>>> development
 </div>
 </div>
 <div class="section" id="start-and-enable-netconfig-services">
@@ -226,24 +166,12 @@ In a default supervisor configuration, this starts at line 79. sudo vi /etc/supe
 </div>
 <div class="section" id="contents-of-etc-supervisord-conf">
 <h3><em>Contents of /etc/supervisord.conf</em><a class="headerlink" href="#contents-of-etc-supervisord-conf" title="Permalink to this headline">¶</a></h3>
-<<<<<<< HEAD
-<div class="highlight-text"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>1
-2
-3
-4</pre></div></td><td class="code"><div class="highlight"><pre><span></span>  [program:netconfig]
-  command = gunicorn app:app -b localhost:8000
-  directory = /home/netconfig/netconfig
-  user = netconfig
-</pre></div>
-</td></tr></table></div>
-=======
 <div class="highlight-text"><div class="highlight"><pre><span></span>[program:netconfig]
 command = gunicorn app:app -b localhost:8000
 directory = /home/netconfig/netconfig
 user = netconfig
 </pre></div>
 </div>
->>>>>>> development
 </div>
 </div>
 <div class="section" id="restart-services">

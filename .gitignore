@@ -12,3 +12,4 @@ flask/
 tests/
 tests/*
 tmp/*
+venv/

@@ -42,6 +42,13 @@ Verify git status
 
     git status
 
+Run Upgrade script.  If upgrade script is not executable, run the 'chmod' command below first
+
+.. code-block:: text
+
+    chmod +x upgrade.sh
+    ./upgrade.sh
+
 Restart NetConfig service
 
 .. code-block:: text
@@ -63,4 +70,30 @@ If any manual changes are made to any NetConfig files (except for the settings a
 
 The command is:
 
+.. code-block::text
+
     git checkout -- .
+
+
+Upgrade Script doesn't run:
+"""""""""""""""""""""""""""
+
+If the upgrade script doesn't run, make sure it is executable first.
+
+.. code-block:: text
+
+    ls -lah
+    # -rw-r--r--   1 netconfig  staff   1.2K Jan  2 14:30 upgrade.sh
+
+If it is missing an 'x' in the above output, run this command:
+
+.. code-block:: text
+
+    chmod +x upgrade.sh
+
+The 'ls -lah' output should now read as follows:
+
+.. code-block:: text
+
+    ls -lah
+    # -rwxr-xr-x   1 netconfig  staff   1.2K Jan  2 14:30 upgrade.sh

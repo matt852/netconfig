@@ -1,12 +1,14 @@
-from flask import Flask
 import os
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_bootstrap import Bootstrap
 from flask_script import Manager
 
 app = Flask(__name__, instance_relative_config=True)
 app.config.from_object('config')
 app.config.from_pyfile('settings.py', silent=True)
 db = SQLAlchemy(app)
+Bootstrap(app)
 
 from app import views, models
 

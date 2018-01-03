@@ -17,6 +17,7 @@ docutils==0.14
 enum34==1.1.6
 Flask==0.12.2
 Flask-Babel==0.11.2
+Flask-Bootstrap==3.3.7.1
 Flask-Login==0.4.0
 Flask-Mail==0.9.1
 Flask-OpenID==1.2.5

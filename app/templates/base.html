@@ -1,46 +1,52 @@
-<!DOCTYPE HTML>
-<HTML lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>NetConfig</title>
-    <meta name="description" content="NetConfig">
-    <meta name="author" content="Matt Vitale">
-    <link href="/static/css/bootstrap.min.css" rel="stylesheet"/>
-    <link href="/static/css/font-awesome.min.css" rel="stylesheet"/>
-    <link rel="stylesheet" type="text/css" href="/static/DataTables/datatables.min.css"/> <!-- https://datatables.net/download/#bs/dt-1.10.16/b-1.4.2/fh-3.1.3/r-2.2.0/sl-1.2.3 -->
-    <link href="/static/css/styles.css" rel="stylesheet"/>   <!-- custom CSS -->
+{% extends "bootstrap/base.html" %}
+{% block html_attribs %} lang="en" {% endblock %}
+{% block title %}NetConfig{% endblock %}
+{% block metas %}
+	{{ super() }}
+	<meta name="description" content="NetConfig">
+	<meta name="author" content="Matt Vitale">
+{% endblock %}
+{% block styles %}
+	{{ super() }}
+	<link rel="stylesheet" href="{{url_for('static', filename='css/font-awesome.min.css')}}">
+	<link rel="stylesheet" href="{{url_for('static', filename='DataTables/datatables.min.css')}}">
+	<link rel="stylesheet" href="{{url_for('static', filename='css/styles.css')}}">
+{% endblock %}
+{% block body %}
+	{% block navbar %}
+		<!-- BEGIN NAV BAR -->
+		{% include 'inc/navbar-menu.html' %}
+		<!-- END NAV BAR -->
+	{% endblock %}
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-1">
+			</div>
+			<div class="col-md-11">
+				{% if session['USER'] or request.path == "/login" %}
+					{% block content %}{% endblock %}
+				{% else %}
+					{% include "/errors/notloggedin.html" %}
+				{% endif %}
+			</div>
+		</div>
+	</div>
 
-    <script src="/static/js/jquery-3.2.1.min.js"></script>
-    <script src="/static/js/bootstrap.min.js"></script>
-    <script src="/static/js/validator.min.js"></script>      <!-- https://github.com/1000hz/bootstrap-validator -->
-    <script src="/static/js/loadingoverlay.min.js"></script> <!-- http://gasparesganga.com/labs/jquery-loading-overlay/-->
-    <script src="/static/js/loading.js"></script>            <!-- custom loading JS -->
-    <script type="text/javascript" src="/static/DataTables/datatables.min.js"></script> <!-- https://datatables.net/download/#bs/dt-1.10.16/b-1.4.2/fh-3.1.3/r-2.2.0/sl-1.2.3 -->
-    {% block scripts %}{% endblock %}                        <!-- block for JS added on pages on demand -->
-  </head>
-  <body>
-    <!-- BEGIN NAV BAR -->
-    {% include 'inc/navbar-menu.html' %}
-    <!-- END NAV BAR -->
-    <!-- START CONTENT AREA -->
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-md-1">
-        </div>
-        <div class="col-md-11">
-          {% if session['USER'] or request.path == "/login" %}
-            {% block content %}{% endblock %}
-          {% else %}
-            {% include "/errors/notloggedin.html" %}
-          {% endif %}
-        </div>
-      </div>
-    </div>
-    {% if session['USER'] %}
-      {% include "/js/count_active_sessions_js.html" %}
-    {% endif %}
-    <!-- END CONTENT AREA -->
-  </body>
-</HTML>
+	{%block scripts %}
+		<script src="{{url_for('static', filename='js/jquery-3.2.1.min.js')}}"></script>
+		{{ super() }}
+		<script src="{{url_for('static', filename='js/validator.min.js')}}"></script>
+		<script src="{{url_for('static', filename='js/loadingoverlay.min.js')}}"></script>
+		<script src="{{url_for('static', filename='js/loading.js')}}"></script>
+		<script src="{{url_for('static', filename='DataTables/datatables.min.js')}}"></script>
+		{% if session['USER'] %}
+		<script src="{{url_for('static', filename='js/countactivesessions.js')}}"></script>
+		{% endif %}
+		{% if request.path == "/db/viewhosts" or request.path == "/db/viewhosts/" %}
+			<script src="{{url_for('static', filename='js/datatablescustom.js')}}"></script>
+		{% elif "/db/viewhosts/" in request.path %}
+			<script src="{{url_for('static', filename='js/hostshell.js')}}"></script>
+			<script src="{{url_for('static', filename='js/viewspecifichost.js')}}"></script>
+		{% endif %}
+	{% endblock %}
+{% endblock %}

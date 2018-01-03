@@ -37,5 +37,8 @@ SYSLOGFILE = os.path.join(basedir, 'app/log/syslog.log')
 # Settings file location
 SETTINGSFILE = os.path.join(basedir, 'instance/settings.py')
 
+# Bootstrap configuration
+BOOTSTRAP_SERVE_LOCAL = True
+
 # Current version
-VERSION = '1.2.1 (beta)'
+VERSION = '1.2.2 (beta)'
