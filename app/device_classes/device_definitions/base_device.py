@@ -25,8 +25,34 @@ class BaseDevice(object):
         """Exit configuration mode on device using existing SSH session."""
         nfn.runExitConfigModeInSession(activeSession)
 
+    def reset_session_mode(self, activeSession):
+        """Check if existing SSH session is in config mode.
+
+        If so, exits config mode.
+        """
+        if activeSession.check_config_mode():
+            self.exit_config_mode(activeSession)
+            # Return True since session was originally in config mode
+            return True
+        # Return False if session is not in config mode
+        return False
+
+    def revert_session_mode(self, activeSession, originalState):
+        """Revert SSH session to config mode if it was previously in config mode.
+
+        Not currently used.
+        """
+        if originalState and not activeSession.check_config_mode():
+            self.enter_config_mode(activeSession)
+        elif activeSession.check_config_mode() and not originalState:
+            self.exit_config_mode()
+
     def run_ssh_command(self, command, activeSession):
         """Execute single command on device using existing SSH session."""
+        # Exit config mode if existing session is currently in config mode
+        self.reset_session_mode(activeSession)
+
+        # Run command and return command output
         return nfn.runSSHCommandInSession(command, activeSession)
 
     def run_ssh_config_commands(self, cmdList, activeSession):

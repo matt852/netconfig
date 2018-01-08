@@ -6,7 +6,7 @@ import socket
 
 from datetime import timedelta
 
-from urllib import unquote_plus
+from urllib import quote_plus, unquote_plus
 
 from uuid import uuid4
 
@@ -595,13 +595,15 @@ def confirmIntEdit():
     datavlan = request.form['datavlan']
     voicevlan = request.form['voicevlan']
     other = request.form['other']
+    otherEncoded = quote_plus(other, safe='/')
 
     return render_template("confirm/confirmintedit.html",
                            host=host,
                            interface=interface,
                            datavlan=datavlan,
                            voicevlan=voicevlan,
-                           other=other)
+                           other=other,
+                           otherEncoded=otherEncoded)
 
 
 @app.route('/confirm/confirmhostedit/', methods=['GET', 'POST'])
@@ -737,6 +739,15 @@ def resultsIntEdit(x, y, datavlan, voicevlan, other):
 
     activeSession = retrieveSSHSession(host)
 
+    # Decode 'other' string
+    other = unquote_plus(other).decode('utf-8')
+
+    # Replace '_' with '/'
+    other = interfaceReplaceSlash(other)
+
+    # Replace '\r\n' with '\n'
+    other = other.replace('\r\n', '\n')
+
     # Remove dashes from interface in URL and edit interface config
     result = host.run_edit_interface_cmd(interfaceReplaceSlash(y), datavlan, voicevlan, other, activeSession)
 
@@ -841,11 +852,12 @@ def modalSpecificInterfaceOnHost(x, y):
 
     # Removes dashes from interface in URL, replacing '_' with '/'
     interface = interfaceReplaceSlash(y)
-    # Replace's '_' with '.'
+    # Replace's '=' with '.'
     host.interface = interface.replace('=', '.')
 
     intConfig, intMacHead, intMacBody, intStats = host.pull_interface_info(activeSession)
     macToIP = ''
+
     writeToLog('viewed interface %s on host %s' % (interface, host.hostname))
     return render_template("/viewspecificinterfaceonhost.html",
                            host=host,
@@ -873,7 +885,7 @@ def modalEditInterfaceOnHost(x, y):
 
     # Removes dashes from interface in URL
     interface = interfaceReplaceSlash(y)
-    # Replace's '_' with '.'
+    # Replace's '=' with '.'
     host.interface = interface.replace('=', '.')
 
     intConfig = host.pull_interface_config(activeSession)
@@ -889,32 +901,6 @@ def modalEditInterfaceOnHost(x, y):
                            interface=interface,
                            intConfig=intConfig,
                            form=form)
-
-
-# To show interface commands from host device
-@app.route('/modalinterfaceinfo/', methods=['GET', 'POST'])
-@app.route('/modalinterfaceinfo/<x>/<y>', methods=['GET', 'POST'])
-def modalInterfaceInfo(x, y):
-    """Display modal with interface info, stats, and MAC address table.
-
-    x = device id
-    y = interface name
-    """
-    initialChecks()
-
-    host = db_modifyDatabase.getHostByID(x)
-
-    activeSession = retrieveSSHSession(host)
-
-    # Removes dashes from interface in URL
-    interface = interfaceReplaceSlash(y)
-
-    intConfig = host.pull_interface_config(activeSession)
-
-    return render_template("/interfaceinfo.html",
-                           host=host,
-                           interface=interface,
-                           intConfig=intConfig)
 
 
 @app.route('/modalcmdshowrunconfig/', methods=['GET', 'POST'])

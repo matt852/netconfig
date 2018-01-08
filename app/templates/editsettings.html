@@ -11,7 +11,7 @@
 				<table id="tblSettings" class="table table-striped table-hover table-condensed display">
 			    <tbody>
 					{% for x in file %}
-						{% if x != '\n' and x != '\r' and '#' not in x %}
+						{% if x != '\n' and x != '\r' and ('#' not in x or x.split('=')[0].rstrip(' ') == 'SECRET_KEY') %}
 						<tr>
 							<th>{{ x.split('=')[0].rstrip(' ') }}</th>
 							{% if x.split('=')[0].rstrip(' ') == 'SECRET_KEY' %}

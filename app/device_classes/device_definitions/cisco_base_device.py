@@ -1,5 +1,4 @@
 from base_device import BaseDevice
-from ...scripts_bank.lib import netmiko_functions as nfn
 from ...scripts_bank.lib import functions as fn
 
 
@@ -16,6 +15,11 @@ class CiscoBaseDevice(BaseDevice):
     def get_cmd_enter_configuration_mode(self):
         """Return command for entering configuration mode."""
         command = "config term"
+        return command
+
+    def get_cmd_exit_configuration_mode(self):
+        """Return command for exiting configuration mode."""
+        command = "end"
         return command
 
     def get_cmd_enable_interface(self):
@@ -178,7 +182,7 @@ class CiscoBaseDevice(BaseDevice):
     def save_config_on_device(self, activeSession):
         """Return command for saving configuration settings on device."""
         command = self.get_save_config_cmd()
-        return self.split_on_newline(nfn.runSSHCommandInSession(command, activeSession))
+        return self.split_on_newline(self.run_ssh_command(command, activeSession))
 
     def run_edit_interface_cmd(self, interface, datavlan, voicevlan, other, activeSession):
         """Edit interface on device with specified parameters on existing SSH session."""

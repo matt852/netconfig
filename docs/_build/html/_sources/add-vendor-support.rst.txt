@@ -60,6 +60,15 @@ These functions and their specific names are required for NetConfig, including t
         return commandStr
 
     # Input: None required
+    # Purpose: Provide the command used to exit the configuration mode in the device
+    # Output:
+    #    command (string) - Outputs the command used to exit configuration mode for all vendor devices
+    
+    def get_cmd_exit_configuration_mode(self):
+        # Function logic goes here
+        return commandStr
+
+    # Input: None required
     # Purpose: Provide the command used to enable a specific interface
     # Output:
     #    commandStr (string) - Outputs the command used to enable / activate / unshut / bring online an interface for all vendor devices

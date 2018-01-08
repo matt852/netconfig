@@ -54,7 +54,7 @@ class CiscoIOS(CiscoBaseDevice):
             else:
                 break
         if self.check_invalid_input_detected(result):
-            return ''
+            return '', ''
         else:
             # Stores table headers as string
             tableHeader = ''

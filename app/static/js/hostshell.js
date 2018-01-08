@@ -33,41 +33,47 @@ function handle(e) {
     else {
       // Do only if cmd box is not empty or contains just a single '?'
       if ((str) || (e.code == 'Slash' && e.shiftKey)) {
-        $("#loadIcon").show();
-
-        // Replace '/' with '_'
-        // '/' doesn't get encoded in 'encodeURI'
-        newstr = str.replace(/\//g, '_');
-        encStr = encodeURI(newstr);
-
-        // '?' isn't included in getElementById value, nor is it encoded, so the encoded value for '?' has to be manually entered if it was inputted by the user
-        if (e.code == 'Slash' && e.shiftKey) {
-          encStr = encStr + '%3F';
+        // If command is a configuration level command to change the hostname, throw error
+        if (str.substring(0, 8).toLowerCase() == 'hostname') {
+          $('#outputID').prepend("<b>Error:</b> Changing device hostname is not currently supported in the iShell.<br />");
         }
+        else {
+          $("#loadIcon").show();
 
-        // Pull host ID from URL
-        loc = location.href.substr(location.href.lastIndexOf('/') + 1);
+          // Replace '/' with '_'
+          // '/' doesn't get encoded in 'encodeURI'
+          newstr = str.replace(/\//g, '_');
+          encStr = encodeURI(newstr);
 
-        if (document.getElementById("chkConfigMode").checked) {
-          mode = 'c';
-        } else {
-          mode = 'e';
+          // '?' isn't included in getElementById value, nor is it encoded, so the encoded value for '?' has to be manually entered if it was inputted by the user
+          if (e.code == 'Slash' && e.shiftKey) {
+            encStr = encStr + '%3F';
+          }
+
+          // Pull host ID from URL
+          loc = location.href.substr(location.href.lastIndexOf('/') + 1);
+
+          if (document.getElementById("chkConfigMode").checked) {
+            mode = 'c';
+          } else {
+            mode = 'e';
+          }
+          url = '/hostshelloutput/' + loc + '/' + mode + '/' + encStr;
+
+          $.get(url, function(my_var) {
+            $('#outputID').prepend(my_var);
+            $("#loadIcon").hide();
+            // Erase input box once submitted
+            if ((e.code == 'Enter') || (e.code == 'NumpadEnter')) {
+              document.getElementById('cmdInput').value = "";
+            }
+            // If command submitted on '?' press, strip '?' and leave command in input box
+            else {
+              str = str.replace(/\?/g, '');
+              document.getElementById('cmdInput').value = str;
+            }
+          });
         }
-        url = '/hostshelloutput/' + loc + '/' + mode + '/' + encStr;
-
-        $.get(url, function(my_var) {
-          $('#outputID').prepend(my_var);
-          $("#loadIcon").hide();
-          // Erase input box once submitted
-          if ((e.code == 'Enter') || (e.code == 'NumpadEnter')) {
-            document.getElementById('cmdInput').value = "";
-          }
-          // If command submitted on '?' press, strip '?' and leave command in input box
-          else {
-            str = str.replace(/\?/g, '');
-            document.getElementById('cmdInput').value = str;
-          }
-        });
       } else {
         console.log('Textbox is empty') // Debugging purposes only
       }
