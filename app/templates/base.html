@@ -43,7 +43,7 @@
 		<script src="{{url_for('static', filename='js/countactivesessions.js')}}"></script>
 		{% endif %}
 		{% if request.path == "/db/viewhosts" or request.path == "/db/viewhosts/" %}
-			<script src="{{url_for('static', filename='js/datatablescustom.js')}}"></script>
+			<script src="{{url_for('static', filename='js/viewhosts.js')}}"></script>
 		{% elif "/db/viewhosts/" in request.path %}
 			<script src="{{url_for('static', filename='js/hostshell.js')}}"></script>
 			<script src="{{url_for('static', filename='js/viewspecifichost.js')}}"></script>

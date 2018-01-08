@@ -6,23 +6,50 @@
 <div class="container-fluid">
 	<div class="row">
     	<div class="col-md-8">
-			<h2 class="text-primary">View All Devices</h2>
-		</div>
-		<div class="col-md-1">
-			<a href="/db/addhosts" class="btn btn-success" title="Add a device to the local database"><i class="fa fa-plus"></i> Add a Device</a>
+    		<div class="pull-right">
+				<a href="/db/addhosts" class="btn btn-success" title="Add a device to the local database"><i class="fa fa-plus"></i> Add a Device</a>
+				<button id="btnDeleteHosts" class="btn btn-danger" title="Delete Selected Devices"><i class="glyphicon glyphicon-ban-circle" aria-hidden="true"></i> Delete Selected Devices</button>
+			</div>
 		</div>
 	</div>
 	<div class="row">
 		<div class="col-md-8">
+			<h2 class="text-primary">View All Devices</h2>
 			<h4>All network devices in database</h4>
 
 			<div class="table-responsive">
 				<table id="tblViewHosts" class="table table-striped table-hover table-condensed display">
-					{% include 'hosts-table-header.html' %}
-				    <!-- hosts is a Paginate object -->
+					<thead>
+						<tr>
+							<!-- Blank column used for checkbox -->
+							<th></th>
+						    <th>Hostname</th>
+						    <th>IPv4 Address</th>
+						    <th>Type</th>
+						    <th class="text-center">Status</th>
+						    <th class="text-center">Options</th>
+						</tr>
+					</thead>
 				    <tbody>
+				    	<!-- hosts is a Paginate object -->
 						{% for host in hosts.items %}
-							{% include 'hosts-table.html' %}
+							<tr>
+								<td></td>
+								{% if status[host.hostname] %}
+									<td><a href="/db/viewhosts/{{ host.id }}">{{ host.hostname }}</a></td>
+								{% else %}
+									<td>{{ host.hostname }}</td>
+								{% endif %}
+							    <td>{{ host.ipv4_addr }}</td>
+							    <td>{{ host.type }}</td>
+							    {% if status[host.hostname] %}
+									<td class="text-center"><i class="glyphicon glyphicon-ok" aria-hidden="true" style="color:green"></i></td>
+							    {% else %}
+									<td class="text-center"><i class="glyphicon glyphicon-remove" aria-hidden="true" style="color:red"></i></td>
+							    {% endif %}
+							    <td class="text-center"><a href="/edithost/{{ host.id }}" class="btn btn-xs btn-warning" title="Edit Device"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
+							    <a href="/confirm/confirmhostdelete/{{ host.id }}" class="btn btn-xs btn-danger" title="Delete Device"><i class="glyphicon glyphicon-ban-circle" aria-hidden="true"></i></a></td>
+							</tr>
 						{% endfor %}
 					</tbody>
 				</table>
