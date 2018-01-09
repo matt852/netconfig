@@ -1,0 +1,34 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+    <div class="row">
+    	<div class="col-md-9 col-md-offset-1">
+            <form action="/results/resultsmultiplehostdeleted.html" method="post" class="form">
+                <div class="panel panel-danger">
+                    <div class="panel-heading">Delete multiple devices from database?</div>
+                    	<div class="panel-body">
+
+            				<p>The following devices will be deleted from the local database:</p>
+                            {% for host in hostList %}
+                                {% if host %}
+                                    {{ host.hostname }}<br />
+                                {% endif %}
+                            {% endfor %}
+                            <br />
+
+                            <div class="text-right">
+                        		<a href="/results/resultsmultiplehostdeleted/{{ x }}" class="btn btn-danger">Confirm</a>
+                        		<a href="/db/viewhosts" class="btn btn-default">Cancel</a>
+                    		</div>
+                        </div>
+                	</div>
+               	</div>
+            </form>
+    	</div>
+    </div>
+</div>
+
+{% endblock %}

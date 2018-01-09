@@ -8,7 +8,7 @@
     	<div class="col-md-8">
     		<div class="pull-right">
 				<a href="/db/addhosts" class="btn btn-success" title="Add a device to the local database"><i class="fa fa-plus"></i> Add a Device</a>
-				<button id="btnDeleteHosts" class="btn btn-danger" title="Delete Selected Devices"><i class="glyphicon glyphicon-ban-circle" aria-hidden="true"></i> Delete Selected Devices</button>
+				<button id="btnDeleteDevices" class="btn btn-danger" title="Delete Selected Devices"><i class="glyphicon glyphicon-ban-circle" aria-hidden="true"></i> Delete Selected Devices</button>
 			</div>
 		</div>
 	</div>
@@ -28,6 +28,7 @@
 						    <th>Type</th>
 						    <th class="text-center">Status</th>
 						    <th class="text-center">Options</th>
+						    <th style="display:none">DB ID</th>
 						</tr>
 					</thead>
 				    <tbody>
@@ -49,6 +50,7 @@
 							    {% endif %}
 							    <td class="text-center"><a href="/edithost/{{ host.id }}" class="btn btn-xs btn-warning" title="Edit Device"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
 							    <a href="/confirm/confirmhostdelete/{{ host.id }}" class="btn btn-xs btn-danger" title="Delete Device"><i class="glyphicon glyphicon-ban-circle" aria-hidden="true"></i></a></td>
+							    <td style="display:none">{{ host.id }}</td>
 							</tr>
 						{% endfor %}
 					</tbody>

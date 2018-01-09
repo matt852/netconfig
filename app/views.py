@@ -440,6 +440,54 @@ def editHost(x):
                            form=form)
 
 
+@app.route('/confirm/confirmmultiplehostdelete/<x>', methods=['GET'])
+def confirmMultipleHostDelete(x):
+    """Confirm deletion of multiple devices in local database.
+
+    x = each host id to be deleted, separated by an '&' symbol
+    """
+    initialChecks()
+
+    hostList = []
+    for host in x.split('&'):
+        if host:
+            hostList.append(db_modifyDatabase.retrieveHostByID(host))
+    return render_template("confirm/confirmmultiplehostdelete.html",
+                           hostList=hostList,
+                           x=x)
+
+
+@app.route('/results/resultsmultiplehostdeleted/<x>', methods=['GET', 'POST'])
+def resultsMultipleHostDelete(x):
+    """Display results from deleting multiple devices in local databse.
+
+    x = each host id to be deleted, separated by an '&' symbol
+    """
+    initialChecks()
+
+    hostList = []
+    for x in x.split('&'):
+        if x:
+            host = db_modifyDatabase.retrieveHostByID(x)
+            hostList.append(host)
+            result = db_modifyDatabase.deleteHostInDB(x)
+            if result:
+                writeToLog('deleted host %s in database' % (host.hostname))
+            else:
+                writeToLog('unable to delete host %s in database' % (host.hostname))
+                overallResult = False
+            try:
+                disconnectSpecificSSHSession(host)
+                writeToLog('disconnected any remaining active sessions for host %s' % (host.hostname))
+            except:
+                writeToLog('unable to attempt to disconnect host %s active sessions' % (host.hostname))
+
+    overallResult = True
+    return render_template("results/resultsmultiplehostdeleted.html",
+                           overallResult=overallResult,
+                           hostList=hostList)
+
+
 # Shows all hosts in database
 @app.route('/db/viewhosts', methods=['GET', 'POST'])
 @app.route('/db/viewhosts/', methods=['GET', 'POST'])

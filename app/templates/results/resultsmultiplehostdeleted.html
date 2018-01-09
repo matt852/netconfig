@@ -1,0 +1,37 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-md-9 col-md-offset-1">
+
+			<h2 class="text-primary">Delete Multiple Devices Result</h2>
+
+			{% if overallResult %}
+				<p><b>SUCCESS:</b> Devices were successfully deleted from the local database</p>
+			{% else %}
+				<p><b>ERROR:</b> Devices were not successfully deleted from the local database</p>
+			{% endif %}
+
+			<p><b>List of devices:</b></p>
+
+			{% for x in hostList %}
+				{% if x %}
+					{{ x.hostname }}<br />
+				{% endif %}
+			{% endfor %}
+			
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-9">
+			<div class="text-right">
+				<a href="/db/viewhosts" class="btn btn-success">Return To Main Page</a>
+			</div>
+		</div>
+	</div>
+</div>
+
+{% endblock %}
