@@ -384,7 +384,13 @@ def resultsAddHost():
     ipv4_addr = request.form['ipv4_addr']
     hosttype = request.form['hosttype']
     ios_type = request.form['ios_type']
-    response, hostid = db_modifyDatabase.addHostToDB(hostname, ipv4_addr, hosttype, ios_type)
+    # If checkbox is unchecked, this fails as the request.form['local_creds'] value returned is False
+    try:
+        local_creds = request.form['local_creds']
+    except:
+        local_creds = False
+
+    response, hostid = db_modifyDatabase.addHostToDB(hostname, ipv4_addr, hosttype, ios_type, local_creds)
     if response:
         writeToLog('added host %s to database' % (hostname))
         return render_template("/results/resultsaddhost.html",
@@ -393,6 +399,7 @@ def resultsAddHost():
                                ipv4_addr=ipv4_addr,
                                hosttype=hosttype,
                                ios_type=ios_type,
+                               local_creds=local_creds,
                                hostid=hostid)
     else:
         return redirect(url_for('addHosts'))
@@ -661,11 +668,35 @@ def confirmHostEdit(x):
 
     x = original host ID
     """
-    originalHost = db_modifyDatabase.getHostByID(x)
+    originalHost = db_modifyDatabase.retrieveHostByID(x)
     hostname = request.form['hostname']
     ipv4_addr = request.form['ipv4_addr']
     hosttype = request.form['hosttype']
     ios_type = request.form['ios_type']
+    # If checkbox is unchecked, this fails as the request.form['local_creds'] value returned is False
+    try:
+        if request.form['local_creds']:
+            local_creds = True
+        else:
+            local_creds = False
+    except:
+        local_creds = False
+
+    print "original"
+    print originalHost.hostname
+    print originalHost.local_creds
+    print "updated"
+    print local_creds
+
+    if originalHost.local_creds == local_creds:
+        local_creds_updated = False
+    else:
+        local_creds_updated = True
+
+    print "local_creds_updated"
+    print local_creds_updated
+    print "originalHost.local_creds"
+    print originalHost.local_creds
 
     # If exists, disconnect any existing SSH sessions
     #  and clear them from the SSH dict
@@ -677,10 +708,10 @@ def confirmHostEdit(x):
     except:
         writeToLog('could not clear SSH session for edited host %s' % (originalHost.hostname))
 
-    result = db_modifyDatabase.editHostInDatabase(originalHost.id, hostname, ipv4_addr, hosttype, ios_type)
+    result = db_modifyDatabase.editHostInDatabase(originalHost.id, hostname, ipv4_addr, hosttype, ios_type, local_creds, local_creds_updated)
 
     if result:
-        updatedHost = db_modifyDatabase.getHostByID(x)
+        updatedHost = db_modifyDatabase.retrieveHostByID(x)
         writeToLog('edited host %s in database' % (originalHost.hostname))
         return render_template("confirm/confirmhostedit.html",
                                title='Edit host confirm',
@@ -689,7 +720,9 @@ def confirmHostEdit(x):
                                hostname=hostname,
                                ipv4_addr=ipv4_addr,
                                hosttype=hosttype,
-                               ios_type=ios_type)
+                               ios_type=ios_type,
+                               local_creds=local_creds,
+                               local_creds_updated=local_creds_updated)
     else:
         return redirect(url_for('confirmHostEdit',
                                 x=originalHost))

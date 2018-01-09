@@ -10,33 +10,43 @@
 			<form action="{{ url_for('resultsAddHost') }}" method="post" name="addhosts">
 			    {{ form.hidden_tag() }}
 			    <p>
-			        Please enter the device hostname:<br>
+			        Please enter the device hostname:<br />
 			        {{ form.hostname(size=20, autofocus="autofocus", required="required") }}
 			        {% for error in form.hostname.errors %}
 			          <span style="color: red;">[{{error}}]</span>
-			        {% endfor %}<br>
+			        {% endfor %}<br />
 			    </p>
 			    <p>
-			        Please enter the device host IP address:<br>
+			        Please enter the device host IP address:<br />
 			        {{ form.ipv4_addr(size=20, required="required") }}
 			        {% for error in form.ipv4_addr.errors %}
 			          <span style="color: red;">[{{error}}]</span>
-			        {% endfor %}<br>
+			        {% endfor %}<br />
 			    </p>
 			    <p>
-			        Please enter the device type:<br>
+			        Please enter the device type:<br />
 			        {{ form.hosttype() }}
 			        {% for error in form.hosttype.errors %}
 			          <span style="color: red;">[{{error}}]</span>
-			        {% endfor %}<br>
+			        {% endfor %}<br />
 			    </p>
 			    <p>
-			        Please enter the device's IOS type:<br>
+			        Please enter the device's IOS type:<br />
 			        {{ form.ios_type }}
 			        {% for error in form.ios_type.errors %}
 			          <span style="color: red;">[{{error}}]</span>
-			        {% endfor %}<br>
+			        {% endfor %}<br />
 			    </p>
+			    <br />
+			    <p>
+			    	{{ form.local_creds.label }}<br />
+			    	{{ form.local_creds }}
+			        {% for error in form.local_creds.errors %}
+			          <span style="color: red;">[{{error}}]</span>
+			        {% endfor %}<br />
+			    	Check if this device uses a different set of credentials then the currently logged in user,<br />
+			    	such as local credentials.  This will prompt the NetConfig user for the device's<br />
+			    	local and privileged password each time this device is accessed.<br />
 			    <br />
 			    <p><input type="submit" value="Submit" class="btn btn-primary"></p>
 			</form>

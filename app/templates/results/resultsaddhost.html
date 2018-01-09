@@ -15,6 +15,7 @@
 			        {% if session['DEBUG'] %}
 						<li>IOS Type: {{ ios_type }}</li>
 					{% endif %}
+					<li>Use Local/Different Credentials: {% if local_creds %}True{% else %}False{% endif %}</li>
 				</ul>
 			</p>
 		</div>

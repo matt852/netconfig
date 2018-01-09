@@ -6,10 +6,10 @@ import netboxAPI
 from ..device_classes import deviceType as dt
 
 
-def addHostToDB(hostname, ipv4_addr, type, ios_type):
+def addHostToDB(hostname, ipv4_addr, type, ios_type, local_creds):
     """Add host to database.  Returns True if successful."""
     try:
-        host = models.Host(hostname=hostname, ipv4_addr=ipv4_addr, type=type, ios_type=ios_type)
+        host = models.Host(hostname=hostname, ipv4_addr=ipv4_addr, type=type, ios_type=ios_type, local_creds=local_creds)
         db.session.add(host)
         # This enables pulling ID for newly inserted host
         db.session.flush()
@@ -162,7 +162,7 @@ def getHostsByIOSType(x):
     return hosts
 
 
-def editHostInDatabase(originalHostID, hostname, ipv4_addr, hosttype, ios_type):
+def editHostInDatabase(originalHostID, hostname, ipv4_addr, hosttype, ios_type, local_creds, local_creds_updated):
     """Edit device in database.
 
     This is only supported when using the local database.
@@ -178,6 +178,8 @@ def editHostInDatabase(originalHostID, hostname, ipv4_addr, hosttype, ios_type):
                 host.type = hosttype
             if ios_type:
                 host.ios_type = ios_type
+            if local_creds_updated:
+                host.local_creds = local_creds
             db.session.commit()
             return True
         except:

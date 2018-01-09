@@ -38,6 +38,7 @@ class Host(db.Model):
     ipv4_addr = db.Column(db.String(15), index=True, unique=True)
     type = db.Column(db.Text)
     ios_type = db.Column(db.String(15), index=True)
+    local_creds = db.Column(db.Boolean, default=False)
     devicetype_id = db.Column(db.Integer, db.ForeignKey('devicetype.id'))
 
     def __repr__(self):
