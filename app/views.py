@@ -370,14 +370,14 @@ def addHosts():
     initialChecks()
     form = AddHostForm()
     if form.validate_on_submit():
-        return redirect(url_for('addHostConfirm'))
+        return redirect(url_for('resultsAddHost'))
     return render_template('/db/addhosts.html',
                            title='Add hosts to database',
                            form=form)
 
 
-@app.route('/db/addhostconfirm', methods=['GET', 'POST'])
-def addHostConfirm():
+@app.route('/results/resultsaddhost', methods=['GET', 'POST'])
+def resultsAddHost():
     """Confirm new host details prior to saving in local database."""
     initialChecks()
     hostname = request.form['hostname']
@@ -387,7 +387,7 @@ def addHostConfirm():
     response, hostid = db_modifyDatabase.addHostToDB(hostname, ipv4_addr, hosttype, ios_type)
     if response:
         writeToLog('added host %s to database' % (hostname))
-        return render_template("/db/addhostconfirm.html",
+        return render_template("/results/resultsaddhost.html",
                                title='Add host result',
                                hostname=hostname,
                                ipv4_addr=ipv4_addr,
@@ -404,20 +404,20 @@ def importHosts():
     initialChecks()
     form = ImportHostsForm()
     if form.validate_on_submit():
-        return redirect(url_for('resultImportHosts'))
+        return redirect(url_for('resultsImportHosts'))
     return render_template('/db/importhosts.html',
                            title='Import hosts to database via CSV',
                            form=form)
 
 
-@app.route('/db/importhostsconfirm', methods=['GET', 'POST'])
-def importHostsConfirm():
+@app.route('/results/resultsimporthosts', methods=['GET', 'POST'])
+def resultsImportHosts():
     """Confirm CSV import device details prior to saving to local database."""
     initialChecks()
     csvImport = request.form['csvimport']
     response, message = db_modifyDatabase.importHostsToDB(csvImport)
     writeToLog('imported hosts to database')
-    return render_template("/db/importhostsconfirm.html",
+    return render_template("/results/resultsimporthosts.html",
                            title='Import devices result',
                            response=response,
                            message=message)
