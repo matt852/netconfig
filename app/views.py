@@ -668,7 +668,14 @@ def confirmHostEdit(x):
 
     x = original host ID
     """
-    originalHost = db_modifyDatabase.retrieveHostByID(x)
+    storedHost = db_modifyDatabase.retrieveHostByID(x)
+    # Save all existing host variables, as the class stores get updated later in the function
+    origHostname = storedHost.hostname
+    origIpv4_addr = storedHost.ipv4_addr
+    origHosttype = storedHost.type
+    origIos_type = storedHost.ios_type
+    origLocal_creds = storedHost.local_creds
+
     hostname = request.form['hostname']
     ipv4_addr = request.form['ipv4_addr']
     hosttype = request.form['hosttype']
@@ -682,50 +689,43 @@ def confirmHostEdit(x):
     except:
         local_creds = False
 
-    print "original"
-    print originalHost.hostname
-    print originalHost.local_creds
-    print "updated"
-    print local_creds
-
-    if originalHost.local_creds == local_creds:
+    if storedHost.local_creds == local_creds:
         local_creds_updated = False
     else:
         local_creds_updated = True
 
-    print "local_creds_updated"
-    print local_creds_updated
-    print "originalHost.local_creds"
-    print originalHost.local_creds
-
     # If exists, disconnect any existing SSH sessions
     #  and clear them from the SSH dict
     try:
-        disconnectSpecificSSHSession(originalHost)
-        writeToLog('disconnected and cleared saved SSH session information for edited host %s' % (originalHost.hostname))
+        disconnectSpecificSSHSession(storedHost)
+        writeToLog('disconnected and cleared saved SSH session information for edited host %s' % (storedHost.hostname))
     except (socket.error, EOFError):
-        writeToLog('no existing SSH sessions for edited host %s' % (originalHost.hostname))
+        writeToLog('no existing SSH sessions for edited host %s' % (storedHost.hostname))
     except:
-        writeToLog('could not clear SSH session for edited host %s' % (originalHost.hostname))
+        writeToLog('could not clear SSH session for edited host %s' % (storedHost.hostname))
 
-    result = db_modifyDatabase.editHostInDatabase(originalHost.id, hostname, ipv4_addr, hosttype, ios_type, local_creds, local_creds_updated)
+    result = db_modifyDatabase.editHostInDatabase(storedHost.id, hostname, ipv4_addr, hosttype, ios_type, local_creds, local_creds_updated)
 
     if result:
         updatedHost = db_modifyDatabase.retrieveHostByID(x)
-        writeToLog('edited host %s in database' % (originalHost.hostname))
+        writeToLog('edited host %s in database' % (storedHost.hostname))
         return render_template("confirm/confirmhostedit.html",
                                title='Edit host confirm',
-                               originalHost=originalHost,
-                               updatedHost=updatedHost,
+                               storedHost=storedHost,
                                hostname=hostname,
                                ipv4_addr=ipv4_addr,
                                hosttype=hosttype,
                                ios_type=ios_type,
                                local_creds=local_creds,
-                               local_creds_updated=local_creds_updated)
+                               local_creds_updated=local_creds_updated,
+                               origHostname=origHostname,
+                               origIpv4_addr=origIpv4_addr,
+                               origHosttype=origHosttype,
+                               origIos_type=origIos_type,
+                               origLocal_creds=origLocal_creds)
     else:
         return redirect(url_for('confirmHostEdit',
-                                x=originalHost))
+                                x=storedHost))
 
 
 @app.route('/confirm/confirmcmdcustom/', methods=['GET', 'POST'])
