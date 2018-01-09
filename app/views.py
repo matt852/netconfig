@@ -676,23 +676,20 @@ def confirmHostEdit(x):
     origIos_type = storedHost.ios_type
     origLocal_creds = storedHost.local_creds
 
+    # Save form user inputs into new variables
     hostname = request.form['hostname']
     ipv4_addr = request.form['ipv4_addr']
     hosttype = request.form['hosttype']
     ios_type = request.form['ios_type']
-    # If checkbox is unchecked, this fails as the request.form['local_creds'] value returned is False
-    try:
-        if request.form['local_creds']:
-            local_creds = True
-        else:
-            local_creds = False
-    except:
-        local_creds = False
-
-    if storedHost.local_creds == local_creds:
-        local_creds_updated = False
-    else:
+    if request.form['local_creds'] == 'True':
+        local_creds = True
         local_creds_updated = True
+    elif request.form['local_creds'] == 'False':
+        local_creds = False
+        local_creds_updated = True
+    else:
+        local_creds = ''
+        local_creds_updated = False
 
     # If exists, disconnect any existing SSH sessions
     #  and clear them from the SSH dict
@@ -707,7 +704,7 @@ def confirmHostEdit(x):
     result = db_modifyDatabase.editHostInDatabase(storedHost.id, hostname, ipv4_addr, hosttype, ios_type, local_creds, local_creds_updated)
 
     if result:
-        updatedHost = db_modifyDatabase.retrieveHostByID(x)
+        # updatedHost = db_modifyDatabase.retrieveHostByID(x)
         writeToLog('edited host %s in database' % (storedHost.hostname))
         return render_template("confirm/confirmhostedit.html",
                                title='Edit host confirm',

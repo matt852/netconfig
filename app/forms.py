@@ -66,10 +66,10 @@ class EditHostForm(FlaskForm):
                         ('cisco_xe', 'IOS-XE'),
                         ('cisco_wlc_ssh', 'WLC')]
     ios_type = SelectField('IOS Type', choices=ios_type_choices, validators=[DataRequired()])
-    local_creds = BooleanField('Use Local/Different Credentials', default=False)
-    # local_creds_choices = [('no', 'No'),
-    #                        ('yes', 'Yes')]
-    # local_creds = SelectField('Use Local/Different Credentials', choices=local_creds_choices)
+    local_creds_choices = [('', ''),
+                           ('False', 'No'),
+                           ('True', 'Yes')]
+    local_creds = SelectField('Use Local/Different Credentials', choices=local_creds_choices)
 
 
 class CustomCommandsForm(FlaskForm):
