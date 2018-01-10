@@ -35,7 +35,7 @@ def connectToSSH(deviceType, host, creds):
     """Connect to host via SSH with provided username and password, and type of device specified."""
     # Try to connect to the host
     try:
-        ssh = nm.ConnectHandler(device_type=deviceType, ip=host, username=creds.un, password=creds.pw)
+        ssh = nm.ConnectHandler(device_type=deviceType, ip=host, username=creds.un, password=creds.pw, privPassword=creds.priv)
     # except nm.AuthenticationException:
     #    return "%s skipped - authentication error\n" % (host)
     except:
@@ -98,9 +98,12 @@ def runMultipleSSHCommandsInSession(cmdList, ssh):
     return result
 
 
-def getSSHSession(deviceType, host, creds):
+def getSSHSession(deviceType, host, creds, privPassword=''):
     """Create an SSH session, verifies it worked, then returns the session itself."""
-    ssh = connectToSSH(deviceType, host, creds)
+    if privPassword:
+        ssh = connectToSSH(deviceType, host, creds, privPassword)
+    else:
+        ssh = connectToSSH(deviceType, host, creds)
     # Verify ssh connection established and didn't return an error
     if sshSkipCheck(ssh):
         return "ERROR: In function nfn.getSSHSession, sshSkipCheck failed using host %s and deviceType %s\n" % (host, deviceType)

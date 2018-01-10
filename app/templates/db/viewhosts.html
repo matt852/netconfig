@@ -37,7 +37,11 @@
 							<tr>
 								<td></td>
 								{% if status[host.hostname] %}
-									<td><a href="/db/viewhosts/{{ host.id }}">{{ host.hostname }}</a></td>
+									{% if host.local_creds %}
+										<td id="tdDevice"><a href="modalLocalCredentials" data-toggle="modal" data-target="#modalLocalCredentials" data-hostid="{{ host.id }}" onclick="loading();return false;">{{ host.hostname }}</a></td>
+									{% else %}
+										<td><a href="/db/viewhosts/{{ host.id }}">{{ host.hostname }}</a></td>
+									{% endif %}
 								{% else %}
 									<td>{{ host.hostname }}</td>
 								{% endif %}
@@ -59,5 +63,7 @@
 		</div>
 	</div>
 </div>
+
+{% include "/modals/viewhosts_modals.html" %}
 
 {% endblock %}

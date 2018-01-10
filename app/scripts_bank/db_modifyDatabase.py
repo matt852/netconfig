@@ -150,7 +150,7 @@ def getHostByID(x):
     host = retrieveHostByID(x)
 
     # Get host class based on device type
-    return dt.DeviceHandler(id=host.id, hostname=host.hostname, ipv4_addr=host.ipv4_addr, type=host.type, ios_type=host.ios_type)
+    return dt.DeviceHandler(id=host.id, hostname=host.hostname, ipv4_addr=host.ipv4_addr, type=host.type, ios_type=host.ios_type, local_creds=host.local_creds)
 
 
 def getHostnameByID(x):

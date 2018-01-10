@@ -33,4 +33,6 @@ def checkSSHSessionMatchesID(sshid, hostid):
 
 def getLocalCredentials(host):
     """Get local credentials from the user used for the specific device."""
-    pass
+    d
+
+    return username, password

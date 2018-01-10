@@ -21,7 +21,7 @@ from scripts_bank import db_modifyDatabase
 from scripts_bank import netboxAPI
 from scripts_bank import ping_hosts as ph
 from scripts_bank.lib import functions as fn
-from scripts_bank.lib.flask_functions import checkUserLoggedInStatus, getLocalCredentials
+from scripts_bank.lib.flask_functions import checkUserLoggedInStatus
 from scripts_bank.lib.functions import readFromFile
 from scripts_bank.lib.netmiko_functions import disconnectFromSSH, getSSHSession
 from scripts_bank.lib.netmiko_functions import sessionIsAlive
@@ -29,6 +29,7 @@ from scripts_bank.run_command import getCfgCmdOutput, getCmdOutputNoCR
 
 from .forms import AddHostForm, CustomCfgCommandsForm, CustomCommandsForm
 from .forms import EditHostForm, EditInterfaceForm, ImportHostsForm, LoginForm
+from .forms import LocalCredentialsForm
 
 # Gets page referrer
 # referrer = request.headers.get("Referer")
@@ -96,25 +97,26 @@ def initialChecks():
                                title='Home')
 
 
-def retrieveSSHSession(host):
+def retrieveSSHSession(host, username='', password='', privPassword=''):
     """[Re]Connect to 'host' over SSH.  Store session for use later.
 
     Return active SSH session for provided host if it exists.
-    Otherwise gets a session, stores it, and returns it. dddd
+    Otherwise gets a session, stores it, and returns it.
     """
     global ssh
 
-    user_id = str(g.db.hget('users', session['USER']))
-    password = str(g.db.hget(str(user_id), 'pw'))
-    creds = fn.setUserCredentials(session['USER'], password)
+    # If username and password variable are not passed to function, set it as the currently logged in user
+    if not username and not password:
+        username = session['USER']
+        user_id = str(g.db.hget('users', username))
+        password = str(g.db.hget(str(user_id), 'pw'))
+
+    creds = fn.setUserCredentials(username, password, privPassword)
+
     # Store SSH Dict key as host.id followed by '-' followed by username
     sshKey = str(host.id) + '--' + str(session['UUID'])
     if sshKey not in ssh:
         writeToLog('initiated new SSH connection to %s' % (host.hostname))
-        # If device uses different credentials, prompt user for them
-        if host.local_creds:
-            getLocalCredentials(host)
-
         # If no currently active SSH sessions, initiate a new one
         ssh[sshKey] = getSSHSession(host.ios_type, host.ipv4_addr, creds)
 
@@ -123,6 +125,11 @@ def retrieveSSHSession(host):
         # If session is closed, reestablish session and log event
         writeToLog('reestablished SSH connection to %s' % (host.hostname))
         ssh[sshKey] = getSSHSession(host.ios_type, host.ipv4_addr, creds)
+
+    # Clear password and creds variables from memory
+    password = None
+    privPassword = None
+    creds = None
 
     return ssh[sshKey]
 
@@ -563,8 +570,21 @@ def viewSpecificHost(x):
 
     writeToLog('accessed host %s using IPv4 address %s' % (host.hostname, host.ipv4_addr))
 
-    # Get any existing SSH sessions
-    activeSession = retrieveSSHSession(host)
+    # Try statement as if this page was accessed directly and not via the Local Credentials form it will fail and we want to operate normally
+    try:
+        if request.form['localCredsUsed'] == 'True':
+            username = request.form['user']
+            password = request.form['pw']
+            privPassword = request.form['privpw']
+            activeSession = retrieveSSHSession(host, username, password, privPassword)
+        else:
+            # Get any existing SSH sessions
+            activeSession = retrieveSSHSession(host)
+    except:
+        # Get any existing SSH sessions
+        activeSession = retrieveSSHSession(host)
+
+    # activeSession = retrieveSSHSession(host)
 
     tableHeader, interfaces = host.pull_host_interfaces(activeSession)
 
@@ -992,6 +1012,24 @@ def modalEditInterfaceOnHost(x, y):
                            interface=interface,
                            intConfig=intConfig,
                            form=form)
+
+
+@app.route('/modallocalcredentials/<x>', methods=['GET', 'POST'])
+def modalLocalCredentials(x):
+    """Get local credentials from user.
+
+    x is host ID
+    """
+    initialChecks()
+
+    host = db_modifyDatabase.getHostByID(x)
+
+    form = LocalCredentialsForm()
+    writeToLog('saved local credentials for host %s' % (host.hostname))
+    return render_template('localcredentials.html',
+                           title='Login with local SSH credentials',
+                           form=form,
+                           host=host)
 
 
 @app.route('/modalcmdshowrunconfig/', methods=['GET', 'POST'])

@@ -5,13 +5,14 @@ from ...scripts_bank.lib import functions as fn
 class BaseDevice(object):
     """Base device object for all device vendors and models."""
 
-    def __init__(self, id, hostname, ipv4_addr, type, ios_type):
+    def __init__(self, id, hostname, ipv4_addr, type, ios_type, local_creds):
         """Initialization function."""
         self.id = id
         self.hostname = hostname
         self.ipv4_addr = ipv4_addr
         self.type = type
         self.ios_type = ios_type
+        self.local_creds = local_creds
 
     def __del__(self):
         """Deletion function."""

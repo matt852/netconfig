@@ -12,6 +12,15 @@ class LoginForm(FlaskForm):
     pw = PasswordField('Password', validators=[DataRequired()])
 
 
+class LocalCredentialsForm(FlaskForm):
+    """Local credentials form, on a per device basis."""
+
+    localCredsUsed = HiddenField('LocalCredsUsed')
+    user = StringField('Username', validators=[DataRequired()])
+    pw = PasswordField('Login Password', validators=[DataRequired()])
+    privpw = PasswordField('Privileged Password (if applicable)')
+
+
 class AddHostForm(FlaskForm):
     """Add new device to local database form."""
 

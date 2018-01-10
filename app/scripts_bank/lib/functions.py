@@ -16,16 +16,15 @@ from flask import session
 class UserCredentials(object):
     """Stores interface authentication session results when searching for a client on the network."""
 
-    def __init__(self, un, pw):
+    def __init__(self, un, pw, priv):
         """Initialization method."""
         self.un = un
         self.pw = pw
+        self.priv = priv
 
 """Global variables."""
 # Credentials class variable.  Stores as creds.un and creds.pw for username and password
-creds = UserCredentials('', '')
-# Word to signify the user is done entering data.  Can be blank
-stopword = "DONE"
+creds = UserCredentials('', '', '')
 
 """Global logging settings."""
 # Syslogging
@@ -77,10 +76,11 @@ def debugDict(d):
         print k, v
 
 
-def setUserCredentials(username, password):
+def setUserCredentials(username, password, privPassword=''):
     """Return creds class with username and password in it."""
     creds.un = username
     creds.pw = password
+    creds.priv = privPassword
     return creds
 
 
@@ -561,33 +561,6 @@ def reverseDNSEndpoint(host):
     hostNameFQDN = hostNameList[0].split("'")
     # Return hostname of IP address from reverse DNS lookup
     return hostNameFQDN[0]
-
-
-def getCustomInput(typeOfInput, inputIsConfigCmds):
-    """Get multiline input from user.
-
-    Return all user input as a single variable/string.
-    """
-    text = ""
-    print "\nTYPE OF INPUT NEEDED: %s" % (typeOfInput)
-    print "\nPlease enter in this info one line at a time."
-    if inputIsConfigCmds:
-        print "Make sure to include exiting out of config t mode, and saving the config."
-    print "Enter in the word 'DONE' in all caps when done.\n"
-    # Loop until user enters in value saved as 'stopword'
-    while True:
-        # Store each user inputted line to variable 'line'
-        line = raw_input()
-        # If user input ('line' var) equals 'stopword', break loop
-        if line.strip() == stopword:
-            break
-            # Otherwise, append line to end of all previous lines with a carriage return
-        text += "%s\n" % line
-    print "\n"
-    # Split 'text' variable into list split by newlines
-    text = text.splitlines()
-    # Return all user input as a single variable/string
-    return text
 
 
 def md5VerifyOnDeviceWithSession(command, child):
