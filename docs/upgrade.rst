@@ -12,6 +12,22 @@ If running NetConfig on a VM, it is *highly* recommended to take a snapshot prio
 Upgrade Process
 ^^^^^^^^^^^^^^^
 
+Version 1.2.4 (beta) or newer
+"""""""""""""""""""""""""""""
+
+As of Version 1.2.4 (beta), the Upgrade process has been fully automated into the ~/netconfig/upgrade.sh script.
+
+If you are on v1.2.4 (beta) or higher, simply run the following commands to run the script as the local 'netconfig' user:
+
+.. code-block:: text
+
+    su - netconfig
+    /home/netconfig/netconfig/upgrade.sh
+
+
+Version 1.2.3 (beta) or earlier
+"""""""""""""""""""""""""""""""
+
 Change to NetConfig user
 
 .. code-block:: text

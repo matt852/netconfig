@@ -58,6 +58,17 @@
 </div>
 <div class="section" id="upgrade-process">
 <h3>Upgrade Process<a class="headerlink" href="#upgrade-process" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="version-1-2-4-beta-or-newer">
+<h4>Version 1.2.4 (beta) or newer<a class="headerlink" href="#version-1-2-4-beta-or-newer" title="Permalink to this headline">¶</a></h4>
+<p>As of Version 1.2.4 (beta), the Upgrade process has been fully automated into the ~/netconfig/upgrade.sh script.</p>
+<p>If you are on v1.2.4 (beta) or higher, simply run the following commands to run the script as the local ‘netconfig’ user:</p>
+<div class="highlight-text"><div class="highlight"><pre><span></span>su - netconfig
+/home/netconfig/netconfig/upgrade.sh
+</pre></div>
+</div>
+</div>
+<div class="section" id="version-1-2-3-beta-or-earlier">
+<h4>Version 1.2.3 (beta) or earlier<a class="headerlink" href="#version-1-2-3-beta-or-earlier" title="Permalink to this headline">¶</a></h4>
 <p>Change to NetConfig user</p>
 <div class="highlight-text"><div class="highlight"><pre><span></span>su - netconfig
 </pre></div>
@@ -86,6 +97,7 @@
 <p>Restart NetConfig service</p>
 <div class="highlight-text"><div class="highlight"><pre><span></span>sudo supervisorctl restart netconfig
 </pre></div>
+</div>
 </div>
 </div>
 <div class="section" id="verifying-upgrade">
