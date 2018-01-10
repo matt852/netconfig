@@ -29,3 +29,8 @@ def checkSSHSessionMatchesID(sshid, hostid):
         return True
     else:
         return False
+
+
+def getLocalCredentials(host):
+    """Get local credentials from the user used for the specific device."""
+    pass

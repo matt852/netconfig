@@ -16,7 +16,7 @@
 			        IPv4_Address - <small>The IP address address of the device.  Must be accessible via SSH</small><br />
 			        Device_Type - <small>Valid Options: Switch, Router, or Firewall</small><br />
 			        IOS_Type - <small>Valid Options: IOS, IOS-XE, NX-OS, or ASA</small><br />
-			        Local_Creds - <small>Set True if the device uses local/different credentials than the ones of the currently logged in NetConfig user.  Set False otherwise (default setting).  Valid Options: True, False</small><br />
+			        Local_Creds - <small>Set True if the device uses local/different credentials than the ones of the currently logged in NetConfig user.  Valid Options: True, False.  Defaults to False if not set.</small><br />
 			        <br />
 			        {{ form.csvimport(rows=4, cols=60, autofocus="autofocus", required="required") }}
 			        {% for error in form.csvimport.errors %}

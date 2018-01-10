@@ -21,7 +21,7 @@ from scripts_bank import db_modifyDatabase
 from scripts_bank import netboxAPI
 from scripts_bank import ping_hosts as ph
 from scripts_bank.lib import functions as fn
-from scripts_bank.lib.flask_functions import checkUserLoggedInStatus
+from scripts_bank.lib.flask_functions import checkUserLoggedInStatus, getLocalCredentials
 from scripts_bank.lib.functions import readFromFile
 from scripts_bank.lib.netmiko_functions import disconnectFromSSH, getSSHSession
 from scripts_bank.lib.netmiko_functions import sessionIsAlive
@@ -100,7 +100,7 @@ def retrieveSSHSession(host):
     """[Re]Connect to 'host' over SSH.  Store session for use later.
 
     Return active SSH session for provided host if it exists.
-    Otherwise gets a session, stores it, and returns it.
+    Otherwise gets a session, stores it, and returns it. dddd
     """
     global ssh
 
@@ -111,6 +111,10 @@ def retrieveSSHSession(host):
     sshKey = str(host.id) + '--' + str(session['UUID'])
     if sshKey not in ssh:
         writeToLog('initiated new SSH connection to %s' % (host.hostname))
+        # If device uses different credentials, prompt user for them
+        if host.local_creds:
+            getLocalCredentials(host)
+
         # If no currently active SSH sessions, initiate a new one
         ssh[sshKey] = getSSHSession(host.ios_type, host.ipv4_addr, creds)
 
