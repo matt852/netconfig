@@ -115,6 +115,7 @@ def retrieveSSHSession(host, username='', password='', privPassword=''):
 
     # Store SSH Dict key as host.id followed by '-' followed by username
     sshKey = str(host.id) + '--' + str(session['UUID'])
+
     if sshKey not in ssh:
         writeToLog('initiated new SSH connection to %s' % (host.hostname))
         # If no currently active SSH sessions, initiate a new one
@@ -550,7 +551,7 @@ def deviceUptime(x):
     return jsonify(host.pull_device_uptime(activeSession))
 
 
-@app.route('/db/viewhosts/<x>', methods=['GET'])
+@app.route('/db/viewhosts/<x>', methods=['GET', 'POST'])
 def viewSpecificHost(x):
     """Display specific device page.
 
