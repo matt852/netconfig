@@ -45,7 +45,7 @@ def importHostsToDB(csvImport):
         if x:
             # Split array by comma's
             xArray = x.split(',')
-            # 0 is hostname, 1 is IP address, 2 is device type, 3 is ios type
+            # 0 is hostname, 1 is IP address, 2 is device type, 3 is ios type, 4 is local creds
             hostname = xArray[0]
             ipv4_addr = xArray[1]
 
@@ -69,8 +69,15 @@ def importHostsToDB(csvImport):
             else:
                 ios_type = "Error"
 
+            if stripNewline(xArray[4]).lower() == 'true':
+                local_creds = True
+            elif stripNewline(xArray[4]).lower() == 'false':
+                local_creds = False
+            else:
+                local_creds = False
+
             try:
-                host = models.Host(hostname=hostname, ipv4_addr=ipv4_addr, type=type, ios_type=ios_type)
+                host = models.Host(hostname=hostname, ipv4_addr=ipv4_addr, type=type, ios_type=ios_type, local_creds=local_creds)
                 db.session.add(host)
                 # This enables pulling ID for newly inserted host
                 db.session.flush()

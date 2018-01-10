@@ -9,7 +9,7 @@ class LoginForm(FlaskForm):
     """User login form."""
 
     user = StringField('Username', validators=[DataRequired()])
-    pw = PasswordField('password', validators=[DataRequired()])
+    pw = PasswordField('Password', validators=[DataRequired()])
 
 
 class AddHostForm(FlaskForm):

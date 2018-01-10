@@ -224,6 +224,16 @@ def init_db():
     return db
 
 
+#############################
+# Login Creds Timeout - End #
+#############################
+
+
+##########################
+# Flask Handlers - Begin #
+##########################
+
+
 @app.before_request
 def before_request():
     """Set auto logout timer for logged in users.
@@ -236,10 +246,9 @@ def before_request():
     app.permanent_session_lifetime = timedelta(minutes=app.config['SESSIONTIMEOUT'])
     session.modified = True
 
-
-#############################
-# Login Creds Timeout - End #
-#############################
+########################
+# Flask Handlers - End #
+########################
 
 
 @app.errorhandler(404)
