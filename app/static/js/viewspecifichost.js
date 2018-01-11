@@ -4,7 +4,7 @@ $(document).ready(function() {
   // Start Uptime section
   // Get ID of current device from URL, which are the numbers after the last '/'
   var loc = location.href.substr(location.href.lastIndexOf('/') + 1);
-  console.log(loc);
+
   $.ajax({
     url: '/deviceuptime/' + loc,
     success: function(data) {

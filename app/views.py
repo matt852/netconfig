@@ -248,6 +248,23 @@ def getNamesOfSSHSessionDevices():
     return hostList
 
 
+@app.route('/ajaxcheckhostactivesshsession/<x>', methods=['GET', 'POST'])
+def ajaxCheckHostActiveSession(x):
+    """Check if existing SSH session for host is currently active.
+
+    Used for AJAX call only, on main viewhosts.html page.
+    x = host id
+    """
+    host = db_modifyDatabase.retrieveHostByID(x)
+
+    result = checkHostActiveSSHSession(host)
+
+    if result:
+        return 'True'
+    else:
+        return 'False'
+
+
 def interfaceReplaceSlash(x):
     """Replace all forward slashes in string 'x' with an underscore."""
     x = x.replace('_', '/')
