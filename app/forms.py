@@ -15,7 +15,7 @@ class LoginForm(FlaskForm):
 class LocalCredentialsForm(FlaskForm):
     """Local credentials form, on a per device basis."""
 
-    localCredsUsed = HiddenField('LocalCredsUsed')
+    local_creds_used = HiddenField('LocalCredsUsed')
     user = StringField('Username', validators=[DataRequired()])
     pw = PasswordField('Login Password', validators=[DataRequired()])
     privpw = PasswordField('Privileged Password (if applicable)')

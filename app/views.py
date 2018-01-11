@@ -97,6 +97,46 @@ def initialChecks():
                                title='Home')
 
 
+def getSSHKeyForHost(host):
+    """Return SSH key for looking up existing SSH sessions for a specific host.
+
+    # Store SSH Dict key as host.id followed by '-' followed by username and return.
+    """
+    sshKey = str(host.id) + '--' + str(session['UUID'])
+    return sshKey
+
+
+def checkHostActiveSSHSession(host):
+    """Check if existing SSH session for host is currently active."""
+    global ssh
+
+    sshKey = getSSHKeyForHost(host)
+
+    # Return True is SSH session is active, False if not
+    try:
+        if sessionIsAlive(ssh[sshKey]):
+            return True
+        else:
+            return False
+    except:
+        # If try statement fails, return False as it's not alive
+        return False
+
+
+def checkHostExistingSSHSession(host):
+    """Check if host currenty has an existing SSH session saved."""
+    global ssh
+
+    # Retrieve SSH key for host
+    sshKey = getSSHKeyForHost(host)
+
+    # Return True if host in global SSH variable, False if not
+    if sshKey in ssh:
+        return True
+    else:
+        return False
+
+
 def retrieveSSHSession(host, username='', password='', privPassword=''):
     """[Re]Connect to 'host' over SSH.  Store session for use later.
 
@@ -113,16 +153,16 @@ def retrieveSSHSession(host, username='', password='', privPassword=''):
 
     creds = fn.setUserCredentials(username, password, privPassword)
 
-    # Store SSH Dict key as host.id followed by '-' followed by username
-    sshKey = str(host.id) + '--' + str(session['UUID'])
+    # Retrieve SSH key for host
+    sshKey = getSSHKeyForHost(host)
 
-    if sshKey not in ssh:
+    if not checkHostExistingSSHSession(host):
         writeToLog('initiated new SSH connection to %s' % (host.hostname))
         # If no currently active SSH sessions, initiate a new one
         ssh[sshKey] = getSSHSession(host.ios_type, host.ipv4_addr, creds)
 
     # Run test to verify if socket connection is still open or not
-    if not sessionIsAlive(ssh[sshKey]):
+    if not checkHostActiveSSHSession(host):
         # If session is closed, reestablish session and log event
         writeToLog('reestablished SSH connection to %s' % (host.hostname))
         ssh[sshKey] = getSSHSession(host.ios_type, host.ipv4_addr, creds)
@@ -206,14 +246,6 @@ def getNamesOfSSHSessionDevices():
     # Reorder list in alphabetical order
     hostList = sorted(hostList, key=operator.attrgetter('hostname'))
     return hostList
-    '''
-    newList = []
-    for a in hostList:
-        a = (hostList[:8] + '..') if len(hostList) > 8 else hostList
-        newList.append(a)
-
-    return newList
-    '''
 
 
 def interfaceReplaceSlash(x):
@@ -572,18 +604,24 @@ def viewSpecificHost(x):
     writeToLog('accessed host %s using IPv4 address %s' % (host.hostname, host.ipv4_addr))
 
     # Try statement as if this page was accessed directly and not via the Local Credentials form it will fail and we want to operate normally
+    # Variable to determine if successfully connected o host use local credentials
+    varFormSet = False
     try:
-        if request.form['localCredsUsed'] == 'True':
-            username = request.form['user']
-            password = request.form['pw']
-            privPassword = request.form['privpw']
-            activeSession = retrieveSSHSession(host, username, password, privPassword)
-        else:
+        username = request.form['user']
+        password = request.form['pw']
+        privPassword = request.form['privpw']
+        varFormSet = True
+        activeSession = retrieveSSHSession(host, username, password, privPassword)
+        print "local creds used"
+        print request.form['user']
+    except:
+        # If no form submitted (not using local credentials), get SSH session
+        # Don't go in if form was used (local credentials) but SSH session failed in above 'try' statement
+        if not varFormSet:
             # Get any existing SSH sessions
             activeSession = retrieveSSHSession(host)
-    except:
-        # Get any existing SSH sessions
-        activeSession = retrieveSSHSession(host)
+            print "stored creds used"
+            print session['USER']
 
     # activeSession = retrieveSSHSession(host)
 
@@ -1024,6 +1062,9 @@ def modalLocalCredentials(x):
     initialChecks()
 
     host = db_modifyDatabase.getHostByID(x)
+
+    if checkHostActiveSSHSession(host):
+        return redirect('/db/viewhosts/%s' % (host.id))
 
     form = LocalCredentialsForm()
     writeToLog('saved local credentials for host %s' % (host.hostname))
