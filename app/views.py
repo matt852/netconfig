@@ -509,7 +509,7 @@ def editHost(x):
     host = db_modifyDatabase.getHostByID(x)
     form = EditHostForm()
     if form.validate_on_submit():
-        return redirect('/confirm/confirmhostedit')
+        return redirect('/results/resultshostedit')
     return render_template('/edithost.html',
                            title='Edit host in database',
                            id=x,
@@ -629,16 +629,12 @@ def viewSpecificHost(x):
         privPassword = request.form['privpw']
         varFormSet = True
         activeSession = retrieveSSHSession(host, username, password, privPassword)
-        print "local creds used"
-        print request.form['user']
     except:
         # If no form submitted (not using local credentials), get SSH session
         # Don't go in if form was used (local credentials) but SSH session failed in above 'try' statement
         if not varFormSet:
             # Get any existing SSH sessions
             activeSession = retrieveSSHSession(host)
-            print "stored creds used"
-            print session['USER']
 
     # activeSession = retrieveSSHSession(host)
 
@@ -750,9 +746,9 @@ def confirmIntEdit():
                            otherEncoded=otherEncoded)
 
 
-@app.route('/confirm/confirmhostedit/', methods=['GET', 'POST'])
-@app.route('/confirm/confirmhostedit/<x>', methods=['GET', 'POST'])
-def confirmHostEdit(x):
+@app.route('/results/resultshostedit/', methods=['GET', 'POST'])
+@app.route('/results/resultshostedit/<x>', methods=['GET', 'POST'])
+def resultsHostEdit(x):
     """Confirm settings to edit host with in local database.
 
     x = original host ID
@@ -795,7 +791,7 @@ def confirmHostEdit(x):
     if result:
         # updatedHost = db_modifyDatabase.retrieveHostByID(x)
         writeToLog('edited host %s in database' % (storedHost.hostname))
-        return render_template("confirm/confirmhostedit.html",
+        return render_template("results/resultshostedit.html",
                                title='Edit host confirm',
                                storedHost=storedHost,
                                hostname=hostname,

@@ -48,7 +48,7 @@
 		{% elif "/db/viewhosts/" in request.path %}
 			<script src="{{url_for('static', filename='js/hostshell.js')}}"></script>
 			<script src="{{url_for('static', filename='js/viewspecifichost.js')}}"></script>
-		{% elif "/modallocalcredentials" in request.path %}
+		{% elif "/modallocalcredentials" in request.path or "/results/resultshostedit" in request.path %}
 			<script src="{{url_for('static', filename='js/localcredentials.js')}}"></script>
 		{% endif %}
 	{% endblock %}

@@ -62,7 +62,11 @@
                                     </tbody>
                                 </table>
                                 <div class="text-right">
-                                    <a href="/db/viewhosts/{{ storedHost.id }}" class="btn btn-success">Go to {{ storedHost.hostname }}</a>
+                                    {% if storedHost.local_creds %}
+                                        <td id="tdDevice"><a href="modalLocalCredentials" class="btn btn-success" data-toggle="modal" data-target="#modalLocalCredentials" data-hostid="{{ storedHost.id }}" data-hostname="{{ storedHost.hostname }}"  onclick="loading();return false;">Go to {{ storedHost.hostname }}</a></td>
+                                    {% else %}
+                                        <a href="/db/viewhosts/{{ storedHost.id }}" class="btn btn-success">Go to {{ storedHost.hostname }}</a>
+                                    {% endif %}
                                     <a href="/db/viewhosts" class="btn btn-primary">View All Hosts</a>
                                 </div>
                             </div>
@@ -72,4 +76,7 @@
             </form>
         </div>
     </div>
+
+{% include "/modals/localcredentials_modals.html" %}
+
 {% endblock %}

@@ -7,7 +7,7 @@
 	<div class="row">
     	<div class="col-md-9">
 			<h2 class="text-primary">Edit Host {{ originalHost }}</h2>
-			<form action="{{ url_for('confirmHostEdit') }}{{ id }}" method="post" name="hostedit">
+			<form action="{{ url_for('resultsHostEdit') }}{{ id }}" method="post" name="hostedit">
 			    {{ form.hidden_tag() }}
 			    <p>
 			        Hostname:<br>
@@ -55,7 +55,7 @@
 	<div class="row">
 		<div class="col-md-9">
 			<div class="text-right">
-				<a href="/db/viewhosts/{{ id }}" class="btn btn-info">Return to {{ originalHost }}</a>
+				<a href="/db/viewhosts" class="btn btn-info">Cancel</a>
 			</div>
 		</div>
 	</div>
