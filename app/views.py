@@ -11,7 +11,7 @@ from urllib import quote_plus, unquote_plus
 from app import app
 
 from flask import flash, g, jsonify, redirect, render_template
-from flask import request, session, url_for  # Flask
+from flask import request, session, url_for
 
 from redis import StrictRedis
 
@@ -55,14 +55,18 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
-def writeToLog(msg):
+def writeToLog(msg, currentUser=''):
     """Write 'msg' to syslog.log file.
 
     Try/catch in case User isn't logged in, and Netconfig URL is access directly.
     """
     try:
-        # Syslog file
-        logger.info(session['USER'] + ' - ' + msg)
+        # If user isn't set in session, use provided user for logging (eg: after logging out)
+        if currentUser:
+            logger.info(currentUser + ' - ' + msg)
+        else:
+            # Syslog file
+            logger.info(session['USER'] + ' - ' + msg)
     except:
         return render_template("index.html", title='Home')
 
@@ -343,7 +347,7 @@ def index():
     If successful, stores them in server-side Redis server, with timer set
      to automatically clear information after a set time,
      or clear when user logs out.
-    Else, redirect user to login form. dddd
+    Else, redirect user to login form.
     """
     if 'USER' in session:
         return redirect(url_for('viewHosts'))
@@ -352,25 +356,6 @@ def index():
             if storeUserInRedis(request.form['user'], request.form['pw']):
                 writeToLog('logged in')
                 return redirect(url_for('viewHosts'))
-                '''
-                user = request.form['user']
-                pw = request.form['pw']
-                # If user id doesn't exist, create new one with next available UUID
-                # Else reuse existing key,
-                #  to prevent incrementing id each time the same user logs in
-                if str(g.db.hget('users', user)) == 'None':
-                    # Create new user id, incrementing by 10
-                    user_id = str(g.db.incrby('next_user_id', 10))
-                else:
-                    user_id = str(g.db.hget('users', user))
-                g.db.hmset(user_id, dict(user=user, pw=pw))
-                g.db.hset('users', user, user_id)
-                # Set user info timer to auto expire and clear data
-                g.db.expire(user_id, app.config['REDISKEYTIMEOUT'])
-                session['USER'] = user
-                # Generate UUID for user, tie to each individual SSH session later
-                session['UUID'] = uuid4()
-                '''
             else:
                 return render_template("index.html", title='Home')
         except:
@@ -389,6 +374,7 @@ def login():
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():
     """Disconnect all SSH sessions by user."""
+    currentUser = session['USER']
     disconnectAllSSHSessions()
     writeToLog('logged out')
 
@@ -400,11 +386,17 @@ def logout():
         writeToLog('did not delete user data stored in Redis as no user currently logged in')
     # Remove the username from the session if it is there
     try:
-        t = session['USER']
         session.pop('USER', None)
-        writeToLog('deleted user %s as stored in session variable' % (t))
+        writeToLog('deleted user %s as stored in session variable' % (currentUser), currentUser=currentUser)
     except:
         writeToLog('did not delete user data stored in session variable as no user currently logged in')
+
+    try:
+        u = session['UUID']
+        session.pop('UUID', None)
+        writeToLog('deleted UUID %s for user %s as stored in session variable' % (u, currentUser), currentUser=currentUser)
+    except:
+        writeToLog('did not delete UUID data stored in session variable as none is currently set for user', currentUser=currentUser)
 
     return redirect(url_for('index'))
 
@@ -620,7 +612,7 @@ def viewSpecificHost(x):
     if 'modal' in x:
         # Return empty response, as the page is loaded from the Modal JS
         # However this breaks the Loading modal JS function.
-        #  Unsure why, need to research dddd
+        #  Unsure why, need to research
         return ('', 204)
 
     host = db_modifyDatabase.getHostByID(x)
@@ -632,12 +624,10 @@ def viewSpecificHost(x):
     varFormSet = False
     try:
         if storeUserInRedis(request.form['user'], request.form['pw'], privpw=request.form['privpw'], host=host):
-            print "local creds used"
-            print request.form['user']
             # Set to True if variables are set correctly from local credentials form
             varFormSet = True
             activeSession = retrieveSSHSession(host)
-            writeToLog('local credentials saved to REDIS')
+            writeToLog('local credentials saved to REDIS for accessing host %s' % (host.hostname))
 
     except:
         # If no form submitted (not using local credentials), get SSH session
@@ -645,8 +635,7 @@ def viewSpecificHost(x):
         if not varFormSet:
             # Get any existing SSH sessions
             activeSession = retrieveSSHSession(host)
-            print "stored creds used"
-            print session['USER']
+            writeToLog('credentials used of currently logged in user for accessing host %s' % (host.hostname))
 
     # activeSession = retrieveSSHSession(host)
 

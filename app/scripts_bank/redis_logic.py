@@ -10,10 +10,15 @@ def generateSessionUUID():
 
 def deleteUserInRedis():
 	"""Delete logged in user in Redis."""
-	user_id = str(g.db.hget('users', session['USER']))
-	g.db.delete(str(user_id))
+	saved_id = str(g.db.hget('users', session['USER']))
+	g.db.delete(str(saved_id))
 
-	# Delete and locally saved credentials tied to user
+	# Delete any locally saved credentials tied to user
+	pattern = '*--' + str(session['USER'])
+	for key in g.db.hscan_iter('localusers', match=pattern):
+		# key[1] is the value we need to delete
+		g.db.delete(str(key[1]))
+		g.db.delete(str(saved_id))
 
 
 def resetUserRedisExpireTimer():
@@ -23,23 +28,17 @@ def resetUserRedisExpireTimer():
 	x is Redis key to reset timer on.
 	"""
 	try:
-		user_id = str(g.db.hget('users', session['USER']))
-		g.db.expire(user_id, app.config['REDISKEYTIMEOUT'])
+		saved_id = str(g.db.hget('users', session['USER']))
+		g.db.expire(saved_id, app.config['REDISKEYTIMEOUT'])
 	except:
 		pass
 
 
-# Issue with this: i need to set the saved key I lookup later/reference to be unique and callable, for cleaning up later
-# I can't save it as just the session['USER'], as I won't know which set of credentials to pull later if 2 devices use local_creds
-# I can't set it to host.id, because I won't know how to distinguish which user they are tied to, and don't want to delete them for other users' existing sessions
-# If host id doesn't exist, create new one with next available UUID
-# Else reuse existing key,
-#  to prevent incrementing id each time the same user logs in
 def storeUserInRedis(user, pw, privpw='', host=''):
 	"""Save user credentials in Redis.
 
 	If host is blank, then store as a general user.
-	If host is defined, tag credentials to host as a local set of redentials.
+	If host is defined, tag credentials to host as a local set of credentials.
 	"""
 	try:
 		if not host:
