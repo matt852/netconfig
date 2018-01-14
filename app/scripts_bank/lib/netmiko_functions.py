@@ -2,6 +2,7 @@
 
 import socket
 import netmiko as nm
+import functions as fn
 
 
 def sessionIsAlive(ssh):
@@ -31,11 +32,17 @@ def sshSkipCheck(x):
             return False
 
 
-def connectToSSH(deviceType, host, creds):
+def connectToSSH(host, creds):
     """Connect to host via SSH with provided username and password, and type of device specified."""
     # Try to connect to the host
     try:
-        ssh = nm.ConnectHandler(device_type=deviceType, ip=host, username=creds.un, password=creds.pw, secret=creds.priv)
+        if creds.priv:
+            ssh = nm.ConnectHandler(device_type=fn.stripNewline(host.ios_type), ip=fn.stripNewline(host.ipv4_addr), username=creds.un, password=creds.pw, secret=creds.priv)
+            # Enter into enable mode
+            ssh.enable()
+        else:
+            ssh = nm.ConnectHandler(device_type=fn.stripNewline(host.ios_type), ip=fn.stripNewline(host.ipv4_addr), username=creds.un, password=creds.pw)
+
     # except nm.AuthenticationException:
     #    return "%s skipped - authentication error\n" % (host)
     except:
@@ -54,9 +61,9 @@ def disconnectFromSSH(ssh):
         pass
 
 
-def runSSHCommandOnce(command, deviceType, host, creds):
+def runSSHCommandOnce(command, host, creds):
     """Run command on host via SSH and returns output."""
-    ssh = connectToSSH(deviceType, host, creds)
+    ssh = connectToSSH(host, creds)
     # Verify ssh connection established and didn't return an error
     if sshSkipCheck(ssh):
         return False
@@ -68,10 +75,10 @@ def runSSHCommandOnce(command, deviceType, host, creds):
     return result
 
 
-def runMultipleSSHCommandsWithCmdHead(cmdList, deviceType, host, creds):
+def runMultipleSSHCommandsWithCmdHead(cmdList, host, creds):
     """Run multiple commands on host via SSH and returns output."""
     result = []
-    ssh = connectToSSH(deviceType, host, creds)
+    ssh = connectToSSH(host, creds)
     # Verify ssh connection established and didn't return an error
     if sshSkipCheck(ssh):
         return False
@@ -98,12 +105,12 @@ def runMultipleSSHCommandsInSession(cmdList, ssh):
     return result
 
 
-def getSSHSession(deviceType, host, creds):
+def getSSHSession(host, creds):
     """Create an SSH session, verifies it worked, then returns the session itself."""
-    ssh = connectToSSH(deviceType, host, creds)
+    ssh = connectToSSH(host, creds)
     # Verify ssh connection established and didn't return an error
     if sshSkipCheck(ssh):
-        return "ERROR: In function nfn.getSSHSession, sshSkipCheck failed using host %s and deviceType %s\n" % (host, deviceType)
+        return "ERROR: In function nfn.getSSHSession, sshSkipCheck failed using host %s\n" % (host.hostname)
     # Return output of command
     return ssh
 

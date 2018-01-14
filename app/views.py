@@ -8,8 +8,6 @@ from datetime import timedelta
 
 from urllib import quote_plus, unquote_plus
 
-from uuid import uuid4
-
 from app import app
 
 from flask import flash, g, jsonify, redirect, render_template
@@ -20,6 +18,7 @@ from redis import StrictRedis
 from scripts_bank import db_modifyDatabase
 from scripts_bank import netboxAPI
 from scripts_bank import ping_hosts as ph
+from scripts_bank.redis_logic import deleteUserInRedis, resetUserRedisExpireTimer, storeUserInRedis
 from scripts_bank.lib import functions as fn
 from scripts_bank.lib.flask_functions import checkUserLoggedInStatus
 from scripts_bank.lib.functions import readFromFile
@@ -73,19 +72,6 @@ def writeToLog(msg):
 ###################
 
 
-def resetUserRedisExpireTimer():
-    """Reset automatic logout timer in Redis for logged in user.
-
-    Reset Redis user key exipiration, as we only want to to expire after inactivity, not from initial login.
-    x is Redis key to reset timer on.
-    """
-    try:
-        user_id = str(g.db.hget('users', session['USER']))
-        g.db.expire(user_id, app.config['REDISKEYTIMEOUT'])
-    except:
-        pass
-
-
 def initialChecks():
     """Run any functions required when user loads any page.
 
@@ -137,7 +123,8 @@ def checkHostExistingSSHSession(host):
         return False
 
 
-def retrieveSSHSession(host, username='', password='', privPassword=''):
+# def retrieveSSHSession(host, *args, **kwargs):
+def retrieveSSHSession(host):
     """[Re]Connect to 'host' over SSH.  Store session for use later.
 
     Return active SSH session for provided host if it exists.
@@ -145,13 +132,28 @@ def retrieveSSHSession(host, username='', password='', privPassword=''):
     """
     global ssh
 
-    # If username and password variable are not passed to function, set it as the currently logged in user
-    if not username and not password:
-        username = session['USER']
-        user_id = str(g.db.hget('users', username))
-        password = str(g.db.hget(str(user_id), 'pw'))
+    # Set privileged password initially to an empty string
+    privpw = ''
 
-    creds = fn.setUserCredentials(username, password, privPassword)
+    # If username and password variable are not passed to function, set it as the currently logged in user
+    # if ('username' not in kwargs and 'password' not in kwargs):
+    if host.local_creds:
+        # Set key to host id, --, and username of currently logged in user
+        key = str(host.id) + '--' + session['USER']
+        saved_id = str(g.db.hget('localusers', key))
+        username = str(g.db.hget(str(saved_id), 'user'))
+        password = str(g.db.hget(str(saved_id), 'pw'))
+        try:
+            privpw = str(g.db.hget(str(saved_id), 'privpw'))
+        except:
+            # If privpw not set for this device, simply leave it as a blank string
+            pass
+    else:
+        username = session['USER']
+        saved_id = str(g.db.hget('users', username))
+        password = str(g.db.hget(str(saved_id), 'pw'))
+
+    creds = fn.setUserCredentials(username, password, privpw)
 
     # Retrieve SSH key for host
     sshKey = getSSHKeyForHost(host)
@@ -159,17 +161,17 @@ def retrieveSSHSession(host, username='', password='', privPassword=''):
     if not checkHostExistingSSHSession(host):
         writeToLog('initiated new SSH connection to %s' % (host.hostname))
         # If no currently active SSH sessions, initiate a new one
-        ssh[sshKey] = getSSHSession(host.ios_type, host.ipv4_addr, creds)
+        ssh[sshKey] = getSSHSession(host, creds)
 
     # Run test to verify if socket connection is still open or not
     if not checkHostActiveSSHSession(host):
         # If session is closed, reestablish session and log event
         writeToLog('reestablished SSH connection to %s' % (host.hostname))
-        ssh[sshKey] = getSSHSession(host.ios_type, host.ipv4_addr, creds)
+        ssh[sshKey] = getSSHSession(host, creds)
 
-    # Clear password and creds variables from memory
+    # Clear all credential based variables from memory
     password = None
-    privPassword = None
+    privpw = None
     creds = None
 
     return ssh[sshKey]
@@ -341,31 +343,36 @@ def index():
     If successful, stores them in server-side Redis server, with timer set
      to automatically clear information after a set time,
      or clear when user logs out.
-    Else, redirect user to login form.
+    Else, redirect user to login form. dddd
     """
     if 'USER' in session:
         return redirect(url_for('viewHosts'))
     else:
         try:
-            user = request.form['user']
-            pw = request.form['pw']
-            # If user id doesn't exist, create new one with next available UUID
-            # Else reuse existing key,
-            #  to prevent incrementing id each time the same user logs in
-            if str(g.db.hget('users', user)) == 'None':
-                # Create new user id, incrementing by 10
-                user_id = str(g.db.incrby('next_user_id', 10))
+            if storeUserInRedis(request.form['user'], request.form['pw']):
+                writeToLog('logged in')
+                return redirect(url_for('viewHosts'))
+                '''
+                user = request.form['user']
+                pw = request.form['pw']
+                # If user id doesn't exist, create new one with next available UUID
+                # Else reuse existing key,
+                #  to prevent incrementing id each time the same user logs in
+                if str(g.db.hget('users', user)) == 'None':
+                    # Create new user id, incrementing by 10
+                    user_id = str(g.db.incrby('next_user_id', 10))
+                else:
+                    user_id = str(g.db.hget('users', user))
+                g.db.hmset(user_id, dict(user=user, pw=pw))
+                g.db.hset('users', user, user_id)
+                # Set user info timer to auto expire and clear data
+                g.db.expire(user_id, app.config['REDISKEYTIMEOUT'])
+                session['USER'] = user
+                # Generate UUID for user, tie to each individual SSH session later
+                session['UUID'] = uuid4()
+                '''
             else:
-                user_id = str(g.db.hget('users', user))
-            g.db.hmset(user_id, dict(user=user, pw=pw))
-            g.db.hset('users', user, user_id)
-            # Set user info timer to auto expire and clear data
-            g.db.expire(user_id, app.config['REDISKEYTIMEOUT'])
-            session['USER'] = user
-            # Generate UUID for user, tie to each individual SSH session later
-            session['UUID'] = uuid4()
-            writeToLog('logged in')
-            return redirect(url_for('viewHosts'))
+                return render_template("index.html", title='Home')
         except:
             return render_template("index.html", title='Home')
 
@@ -387,8 +394,7 @@ def logout():
 
     # Delete user saved in Redis
     try:
-        user_id = str(g.db.hget('users', session['USER']))
-        g.db.delete(str(user_id))
+        deleteUserInRedis()
         writeToLog('deleted user %s data stored in Redis' % (session['USER']))
     except:
         writeToLog('did not delete user data stored in Redis as no user currently logged in')
@@ -597,6 +603,7 @@ def deviceUptime(x):
     initialChecks()
     host = db_modifyDatabase.getHostByID(x)
     activeSession = retrieveSSHSession(host)
+    writeToLog('retrieved uptime on host %s' % (host.hostname))
     return jsonify(host.pull_device_uptime(activeSession))
 
 
@@ -613,7 +620,7 @@ def viewSpecificHost(x):
     if 'modal' in x:
         # Return empty response, as the page is loaded from the Modal JS
         # However this breaks the Loading modal JS function.
-        #  Unsure why, need to research
+        #  Unsure why, need to research dddd
         return ('', 204)
 
     host = db_modifyDatabase.getHostByID(x)
@@ -624,17 +631,22 @@ def viewSpecificHost(x):
     # Variable to determine if successfully connected o host use local credentials
     varFormSet = False
     try:
-        username = request.form['user']
-        password = request.form['pw']
-        privPassword = request.form['privpw']
-        varFormSet = True
-        activeSession = retrieveSSHSession(host, username, password, privPassword)
+        if storeUserInRedis(request.form['user'], request.form['pw'], privpw=request.form['privpw'], host=host):
+            print "local creds used"
+            print request.form['user']
+            # Set to True if variables are set correctly from local credentials form
+            varFormSet = True
+            activeSession = retrieveSSHSession(host)
+            writeToLog('local credentials saved to REDIS')
+
     except:
         # If no form submitted (not using local credentials), get SSH session
         # Don't go in if form was used (local credentials) but SSH session failed in above 'try' statement
         if not varFormSet:
             # Get any existing SSH sessions
             activeSession = retrieveSSHSession(host)
+            print "stored creds used"
+            print session['USER']
 
     # activeSession = retrieveSSHSession(host)
 
