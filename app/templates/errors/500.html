@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
 {% block content %}
 	<h1>500 ERROR PAGE</h1>
-    {% if session['DEBUG'] %}
-		<p>{{ error }}</p>
-	{% endif %}
 	<br />
 	<p>Try logging out and logging back in.  If that still doesn't resolve the issue, contact your NetConfig administrator</p>
+	<br />
+	<p>If accessing a device using local credentials, verify you entered the login password and the privileged/enable password correctly.
+	<br />
+	If the device requires a privileged/enable level password, one MUST be entered in order to access the device.</p>
 {% endblock %}

@@ -138,6 +138,8 @@ def retrieveHostByID(x):
         host = models.Host.query.filter_by(id=x).first()
     elif app.config['DATALOCATION'] == 'netbox':
         host = netboxAPI.getHostByID(x)
+        # Local credentials with Netbox is not currently supported, so we manually set it to False here.
+        host.local_creds = False
 
     return host
 

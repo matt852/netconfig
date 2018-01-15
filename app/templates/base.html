@@ -45,6 +45,7 @@
 		{% if request.path == "/db/viewhosts" or request.path == "/db/viewhosts/" %}
 			<script src="{{url_for('static', filename='js/viewhosts.js')}}"></script>
 			<script src="{{url_for('static', filename='js/localcredentials.js')}}"></script>
+			<script src="{{url_for('static', filename='js/dcimnetbox.js')}}"></script>
 		{% elif "/db/viewhosts/" in request.path %}
 			<script src="{{url_for('static', filename='js/hostshell.js')}}"></script>
 			<script src="{{url_for('static', filename='js/viewspecifichost.js')}}"></script>

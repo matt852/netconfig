@@ -637,8 +637,6 @@ def viewSpecificHost(x):
             activeSession = retrieveSSHSession(host)
             writeToLog('credentials used of currently logged in user for accessing host %s' % (host.hostname))
 
-    # activeSession = retrieveSSHSession(host)
-
     tableHeader, interfaces = host.pull_host_interfaces(activeSession)
 
     if interfaces:
