@@ -94,13 +94,28 @@ else
 fi
 
 
-### Step 9 - Restart supervisorctl process
+### Step 9 - Upgrade Database
+COMMAND="python db_upgrade.py"
+printf "\n ${cyan} Upgrading database schema to latest version... ${reset} \n\n"
+FILE="app.db"
+if [ -f "$FILE" ]
+then
+    eval $COMMAND
+    printf "\n {$green} Database schema updated successfully."
+else
+    printf "\n {$red} Database file app.db not found.  Database schema not updated.
+    If using the local database for device inventory, please manually run the the following command: 
+    ${magenta} python /home/netconfig/netconfig/db_upgrade.sh ${reset} \n\n"
+fi
+
+
+### Step 10 - Restart supervisorctl process
 COMMAND="${PREFIX} supervisorctl restart netconfig"
 printf "\n ${cyan} Restarting supervisorctl NetConfig process... ${reset} \n\n"
 eval $COMMAND
 
 
-### Step 10 - Notify of successful upgrade
+### Step 11 - Notify of successful upgrade
 NEWVERSION=`cat config.py | grep VERSION | cut -d \' -f 2`
 
 if [ "$UPDATERESULT" == false ]
