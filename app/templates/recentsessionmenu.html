@@ -1,5 +1,5 @@
   {% if session['USER'] and hosts %}
-    <a href="#" class="dropdown dropdown-toggle" data-toggle="dropdown">Active Sessions <b class="caret"></b></a>
+    <a href="#" class="dropdown dropdown-toggle" data-toggle="dropdown">Recent Sessions <b class="caret"></b></a>
     <ul class="dropdown-menu" role="menu">
       {% for host in hosts %}
           <li>
@@ -10,5 +10,5 @@
       {% endfor %}
     </ul>
   {% else %}
-    <a href="#">Active Sessions</a>
+    <a href="#">Recent Sessions</a>
   {% endif %}

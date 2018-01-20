@@ -1,8 +1,8 @@
 $(document).ready(function() {
   // Gets names and provides links to devices with currently active SSH sessions
-  $("#activeDevices").load("/displayactivedevicenames", function() {
+  $("#recentDevices").load("/displayrecentdevicenames", function() {
     // Hide non-linking placeholder once the content fully loads
-    $("#activeDevicePlaceholder").hide();
+    $("#recentDevicePlaceholder").hide();
   });
   // Not sure if this is still used
   var loc = location.href.substr(location.href.lastIndexOf('/') + 1);

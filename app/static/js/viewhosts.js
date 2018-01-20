@@ -1,25 +1,37 @@
 $(document).ready(function() {
   var events = $('#events');
   var table = $('#tblViewHosts').DataTable({
+    //dom: 'lBfrtip', // WIP for select all button
     "pageLength": 10,
     "lengthMenu": [
       [10, 25, 50, 100, -1],
       [10, 25, 50, 100, "All"]
-    ],
+    ], // Settings for entire table
     columnDefs: [{
       orderable: false,
+      searchable: false,
       className: 'select-checkbox',
       targets: 0
-    },
+    }, // First column - checkbox
     {
       visible: false,
       searchable: false,
       targets: 6
-    }],
+    }], // Hidden column at end for host id
     select: {
       style: 'multi',
       selector: 'td:first-child'
-    }
+    },
+    buttons: [
+      'selectAll',
+      'selectNone'
+    ], // Buttons for table
+    language: {
+      buttons: {
+        selectAll: "Select all devices",
+        selectNone: "Select no devices"
+      }
+    } // Wording for buttons on table
   });
   tableSettings = table.settings(); //store its settings in oSettings
 
@@ -59,4 +71,7 @@ $(document).ready(function() {
     window.location.href = url;
   });
 
+  // Display tblViewHosts buttons // WIP for select all button
+  //table.buttons().container()
+  //    .appendTo( $('.col-sm-6:eq(0)', table.table().container() ) );
 });

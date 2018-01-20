@@ -420,15 +420,15 @@ def getSSHSessionsCount():
     return jsonify(count=count)
 
 
-@app.route('/displayactivedevicenames')
-def displayActiveDeviceNames():
+@app.route('/displayrecentdevicenames')
+def displayRecentDeviceNames():
     """Get names of devices with existing saved/stored SSH sessions.
 
     x = host id
     """
     initialChecks()
     hosts = getNamesOfSSHSessionDevices()
-    return render_template("/activesessionmenu.html",
+    return render_template("/recentsessionmenu.html",
                            hosts=hosts)
 
 

@@ -52,12 +52,12 @@
         </ul>
         <ul class="nav navbar-nav navbar-right">
           {% if session['USER'] %}
-            <li class="dropdown" id=activeDevicePlaceholder>
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" title="Active Sessions" role="button" aria-haspopup="true" aria-expanded="false">
-                Active Sessions <b class="caret"></b>
+            <li class="dropdown" id=recentDevicePlaceholder>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" title="Recent Sessions" role="button" aria-haspopup="true" aria-expanded="false">
+                Recent Sessions <b class="caret"></b>
               </a>
             </li>
-            <li class="dropdown" id="activeDevices">
+            <li class="dropdown" id="recentDevices">
             </li>
           {% endif %}
           <li class="dropdown">

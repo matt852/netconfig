@@ -9,7 +9,7 @@
 {% block styles %}
 	{{ super() }}
 	<link rel="stylesheet" href="{{url_for('static', filename='css/font-awesome.min.css')}}">
-	<link rel="stylesheet" href="{{url_for('static', filename='DataTables/datatables.min.css')}}">
+	<link rel="stylesheet" href="{{url_for('static', filename='DataTables/datatables.min.css')}}"> <!-- https://datatables.net/download/#bs/dt-1.10.16/b-1.4.2/fh-3.1.3/r-2.2.0/sl-1.2.3 -->
 	<link rel="stylesheet" href="{{url_for('static', filename='css/styles.css')}}">
 {% endblock %}
 {% block body %}
@@ -35,10 +35,10 @@
 	{%block scripts %}
 		<script src="{{url_for('static', filename='js/jquery-3.2.1.min.js')}}"></script>
 		{{ super() }}
-		<script src="{{url_for('static', filename='js/validator.min.js')}}"></script>
-		<script src="{{url_for('static', filename='js/loadingoverlay.min.js')}}"></script>
-		<script src="{{url_for('static', filename='js/loading.js')}}"></script>
-		<script src="{{url_for('static', filename='DataTables/datatables.min.js')}}"></script>
+		<script src="{{url_for('static', filename='js/validator.min.js')}}"></script> <!-- https://github.com/1000hz/bootstrap-validator -->
+		<script src="{{url_for('static', filename='js/loadingoverlay.min.js')}}"></script> <!-- http://gasparesganga.com/labs/jquery-loading-overlay/-->
+		<script src="{{url_for('static', filename='js/loading.js')}}"></script> <!-- custom loading JS -->
+		<script src="{{url_for('static', filename='DataTables/datatables.min.js')}}"></script> <!-- https://datatables.net/download/#bs/dt-1.10.16/b-1.4.2/fh-3.1.3/r-2.2.0/sl-1.2.3 -->
 		{% if session['USER'] %}
 		<script src="{{url_for('static', filename='js/countactivesessions.js')}}"></script>
 		{% endif %}
