@@ -131,7 +131,7 @@ else
 	if [ "$CURRENTVERSION" == "$NEWVERSION" ]
 	then
 	    printf "\n ${red} NetConfig was not upgraded.  Please check your server's access to GitHub and the internet, and try again. \n"
-	    printf"  Current NetConfig Version: ${NEWVERSION} \n\n ${reset}" 
+	    printf "  Current NetConfig Version: ${NEWVERSION} \n\n ${reset}" 
 	else
         printf "\n ${green} NetConfig successfully upgraded to version ${NEWVERSION} \n\n ${reset}"
     fi
