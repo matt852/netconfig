@@ -1,6 +1,5 @@
 import re
-from ..cisco_base_device import CiscoBaseDevice
-from ....scripts_bank.lib.functions import containsSkipped
+from app.device_classes.device_definitions.cisco_base_device import CiscoBaseDevice
 
 
 class CiscoIOS(CiscoBaseDevice):
@@ -18,7 +17,7 @@ class CiscoIOS(CiscoBaseDevice):
 
     def cmd_cdp_neighbor(self):
         """Return command to display CDP/LLDP neighbors on device."""
-        command = "show cdp neighbors | begin ID"
+        command = "show cdp entry *"
         return command
 
     def pull_run_config(self, activeSession):
@@ -34,9 +33,8 @@ class CiscoIOS(CiscoBaseDevice):
     def pull_cdp_neighbor(self, activeSession):
         """Retrieve CDP/LLDP neighbor information from device."""
         command = self.cmd_cdp_neighbor()
-        result = self.get_cmd_output_with_commas(command, activeSession)
-        tableHeader, tableBody = self.cleanup_cdp_neighbor_output(result)
-        return tableHeader, tableBody
+        result = self.get_cmd_output(command, activeSession)
+        return self.cleanup_cdp_neighbor_output(result)
 
     def pull_interface_config(self, activeSession):
         """Retrieve configuration for interface on device."""
@@ -45,6 +43,8 @@ class CiscoIOS(CiscoBaseDevice):
 
     def pull_interface_mac_addresses(self, activeSession):
         """Retrieve MAC address table for interface on device."""
+        # TODO: This entire function needs to be better optimized
+        #  Possibly split into two functions: one each for IOS and IOS-XE
         command = "show mac address-table interface %s" % (self.interface)
         for a in range(2):
             result = self.run_ssh_command(command, activeSession)
@@ -56,10 +56,9 @@ class CiscoIOS(CiscoBaseDevice):
         if self.check_invalid_input_detected(result):
             return '', ''
         else:
-            # Stores table headers as string
-            tableHeader = ''
             # Stores table body data as array
             tableBody = []
+            data = []
 
             # Remove any asterisks
             result = result.replace('*', '')
@@ -67,8 +66,7 @@ class CiscoIOS(CiscoBaseDevice):
             # In IOS-XE, there are multiple protocols separated by commas.
             # Separate these by underscores instead to preserve formatting in HTML output
             result = result.replace(',', '_')
-            result = self.replace_double_spaces_commas(result)
-            result = self.split_on_newline(result)
+            result = self.replace_double_spaces_commas(result).splitlines()
 
             for index, line in enumerate(result):
                 # This is primarily for IOS-XE devices.  We only want Unicast Entries
@@ -80,12 +78,12 @@ class CiscoIOS(CiscoBaseDevice):
                     # We are done with Unicast entries, so break out of loop
                     break
                 # Loop until header is filled, as the header isn't always in the very first line
-                elif not tableHeader and ',' in line:
-                    # Skip this iteration if there's only a single comma.  The header should have multiple fields
-                    if line.count(',') > 1:
-                        # Store table header line in string, with commas to separate fields
-                        tableHeader = line
-                elif line and 'Mac' not in line and '-' not in line:
+                # elif not data['tableHeader'] and ',' in line:
+                #     # Skip this iteration if there's only a single comma.  The header should have multiple fields
+                #     if line.count(',') > 1:
+                #         # Store table header line in string, with commas to separate fields
+                #         data['tableHeader'] = line
+                elif line and 'Mac' not in line and '--' not in line:
                     # Regexp to search for any substring in line that contains an underscore.
                     # Then replaces the whitespace around it with commas.
                     # This is for IOS-XE devices with multiple protocols that interface with HTML formatting.
@@ -104,7 +102,25 @@ class CiscoIOS(CiscoBaseDevice):
                     line = line.replace(' ,', ',')
                     tableBody.append(line)
 
-            return tableHeader, tableBody
+            # Different output for IOS vs IOS-XE.  Need to cleanup
+            for line in tableBody:
+                # Skip IOS-XE header
+                if 'protocols' not in line:
+                    # Split line on commas
+                    x = line.split(',')
+                    # Remove empty fields from string, specifically if first field is empty (1-2 digit vlan causes this)
+                    x = filter(None, x)
+                    if x:
+                        y = {}
+                        y['vlan'] = x[0].strip()
+                        y['macAddr'] = x[1].strip()
+                        if self.ios_type == 'cisco_ios':
+                            y['port'] = x[3].strip()
+                        else:
+                            y['port'] = x[4].strip()
+                        # Assign dictionary to list, for use in HTML page
+                        data.append(y)
+            return data
 
     def pull_interface_statistics(self, activeSession):
         """Retrieve statistics for interface on device."""
@@ -114,10 +130,10 @@ class CiscoIOS(CiscoBaseDevice):
     def pull_interface_info(self, activeSession):
         """Retrieve various informational command output for interface on device."""
         intConfig = self.pull_interface_config(activeSession)
-        intMacHead, intMacBody = self.pull_interface_mac_addresses(activeSession)
+        intMacAddr = self.pull_interface_mac_addresses(activeSession)
         intStats = self.pull_interface_statistics(activeSession)
 
-        return intConfig, intMacHead, intMacBody, intStats
+        return intConfig, intMacAddr, intStats
 
     def pull_device_uptime(self, activeSession):
         """Retrieve device uptime."""
@@ -129,18 +145,9 @@ class CiscoIOS(CiscoBaseDevice):
 
     def pull_host_interfaces(self, activeSession):
         """Retrieve list of interfaces on device."""
-        command = "show ip interface brief"
-        result = self.run_ssh_command(command, activeSession)
-        result = self.cleanup_ios_output(result)
-        result = self.split_on_newline(result)
+        result = self.run_ssh_command('show ip interface brief', activeSession)
 
-        tableHeader = 'Interface,IPv4 Address,Status,Protocol,Options'
-
-        # If unable to pull interfaces, return False for both variables
-        if containsSkipped(result) or not result:
-            return False, False
-        else:
-            return tableHeader, result
+        return self.cleanup_ios_output(result)
 
     def count_interface_status(self, interfaces):
         """Return count of interfaces.
@@ -148,22 +155,20 @@ class CiscoIOS(CiscoBaseDevice):
         Up is total number of up/active interfaces.
         Down is total number of down/inactive interfaces.
         Disable is total number of administratively down/manually disabled interfaces.
-        Total is total number of interfaces counted.
         """
-        up = down = disabled = total = 0
-        for interface in interfaces:
-            if 'Interface' not in interface:
-                if 'administratively down,down' in interface:
-                    disabled += 1
-                elif 'down,down' in interface:
-                    down += 1
-                elif 'up,down' in interface:
-                    down += 1
-                elif 'up,up' in interface:
-                    up += 1
-                elif 'manual deleted' in interface:
-                    total -= 1
+        data = {}
+        data['up'] = data['down'] = data['disabled'] = data['total'] = 0
 
-                total += 1
+        for x in interfaces:
+            if 'administratively' in x['status']:
+                data['disabled'] += 1
+            elif 'down' in x['protocol']:
+                data['down'] += 1
+            elif 'up' in x['status'] and 'up' in x['protocol']:
+                data['up'] += 1
+            elif 'manual deleted' in x['status']:
+                data['total'] -= 1
 
-        return up, down, disabled, total
+            data['total'] += 1
+
+        return data

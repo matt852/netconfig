@@ -37,6 +37,10 @@ function handle(e) {
         if (str.substring(0, 8).toLowerCase() == 'hostname') {
           $('#outputID').prepend("<b>Error:</b> Changing device hostname is not currently supported in the iShell.<br />");
         }
+        // Prevent user from exiting SSH session from in iShell, otherwise page hangs
+        else if ((document.getElementById("chkConfigMode").checked == false) && (str.toLowerCase() == 'exit')) {
+          $('#outputID').prepend("<b>Error:</b> Unable to close SSH session on this device from within iShell.<br />");
+        }
         else {
           $("#loadIcon").show();
 

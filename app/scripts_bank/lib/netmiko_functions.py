@@ -2,7 +2,6 @@
 
 import socket
 import netmiko as nm
-import functions as fn
 
 
 def sessionIsAlive(ssh):
@@ -24,12 +23,10 @@ def sshSkipCheck(x):
     Returns True if SSH session contains "skipped" (was unsuccessful).
     Returns False otherwise.
     """
-    try:
-        if "skipped" in str(x):
-            return True
+    if "skipped" in str(x):
+        return True
+    else:
         return False
-    except:
-            return False
 
 
 def connectToSSH(host, creds):
@@ -37,11 +34,11 @@ def connectToSSH(host, creds):
     # Try to connect to the host
     try:
         if creds.priv:
-            ssh = nm.ConnectHandler(device_type=fn.stripNewline(host.ios_type), ip=fn.stripNewline(host.ipv4_addr), username=creds.un, password=creds.pw, secret=creds.priv)
+            ssh = nm.ConnectHandler(device_type=host.ios_type.strip(), ip=host.ipv4_addr.strip(), username=creds.un, password=creds.pw, secret=creds.priv)
             # Enter into enable mode
             ssh.enable()
         else:
-            ssh = nm.ConnectHandler(device_type=fn.stripNewline(host.ios_type), ip=fn.stripNewline(host.ipv4_addr), username=creds.un, password=creds.pw)
+            ssh = nm.ConnectHandler(device_type=host.ios_type.strip(), ip=host.ipv4_addr.strip(), username=creds.un, password=creds.pw)
 
     # except nm.AuthenticationException:
     #    return "%s skipped - authentication error\n" % (host)
@@ -86,8 +83,6 @@ def runMultipleSSHCommandsWithCmdHead(cmdList, host, creds):
         result.append("Command: %s" % x)
         # Get command output from multiple commands configured on device
         result.append(ssh.send_command(x))
-        # Split by newlines
-        # output = result.split('\n')
     # Disconnect from SSH session
     disconnectFromSSH(ssh)
     # Return output of command
@@ -113,76 +108,3 @@ def getSSHSession(host, creds):
         return "ERROR: In function nfn.getSSHSession, sshSkipCheck failed using host %s\n" % (host.hostname)
     # Return output of command
     return ssh
-
-
-def runSSHCommandInSession(command, ssh):
-    """Run command on provided existing SSH session and returns output."""
-    # Get command output from device
-    result = ssh.send_command(command)
-    # Return output of command
-    return result
-
-
-def runSSHCommandInSessionNoCR(command, ssh):
-    """Run command on provided existing SSH session and returns output.
-
-    Since we set normalie to False, we need to do this.
-    The normalize() function in NetMiko does rstrip and adds a CR to the end of the command.
-    """
-    command = command.rstrip()
-    # Get command output from device
-    result = ssh.send_command(command, normalize=False)
-    # Return output of command
-    return result
-
-
-def runSSHCfgCommandInSession(command, ssh):
-    """Run config command on provided existing SSH session and returns output."""
-    # Get command output from device
-    result = ssh.send_config_set(command, exit_config_mode=False)
-    # Return output of command, omitting any lines with just the command displayed only (just how netmiko works with config commands)
-    return result
-
-
-def runSSHCfgCommandInSessionNoCR(command, ssh):
-    """Run config command on provided existing SSH session without a carraige return and returns output.
-
-    Since we set normalie to False, we need to do this.
-    The normalize() function in NetMiko does rstrip and adds a CR to the end of the command.
-    """
-    # command = command.rstrip()
-    # Get command output from device
-    result = ssh.send_config_set(command, exit_config_mode=False)
-    # Return output of command, omitting any lines with just the command displayed only (just how netmiko works with config commands)
-    return result
-
-
-def runEnterConfigModeInSession(ssh):
-    """Enter configuration mode on provided existing SSH session and returns output."""
-    # Get command output from device
-    result = ssh.config_mode()
-    # Return output of command
-    return result
-
-
-def runExitConfigModeInSession(ssh):
-    """Exit configuration mode on provided existing SSH session and returns output."""
-    # Get command output from device
-    result = ssh.exit_config_mode()
-    # Return output of command
-    return result
-
-
-def runMultipleSSHConfigCommandsInSession(cmdList, ssh):
-    """Run multiple commands in list on host via SSH and returns all output from applying the config."""
-    # Get command output from multiple commands configured on device
-    result = ssh.send_config_set(cmdList)
-    # Split by newlines
-    output = result.split('\n')
-    # Return output of command
-    return output
-
-
-def findPromptInSession(ssh):
-    """Get prompt from host."""
-    return ssh.find_prompt()

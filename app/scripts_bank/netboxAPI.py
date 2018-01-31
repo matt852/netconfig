@@ -1,7 +1,8 @@
 from app import app
 from urllib2 import urlopen
 from json import load
-from lib.functions import stripAllAfterChar
+
+# TODO refactor with requests
 
 
 class NetboxHost(object):
@@ -80,7 +81,7 @@ def getHostByID(x):
 
     host.id = str(x)
     host.hostname = str(json_obj['name'])
-    host.ipv4_addr = stripAllAfterChar(str(json_obj['primary_ip']['address']), '/')
+    host.ipv4_addr = str(json_obj['primary_ip']['address'].split('/', 1)[0])
     host.type = str(json_obj['device_type']['model'])
     host.ios_type = str(getDeviceTypeOS(json_obj['device_type']['id']))
 
@@ -104,7 +105,7 @@ def getHosts():
         if str(host['custom_fields']['Netconfig']) != 'None':
             if str(host['custom_fields']['Netconfig']['label']) == 'Yes':
                 # Strip the CIDR notation from the end of the IP address, and store it back as the address for the returned host
-                host['primary_ip']['address'] = stripAllAfterChar(str(host['primary_ip']['address']), '/')
+                host['primary_ip']['address'] = str(host['primary_ip']['address'].split('/', 1)[0])
                 result.append(host)
 
     return result
@@ -155,7 +156,7 @@ def getHostIPAddr(id):
     json_obj = load(response)
 
     # Return IP address with trailing CIDR notation stripped off
-    return stripAllAfterChar(str(json_obj['primary_ip']['address']), '/')
+    return str(json_obj['primary_ip']['address'].split('/', 1)[0])
 
 
 def getHostType(id):

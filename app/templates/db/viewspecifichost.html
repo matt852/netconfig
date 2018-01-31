@@ -28,10 +28,10 @@
 						<b>Device Type: </b> {{ host.type }}<br />
 					</div>
 					<div class="col-md-3">
-						<b>Active Interfaces:   </b> {{ upInt }}<br />
-						<b>Down Interfaces:     </b> {{ downInt }}<br />
-						<b>Disabled Interfaces: </b> {{ disabledInt }}<br />
-						<b>Total Interfaces:    </b> {{ totalInt }}<br />
+						<b>Active Interfaces:   </b> {{ interfaces.up }}<br />
+						<b>Down Interfaces:     </b> {{ interfaces.down }}<br />
+						<b>Disabled Interfaces: </b> {{ interfaces.disabled }}<br />
+						<b>Total Interfaces:    </b> {{ interfaces.total }}<br />
 					</div>
 					<div class="col-md-2">
 						<b>Uptime: </b><i id="loadUptimeIcon" class="fa fa-spinner fa-spin"></i><br />
@@ -59,40 +59,29 @@
 					<table id="tblViewSpecificHost" class="table table-striped table-hover table-condensed display">
 						<thead>
 							<tr>
-								<!-- Blank column used for checkbox -->
 								<th></th>
-								{% for x in tableHeader.split(',') %}
-									<th>{{ x }}</th>
-								{% endfor %}
+								<th>Interface</th>
+								<th>Address</th>
+								<th>Status</th>
+								<th>Protocol</th>
+								<th>Options</th>
 							</tr>
 						</thead>
 						<tbody>
-						    {% for interface in interfaces %}
-				    			{% if loop.index0 > 0 %}
-				    				<tr>
-										{% if not 'Interface' in interface %}
-											{% for x in interface.split(',') %}
-												{% if x %}
-													{% if loop.index0 == 0 %}
-														<td></td>
-														{% if ifaceURL.update({'iface': x|replace('/','_')}) %}{% endif %}
-														<td id="tdInterface"><a href="modalConfigInterface" data-toggle="modal" data-target="#modalConfigInterface" data-interface="{{ ifaceURL['iface'] }}" data-hostid="{{ host.id }}" onclick="loading();return false;">{{ x }}</a></td>
-													{% else %}
-														{% if not x or x != ' ' %}
-															<td>{{ x }}</td>
-														{% endif %}
-								    				{% endif %}
-							    				{% endif %}
-											{% endfor %}
-											<td>
-												<a href="/confirm/confirmintenable/{{ host.id }}/{{ ifaceURL['iface'] }}" class="btn btn-xs btn-success" title="Enable Interface"><i class="glyphicon glyphicon-arrow-up" aria-hidden="true"></i></a>
-												<a href="modalEditInterface" data-toggle="modal" data-target="#modalEditInterface" class="btn btn-xs btn-warning" data-interface="{{ ifaceURL['iface'] }}" data-hostid="{{ host.id }}" title="Edit Interface"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
-												<a href="/confirm/confirmintdisable/{{ host.id }}/{{ ifaceURL['iface'] }}" class="btn btn-xs btn-danger" title="Disable Interface"><i class="glyphicon glyphicon-arrow-down" aria-hidden="true"></i></a>&nbsp;
-												<a href="modalConfigInterface" data-toggle="modal" data-target="#modalConfigInterface" class="btn btn-xs btn-info" data-interface="{{ ifaceURL['iface'] }}" data-hostid="{{ host.id }}" title="Interface Info" onclick="loading();return false;"><i class="glyphicon glyphicon-info-sign" aria-hidden="true"></i></a>
-											</td>
-										{% endif %}
-									</tr>
-								{% endif %}
+							{% for x in result %}
+								<tr>
+									<td></td>
+									<td id="tdInterface"><a href="modalConfigInterface" data-toggle="modal" data-target="#modalConfigInterface" data-interface="{{ x.name }}" data-hostid="{{ host.id }}" onclick="loading();return false;">{{ x.name }}</a> </td>
+									<td> {{ x.address }} </td>
+									<td> {{ x.status }} </td>
+									<td> {{ x.protocol }} </td>
+									<td>
+										<a href="/confirm/confirmintenable/{{ host.id }}?int={{ x.name }}" class="btn btn-xs btn-success" title="Enable Interface"><i class="glyphicon glyphicon-arrow-up" aria-hidden="true"></i></a>
+										<a href="modalEditInterface" data-toggle="modal" data-target="#modalEditInterface" class="btn btn-xs btn-warning" data-interface="{{ x.name }}" data-hostid="{{ host.id }}" title="Edit Interface"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
+										<a href="/confirm/confirmintdisable/{{ host.id }}?int={{ x.name }}" class="btn btn-xs btn-danger" title="Disable Interface"><i class="glyphicon glyphicon-arrow-down" aria-hidden="true"></i></a>&nbsp;
+										<a href="modalConfigInterface" data-toggle="modal" data-target="#modalConfigInterface" class="btn btn-xs btn-info" data-interface="{{ x.name }}" data-hostid="{{ host.id }}" title="Interface Info" onclick="loading();return false;"><i class="glyphicon glyphicon-info-sign" aria-hidden="true"></i></a>
+									</td>
+								</tr>
 							{% endfor %}
 						</tbody>
 					</table>

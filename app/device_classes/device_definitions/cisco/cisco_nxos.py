@@ -1,8 +1,8 @@
-from ..cisco_base_device import CiscoBaseDevice
+from app.device_classes.device_definitions.cisco_base_device import CiscoBaseDevice
 import re
 import xml.etree.cElementTree as ET
 from StringIO import StringIO
-from ....scripts_bank.lib.functions import containsSkipped
+from app.scripts_bank.lib.functions import containsSkipped
 
 
 class CiscoNXOS(CiscoBaseDevice):
@@ -20,7 +20,7 @@ class CiscoNXOS(CiscoBaseDevice):
 
     def cmd_cdp_neighbor(self):
         """Return command to display CDP/LLDP neighbors on device."""
-        command = 'show cdp neighbors | begin ID'
+        command = 'show cdp entry all'
         return command
 
     def pull_run_config(self, activeSession):
@@ -39,9 +39,8 @@ class CiscoNXOS(CiscoBaseDevice):
         This should be redone using XML pulls/parsing.
         """
         command = self.cmd_cdp_neighbor()
-        result = self.get_cmd_output_with_commas(command, activeSession)
-        tableHeader, tableBody = self.cleanup_cdp_neighbor_output(result)
-        return tableHeader, tableBody
+        result = self.get_cmd_output(command, activeSession)
+        return self.cleanup_cdp_neighbor_output(result)
 
     def pull_interface_config(self, activeSession):
         """Retrieve configuration for interface on device."""
@@ -50,42 +49,52 @@ class CiscoNXOS(CiscoBaseDevice):
 
     def pull_interface_mac_addresses(self, activeSession):
         """Retrieve MAC address table for interface on device."""
-        command = "show mac address-table interface %s" % (self.interface)
+        # This is needed because if interface is a vlan, then a different command is used
+        if 'Vlan' in self.interface:
+            # The interface will read as 'Vlan#', and the command requires a space between 'Vlan' and '#'
+            command = "show mac address-table %s | xml" % (self.interface.replace('Vlan', 'Vlan '))
+        else:
+            command = "show mac address-table interface %s | xml" % (self.interface)
         # command = "show mac address-table interface %s | exclude VLAN | exclude Legend" % (self.interface)
         result = self.run_ssh_command(command, activeSession)
 
-        if self.check_invalid_input_detected(result):
-            return ''
+        # If unable to pull interfaces, return False for both variables
+        if self.check_invalid_input_detected(result) or containsSkipped(result) or not result:
+            return False
         else:
-            # Statically configure the table header as string
-            # Need to configure to dynamically pull it later, as it is the line before the ----- seperator line
-            tableHeader = "Vlan,Mac Address,Type,Age,Secure,NTFY,Ports"
-            # Stores table body data as array
-            tableBody = []
+            data = []
+            result = re.findall("\<\?xml.*reply\>", result, re.DOTALL)
+            # Strip namespaces
+            it = ET.iterparse(StringIO(result[0]))
+            for _, el in it:
+                if '}' in el.tag:
+                    el.tag = el.tag.split('}', 1)[1]  # strip all namespaces
+            root = it.root
 
-            # Remove any asterisks
-            result = result.replace('*', '')
+            # This variable is to skip the first instance of "ROW_mac_address" in the XML output
+            a = False
+            device = {}
+            for elem in root.iter():
+                if a:
+                    if not elem.tag.isspace() and not elem.text.isspace():
+                        # Placeholder 'ip' for upcoming IP address lookup in new function
+                        if elem.tag == 'disp_mac_addr':
+                            device['macAddr'] = elem.text
+                        elif elem.tag == 'disp_vlan':
+                            device['vlan'] = elem.text
+                        elif elem.tag == 'disp_port':
+                            device['port'] = elem.text
 
-            # In IOS-XE, there are multiple protocols separated by commas.
-            # Separate these by underscores instead to preserve formatting in HTML output
-            result = result.replace(',', '_')
-            result = self.replace_double_spaces_commas(result)
-            result = self.split_on_newline(result)
+                # Save data to dictionary and reset it to null for next loop iteration
+                if elem.tag == 'ROW_mac_address':
+                    if device:
+                        data.append(device)
+                    device = {}
+                    a = True
 
-            # Set to False while we cycle through any unnecessary header info in the output
-            loopData = False
-
-            for line in result:
-                if loopData:
-                    # Remove any single spaces in front of commas
-                    line = line.replace(' ,', ',')
-                    tableBody.append(line)
-                # Continue until we find the line separator of all dashes
-                elif '---' in line:
-                    # The rest of the output is the data we want
-                    loopData = True
-
-            return tableHeader, tableBody
+        # Needed for last device in XML list
+        data.append(device)
+        return data
 
     def pull_interface_statistics(self, activeSession):
         """Retrieve statistics for interface on device."""
@@ -95,10 +104,10 @@ class CiscoNXOS(CiscoBaseDevice):
     def pull_interface_info(self, activeSession):
         """Retrieve various informational command output for interface on device."""
         intConfig = self.pull_interface_config(activeSession)
-        intMacHead, intMacBody = self.pull_interface_mac_addresses(activeSession)
+        intMacAddr = self.pull_interface_mac_addresses(activeSession)
         intStats = self.pull_interface_statistics(activeSession)
 
-        return intConfig, intMacHead, intMacBody, intStats
+        return intConfig, intMacAddr, intStats
 
     def pull_device_uptime(self, activeSession):
         """Retrieve device uptime."""
@@ -113,8 +122,6 @@ class CiscoNXOS(CiscoBaseDevice):
         outputResult = ''
         command = "show interface status | xml"
         result = self.run_ssh_command(command, activeSession)
-
-        tableHeader = 'Interface,IPv4 Address,Name,State,Speed,Options'
 
         # If unable to pull interfaces, return False for both variables
         if containsSkipped(result) or not result:
@@ -184,7 +191,7 @@ class CiscoNXOS(CiscoBaseDevice):
             realIP = ''
             realIPList = []
             # This extracts the IP addresses for each interface, and inserts them into the outputResult string
-            for x in self.split_on_newline(result):
+            for x in result.splitlines():
                 # Line is an interface
                 if 'interface' in x:
                     currentInt = x.split(' ')
@@ -205,10 +212,10 @@ class CiscoNXOS(CiscoBaseDevice):
 
             # Cleanup any remaining instances of 'ip' in outputResult
             outputResult = outputResult.replace(',ip,', ',--,')
-            # Split by newlines
-            outputResult = self.split_on_newline(outputResult)
             # Return interfaces
-            return tableHeader, outputResult
+            # return tableHeader, outputResult.splitlines()
+            totalResult = self.cleanup_nxos_output(outputResult)
+            return totalResult
 
     def count_interface_status(self, interfaces):
         """Return count of interfaces.
@@ -218,25 +225,30 @@ class CiscoNXOS(CiscoBaseDevice):
         Disable is total number of administratively down/manually disabled interfaces.
         Total is total number of interfaces counted.
         """
-        up = down = disabled = total = 0
+        data = {}
+        data['up'] = data['down'] = data['disabled'] = data['total'] = 0
 
-        for interface in interfaces:
-            if 'Interface' not in interface:
-                if 'disabled' in interface:
-                    disabled += 1
-                elif 'notconnect' in interface:
-                    down += 1
-                elif 'sfpAbsent' in interface:
-                    down += 1
-                elif 'down,' in interface:
-                    down += 1
-                elif 'noOperMembers' in interface:
-                    down += 1
-                elif 'connected' in interface:
-                    up += 1
+        for x in interfaces:
+            if 'disabled' in x['status']:
+                data['disabled'] += 1
+            elif 'down' in x['status']:
+                data['down'] += 1
+            elif 'up' in x['status']:
+                data['up'] += 1
 
-                total += 1
-        # Counter on NX-OS is always off by 1
-        total -= 1
+            data['total'] += 1
 
-        return up, down, disabled, total
+        return data
+
+    def get_interface_status(self, interface):
+        """Return status of interface."""
+        down_strings = ['down', 'notconnect', 'noOperMembers', 'sfpAbsent']
+
+        if 'disabled' in interface:
+            return 'disabled'
+        elif any(x in interface for x in down_strings):
+            return 'down'
+        elif 'connected' in interface:
+            return 'up'
+        else:
+            return 'unknown'

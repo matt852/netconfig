@@ -1,5 +1,4 @@
-from ..cisco_base_device import CiscoBaseDevice
-from ....scripts_bank.lib.functions import containsSkipped
+from app.device_classes.device_definitions.cisco_base_device import CiscoBaseDevice
 
 
 class CiscoASA(CiscoBaseDevice):
@@ -46,10 +45,10 @@ class CiscoASA(CiscoBaseDevice):
     def pull_interface_info(self, activeSession):
         """Retrieve various informational command output for interface on device."""
         intConfig = self.pull_interface_config(activeSession)
-        intMac = self.pull_interface_mac_addresses(activeSession)
+        intMacAddr = self.pull_interface_mac_addresses(activeSession)
         intStats = self.pull_interface_statistics(activeSession)
 
-        return intConfig, intMac, intStats
+        return intConfig, intMacAddr, intStats
 
     def pull_device_uptime(self, activeSession):
         """Retrieve device uptime."""
@@ -66,18 +65,8 @@ class CiscoASA(CiscoBaseDevice):
 
     def pull_host_interfaces(self, activeSession):
         """Retrieve list of interfaces on device."""
-        command = "show interface ip brief"
-        result = self.run_ssh_command(command, activeSession)
-        result = self.cleanup_ios_output(result)
-        result = self.split_on_newline(result)
-
-        tableHeader = 'Interface,IPv4 Address,Status,Protocol,Options'
-
-        # If unable to pull interfaces, return False for both variables
-        if containsSkipped(result) or not result:
-            return False, False
-        else:
-            return tableHeader, result
+        result = self.run_ssh_command('show interface ip brief', activeSession)
+        return self.cleanup_ios_output(result)
 
     def count_interface_status(self, interfaces):
         """Return count of interfaces.
@@ -85,23 +74,20 @@ class CiscoASA(CiscoBaseDevice):
         Up is total number of up/active interfaces.
         Down is total number of down/inactive interfaces.
         Disable is total number of administratively down/manually disabled interfaces.
-        Total is total number of interfaces counted.
         """
-        up = down = disabled = total = 0
+        data = {}
+        data['up'] = data['down'] = data['disabled'] = data['total'] = 0
 
-        for interface in interfaces:
-            if 'Interface' not in interface:
-                if 'administratively down,down' in interface:
-                    disabled += 1
-                elif 'down,down' in interface:
-                    down += 1
-                elif 'up,down' in interface:
-                    down += 1
-                elif 'up,up' in interface:
-                    up += 1
-                elif 'manual deleted' in interface:
-                    total -= 1
+        for x in interfaces:
+            if 'administratively' in x['status']:
+                data['disabled'] += 1
+            elif 'down' in x['protocol']:
+                data['down'] += 1
+            elif 'up' in x['status'] and 'up' in x['protocol']:
+                data['up'] += 1
+            elif 'manual deleted' in x['status']:
+                data['total'] -= 1
 
-                total += 1
+            data['total'] += 1
 
-        return up, down, disabled, total
+        return data

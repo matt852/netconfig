@@ -1,5 +1,4 @@
 from app import db
-from math import ceil
 
 
 class User(db.Model):
@@ -44,39 +43,3 @@ class Host(db.Model):
     def __repr__(self):
         """Devices."""
         return '<Host %r>' % (self.hostname)
-
-
-class Pagination(object):
-    """Pagination class for local database."""
-
-    def __init__(self, page, per_page, total_count):
-        """Init method."""
-        self.page = page
-        self.per_page = per_page
-        self.total_count = total_count
-
-    @property
-    def pages(self):
-        """Multiple pages method."""
-        return int(ceil(self.total_count / float(self.per_page)))
-
-    @property
-    def has_prev(self):
-        """Prev page method."""
-        return self.page > 1
-
-    @property
-    def has_next(self):
-        """Next page method."""
-        return self.page < self.pages
-
-    def iter_pages(self, left_edge=2, left_current=2, right_current=5, right_edge=2):
-        """Iterate pages method."""
-        last = 0
-        for num in xrange(1, self.pages + 1):
-            if num <= left_edge or \
-               (num > self.page - left_current - 1 and num < self.page + right_current) or num > self.pages - right_edge:
-                if last + 1 != num:
-                    yield None
-                yield num
-                last = num

@@ -69,13 +69,19 @@ printf "\n ${cyan} Cleaning up stale Python bytecode... ${reset} \n\n"
 eval $COMMAND
 
 
-### Step 7 - Install any new Python packages
+### Step 7 - Uninstall any old Python packages no longer used
+COMMAND="${PREFIX} pip uninstall -r old_requirements.txt -y"
+printf "\n ${cyan} Removing old Python packages... $(reset) \n\n"
+eval $COMMAND
+
+
+### Step 8 - Install any new Python packages
 COMMAND="${PREFIX} pip install -r requirements.txt --upgrade"
 printf "\n ${cyan} Updating required Python packages... ${reset} \n\n"
 eval $COMMAND
 
 
-### Step 8 - Verify Nginx NetConfig settings file is correct
+### Step 9 - Verify Nginx NetConfig settings file is correct
 MATCHFIELD="\$remote_addr;"
 INSERTFIELD1="        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;"
 INSERTFIELD2="        proxy_set_header X-Forwarded-Proto \$scheme;"
@@ -94,7 +100,7 @@ else
 fi
 
 
-### Step 9 - Upgrade Database
+### Step 10 - Upgrade Database
 COMMAND="python db_upgrade.py"
 printf "\n ${cyan} Upgrading database schema to latest version... ${reset} \n\n"
 FILE="app.db"
@@ -109,13 +115,13 @@ else
 fi
 
 
-### Step 10 - Restart supervisorctl process
+### Step 11 - Restart supervisorctl process
 COMMAND="${PREFIX} supervisorctl restart netconfig"
 printf "\n ${cyan} Restarting supervisorctl NetConfig process... ${reset} \n\n"
 eval $COMMAND
 
 
-### Step 11 - Notify of successful upgrade
+### Step 12 - Notify of successful upgrade
 NEWVERSION=`cat config.py | grep VERSION | cut -d \' -f 2`
 
 if [ "$UPDATERESULT" == false ]

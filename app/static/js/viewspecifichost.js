@@ -176,11 +176,11 @@ $('#modalEditInterface').on('show.bs.modal', function(event) {
 
   var modal = $(this)
 
-  interfaceSlash = interface.replace(/_/g, '/')
+  // interfaceSlash = interface.replace(/_/g, '/')
 
-  modal.find('.modal-title').text('Edit Interface ' + interfaceSlash)
-  modal.find('.modal-interface').text(interfaceSlash)
-  modal.find('.modal-result').load('/modaleditinterface/' + hostid + '/' + interface)
+  modal.find('.modal-title').text('Edit Interface ' + interface)
+  modal.find('.modal-interface').text(interface)
+  modal.find('.modal-result').load('/modaleditinterface/' + hostid + '?int=' + interface)
 })
 
 $('#modalEditInterface').on('hidden.bs.modal', function() {
@@ -234,7 +234,7 @@ $('#modalCmdShowCDPNeigh').on('show.bs.modal', function(event) {
 
   var modal = $(this)
 
-  modal.find('.modal-title').text('CDP Neighbors from ' + hostname)
+  modal.find('.modal-title').text('CDP Neighbors for ' + hostname)
   modal.find('.modal-result').load('/modalcmdshowcdpneigh/' + hostid)
 })
 

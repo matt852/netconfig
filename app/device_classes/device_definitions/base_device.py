@@ -1,5 +1,4 @@
-from ...scripts_bank.lib import netmiko_functions as nfn
-from ...scripts_bank.lib import functions as fn
+from app.scripts_bank.lib.netmiko_functions import runMultipleSSHCommandsInSession
 
 
 class BaseDevice(object):
@@ -17,14 +16,6 @@ class BaseDevice(object):
     def __del__(self):
         """Deletion function."""
         pass
-
-    def enter_config_mode(self, activeSession):
-        """Enter configuration mode on device using existing SSH session."""
-        nfn.runEnterConfigModeInSession(activeSession)
-
-    def exit_config_mode(self, activeSession):
-        """Exit configuration mode on device using existing SSH session."""
-        nfn.runExitConfigModeInSession(activeSession)
 
     def reset_session_mode(self, activeSession):
         """Check if existing SSH session is in config mode.
@@ -54,7 +45,7 @@ class BaseDevice(object):
         self.reset_session_mode(activeSession)
 
         # Run command and return command output
-        return nfn.runSSHCommandInSession(command, activeSession)
+        return activeSession.send_command(command)
 
     def run_ssh_config_commands(self, cmdList, activeSession):
         """Execute configuration commands on device.
@@ -63,14 +54,14 @@ class BaseDevice(object):
         Commands provided via array, with each command on it's own array row.
         Uses existing SSH session.
         """
-        return nfn.runMultipleSSHConfigCommandsInSession(cmdList, activeSession)
+        return activeSession.send_config_set(cmdList).splitlines()
 
     def run_multiple_commands(self, command, activeSession):
         """Execute multiple commands on device using existing SSH session."""
         newCmd = []
-        for x in self.split_on_newline(command):
+        for x in command.splitlines():
             newCmd.append(x)
-        nfn.runMultipleSSHCommandsInSession(newCmd, activeSession)
+        runMultipleSSHCommandsInSession(newCmd, activeSession)
 
     def run_multiple_config_commands(self, command, activeSession):
         """Execute multiple configuration commands on device.
@@ -81,18 +72,14 @@ class BaseDevice(object):
         Uses existing SSH session.
         """
         newCmd = []
-        for x in self.split_on_newline(command):
+        for x in command.splitlines():
             newCmd.append(x)
         # Get command output from network device
-        result = nfn.runMultipleSSHConfigCommandsInSession(newCmd, activeSession)
+        result = self.run_ssh_config_commands(newCmd, activeSession)
         saveResult = self.save_config_on_device(activeSession)
         for x in saveResult:
             result.append(x)
         return result
-
-    def split_on_newline(self, x):
-        """Split string into an array by each newline in string."""
-        return fn.splitOnNewline(x)
 
     def get_cmd_output(self, command, activeSession):
         """Get SSH command output and returns it as an array.
@@ -101,9 +88,7 @@ class BaseDevice(object):
         Stores and returns output in an array.
         Each array row is separated by newline.
         """
-        result = self.run_ssh_command(command,
-                                      activeSession)
-        return self.split_on_newline(result)
+        return self.run_ssh_command(command, activeSession).splitlines()
 
     def get_cmd_output_with_commas(self, command, activeSession):
         """Execute command on device and replaces spaces with commas.
@@ -114,13 +99,15 @@ class BaseDevice(object):
         Each array row is separated by newline.
         """
         result = self.run_ssh_command(command, activeSession)
-        result = self.replace_double_spaces_commas(result)
-        return self.split_on_newline(result)
-
-    def replace_double_spaces_commas(self, x):
-        """Replace all double spaces in provided string with a single comma."""
-        return fn.replaceDoubleSpacesCommas(x)
+        return result.replace("  ", ",").splitlines()
 
     def find_prompt_in_session(self, activeSession):
         """Return device prompt from existing SSH session."""
-        return nfn.findPromptInSession(activeSession)
+        return activeSession.find_prompt()
+
+    def replace_double_spaces_commas(self, x):
+        """Replace all double spaces in provided string with a single comma."""
+        x = x.replace("  ", ",,")
+        while ",," in x:
+            x = x.replace(",,", ",")
+        return x

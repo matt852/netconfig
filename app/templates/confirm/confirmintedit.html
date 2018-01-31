@@ -9,14 +9,13 @@
             <div class="panel panel-danger">
                 <div class="panel-heading">Edit Interface?</div>
             	<div class="panel-body">
-                    {% set ifaceURL = interface|replace('/','_') %}
                     {% set otherURL = otherEncoded|replace('/','_') %}
-
-    				<p>Are you sure you want to modify interface <strong>{{ interface }}</strong> on host <strong>{{ host.hostname }}</strong>?</p>
+                    
+    				<p>Are you sure you want to modify interface <strong>{{ hostinterface }}</strong> on host <strong>{{ host.hostname }}</strong>?</p>
                     <p>The following commands will be executed:</p>
 
 <code>{{ host.get_cmd_enter_configuration_mode() }}<br />
-&nbsp;interface {{ interface }}<br />
+&nbsp;interface {{ hostinterface }}<br />
 {% if datavlan == '' %}{% set datavlan = 0 %}{% else %}&nbsp;&nbsp;switchport access vlan {{ datavlan }}<br />{% endif %}
 {% if voicevlan == '' %}{% set voicevlan = 0 %}{% else %}&nbsp;&nbsp;switchport voice vlan {{ voicevlan }}<br />{% endif %}
 {% if other == '' %}{% set other = 0 %}{% else %}{% set otherDisplay = other|replace('\n','<br />&nbsp;&nbsp;') %}&nbsp;&nbsp;{{ otherDisplay | safe }}<br />
@@ -24,7 +23,7 @@
 </code>
 
 					<div class="text-right">
-                		<a href="/results/resultsinterfaceedit/{{ host.id }}/{{ ifaceURL }}/{{ datavlan }}/{{ voicevlan }}/{{ otherURL }}" class="btn btn-danger">Confirm</a>
+                		<a href="/results/resultsinterfaceedit/{{ host.id }}/{{ datavlan }}/{{ voicevlan }}/{{ otherURL }}?int={{ hostinterface }}" class="btn btn-danger">Confirm</a>
                 		<a href="/db/viewhosts/{{ host.id }}" class="btn btn-default">Cancel</a>
             		</div>
             	</div>

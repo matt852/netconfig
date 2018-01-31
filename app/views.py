@@ -19,12 +19,10 @@ from scripts_bank import db_modifyDatabase
 from scripts_bank import netboxAPI
 from scripts_bank import ping_hosts as ph
 from scripts_bank.redis_logic import deleteUserInRedis, resetUserRedisExpireTimer, storeUserInRedis
-from scripts_bank.lib import functions as fn
+from scripts_bank.lib.functions import removeDictKey, setUserCredentials
 from scripts_bank.lib.flask_functions import checkUserLoggedInStatus
-from scripts_bank.lib.functions import readFromFile
 from scripts_bank.lib.netmiko_functions import disconnectFromSSH, getSSHSession
 from scripts_bank.lib.netmiko_functions import sessionIsAlive
-from scripts_bank.run_command import getCfgCmdOutput, getCmdOutputNoCR
 
 from .forms import AddHostForm, CustomCfgCommandsForm, CustomCommandsForm
 from .forms import EditHostForm, EditInterfaceForm, ImportHostsForm, LoginForm
@@ -92,8 +90,11 @@ def getSSHKeyForHost(host):
 
     # Store SSH Dict key as host.id followed by '-' followed by username and return.
     """
-    sshKey = str(host.id) + '--' + str(session['UUID'])
-    return sshKey
+    try:
+        sshKey = str(host.id) + '--' + str(session['UUID'])
+        return sshKey
+    except KeyError:
+        return None
 
 
 def checkHostActiveSSHSession(host):
@@ -157,7 +158,7 @@ def retrieveSSHSession(host):
         saved_id = str(g.db.hget('users', username))
         password = str(g.db.hget(str(saved_id), 'pw'))
 
-    creds = fn.setUserCredentials(username, password, privpw)
+    creds = setUserCredentials(username, password, privpw)
 
     # Retrieve SSH key for host
     sshKey = getSSHKeyForHost(host)
@@ -192,7 +193,7 @@ def disconnectSpecificSSHSession(host):
         # y[1] is uuid
         if int(y[0]) == int(host.id):
             disconnectFromSSH(ssh[x])
-            ssh = fn.removeDictKey(ssh, x)
+            ssh.pop(x)
             writeToLog('disconnected SSH session to provided host %s from user %s' % (host.hostname, session['USER']))
 
 
@@ -208,7 +209,7 @@ def disconnectAllSSHSessions():
         if str(y[1]) == str(session['UUID']):
             disconnectFromSSH(ssh[x])
             host = db_modifyDatabase.getHostByID(y[0])
-            ssh = fn.removeDictKey(ssh, x)
+            ssh = removeDictKey(ssh, x)
             writeToLog('disconnected SSH session to device %s for user %s' % (host.hostname, y[1]))
 
     # Try statement needed as 500 error thrown if user is not currently logged in.
@@ -263,12 +264,10 @@ def ajaxCheckHostActiveSession(x):
     """
     host = db_modifyDatabase.retrieveHostByID(x)
 
-    result = checkHostActiveSSHSession(host)
-
-    if result:
-        return 'True'
-    else:
-        return 'False'
+    if host:
+        if checkHostActiveSSHSession(host):
+            return 'True'
+    return 'False'
 
 
 def interfaceReplaceSlash(x):
@@ -321,13 +320,13 @@ def before_request():
 @app.errorhandler(404)
 def not_found_error(error):
     """Return 404 page on 404 error."""
-    return render_template('errors/404.html', error=error)
+    return render_template('errors/404.html', error=error), 404
 
 
 @app.errorhandler(500)
 def handle_500(error):
     """Return 500 page on 500 error."""
-    return render_template('errors/500.html', error=error)
+    return render_template('errors/500.html', error=error), 500
 
 
 @app.route('/nohostconnect/<host>')
@@ -374,29 +373,20 @@ def login():
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():
     """Disconnect all SSH sessions by user."""
-    currentUser = session['USER']
     disconnectAllSSHSessions()
-    writeToLog('logged out')
-
-    # Delete user saved in Redis
     try:
+        currentUser = session['USER']
         deleteUserInRedis()
-        writeToLog('deleted user %s data stored in Redis' % (session['USER']))
-    except:
-        writeToLog('did not delete user data stored in Redis as no user currently logged in')
-    # Remove the username from the session if it is there
-    try:
+        writeToLog('deleted user %s data stored in Redis' % (currentUser))
         session.pop('USER', None)
         writeToLog('deleted user %s as stored in session variable' % (currentUser), currentUser=currentUser)
-    except:
-        writeToLog('did not delete user data stored in session variable as no user currently logged in')
-
-    try:
         u = session['UUID']
         session.pop('UUID', None)
         writeToLog('deleted UUID %s for user %s as stored in session variable' % (u, currentUser), currentUser=currentUser)
-    except:
-        writeToLog('did not delete UUID data stored in session variable as none is currently set for user', currentUser=currentUser)
+    except KeyError:
+        writeToLog('Exception thrown on logout.')
+        return redirect(url_for('index'))
+    writeToLog('logged out')
 
     return redirect(url_for('index'))
 
@@ -637,35 +627,30 @@ def viewSpecificHost(x):
             activeSession = retrieveSSHSession(host)
             writeToLog('credentials used of currently logged in user for accessing host %s' % (host.hostname))
 
-    tableHeader, interfaces = host.pull_host_interfaces(activeSession)
+    result = host.pull_host_interfaces(activeSession)
 
-    if interfaces:
-        upInt, downInt, disabledInt, totalInt = host.count_interface_status(interfaces)
+    if result:
+        interfaces = host.count_interface_status(result)
 
-    # If interfaces is x.x.x.x skipped - connection timeout,
-    #  throw error page redirect
-    if fn.containsSkipped(interfaces) or not interfaces:
-        disconnectSpecificSSHSession(host)
-        return redirect(url_for('noHostConnectError',
-                                host=host.hostname))
-    else:
         return render_template("/db/viewspecifichost.html",
                                host=host,
-                               tableHeader=tableHeader,
                                interfaces=interfaces,
-                               upInt=upInt,
-                               downInt=downInt,
-                               disabledInt=disabledInt,
-                               totalInt=totalInt)
+                               result=result)
+    else:
+        # If interfaces is x.x.x.x skipped - connection timeout,
+        #  throw error page redirect
+        disconnectSpecificSSHSession(host)
+        return redirect(url_for('noHostConnectError',
+                                host=host))
 
 
-@app.route('/calldisconnectspecificsshsession/<hostID>')
-def callDisconnectSpecificSSHSession(hostID):
+@app.route('/calldisconnectspecificsshsession/<x>')
+def callDisconnectSpecificSSHSession(x):
     """Disconnect any SSH sessions for a specific host from all users.
 
-    hostID = ID of host to disconnect.
+    x = ID of host to disconnect.
     """
-    host = db_modifyDatabase.retrieveHostByID(hostID)
+    host = db_modifyDatabase.retrieveHostByID(x)
     # Disconnect device.
     try:
         disconnectSpecificSSHSession(host)
@@ -680,57 +665,66 @@ def callDisconnectSpecificSSHSession(hostID):
 ######################
 
 
-@app.route('/confirm/confirmintenable/', methods=['GET', 'POST'])
-@app.route('/confirm/confirmintenable/<x>/<y>', methods=['GET', 'POST'])
-def confirmIntEnable(x, y):
+@app.route('/confirm/confirmintenable/<x>', methods=['GET', 'POST'])
+def confirmIntEnable(x):
     """Confirm enabling specific device interface before executing.
 
     x = device id
-    y = interface name
     """
-    host = db_modifyDatabase.getHostByID(x)
-    # Removes dashes from interface in URL
-    y = interfaceReplaceSlash(y)
-    return render_template("confirm/confirmintenable.html",
-                           host=host,
-                           interface=y)
+    try:
+        host = db_modifyDatabase.getHostByID(x)
+        if host:
+            # Removes dashes from interface in URL
+            return render_template("confirm/confirmintenable.html",
+                                   host=host,
+                                   interface=request.args.get('int', ''))
+        else:
+            return redirect(url_for('index'))
+    except AttributeError:
+        return redirect(url_for('index'))
 
 
-@app.route('/confirm/confirmintdisable/', methods=['GET', 'POST'])
-@app.route('/confirm/confirmintdisable/<x>/<y>', methods=['GET', 'POST'])
-def confirmIntDisable(x, y):
+@app.route('/confirm/confirmintdisable/<x>', methods=['GET', 'POST'])
+def confirmIntDisable(x):
     """Confirm disabling specific device interface before executing.
 
     x = device id
-    y = interface name
     """
-    host = db_modifyDatabase.getHostByID(x)
-    # Removes dashes from interface in URL
-    y = interfaceReplaceSlash(y)
-    return render_template("confirm/confirmintdisable.html",
-                           host=host,
-                           interface=y)
+    try:
+        host = db_modifyDatabase.getHostByID(x)
+        if host:
+            # Removes dashes from interface in URL
+            return render_template("confirm/confirmintdisable.html",
+                                   host=host,
+                                   interface=request.args.get('int', ''))
+        else:
+            return redirect(url_for('index'))
+    except AttributeError:
+        return redirect(url_for('index'))
 
 
-@app.route('/confirm/confirmhostdelete/', methods=['GET', 'POST'])
 @app.route('/confirm/confirmhostdelete/<x>', methods=['GET', 'POST'])
 def confirmHostDelete(x):
     """Confirm deleting device interface from local database.
 
     x = device ID
     """
-    host = db_modifyDatabase.getHostByID(x)
-    return render_template("confirm/confirmhostdelete.html",
-                           host=host)
+    try:
+        host = db_modifyDatabase.getHostByID(x)
+        if host:
+            return render_template("confirm/confirmhostdelete.html", host=host)
+        else:
+            return redirect(url_for('index'))
+    except AttributeError:
+        return redirect(url_for('index'))
 
 
 @app.route('/confirm/confirmintedit/', methods=['POST'])
-@app.route('/confirm/confirmintedit/<x>/<y>', methods=['POST'])
 def confirmIntEdit():
     """Confirm settings to edit device interface with before executing."""
     hostid = request.form['hostid']
     host = db_modifyDatabase.getHostByID(hostid)
-    interface = request.form['interface']
+    hostinterface = request.form['hostinterface']
     datavlan = request.form['datavlan']
     voicevlan = request.form['voicevlan']
     other = request.form['other']
@@ -738,7 +732,7 @@ def confirmIntEdit():
 
     return render_template("confirm/confirmintedit.html",
                            host=host,
-                           interface=interface,
+                           hostinterface=hostinterface,
                            datavlan=datavlan,
                            voicevlan=voicevlan,
                            other=other,
@@ -836,7 +830,6 @@ def confirmCfgCmdCustom():
 #################
 
 
-@app.route('/results/resultsinterfaceenabled/', methods=['GET', 'POST'])
 @app.route('/results/resultsinterfaceenabled/<x>/<y>', methods=['GET', 'POST'])
 def resultsIntEnabled(x, y):
     """Display results for enabling specific interface.
@@ -855,12 +848,9 @@ def resultsIntEnabled(x, y):
 
     writeToLog('enabled interface %s on host %s' % (y, host.hostname))
     return render_template("results/resultsinterfaceenabled.html",
-                           host=host,
-                           interface=y,
-                           result=result)
+                           host=host, interface=y, result=result)
 
 
-@app.route('/results/resultsinterfacedisabled/', methods=['GET', 'POST'])
 @app.route('/results/resultsinterfacedisabled/<x>/<y>', methods=['GET', 'POST'])
 def resultsIntDisabled(x, y):
     """Display results for disabling specific interface.
@@ -879,20 +869,16 @@ def resultsIntDisabled(x, y):
 
     writeToLog('disabled interface %s on host %s' % (y, host.hostname))
     return render_template("results/resultsinterfacedisabled.html",
-                           host=host,
-                           interface=y,
-                           result=result)
+                           host=host, interface=y, result=result)
 
 
-@app.route('/results/resultsinterfaceedit/', methods=['GET', 'POST'])
-@app.route('/results/resultsinterfaceedit/<x>/<y>/<datavlan>/<voicevlan>/<other>', methods=['GET', 'POST'])
-def resultsIntEdit(x, y, datavlan, voicevlan, other):
+@app.route('/results/resultsinterfaceedit/<x>/<datavlan>/<voicevlan>/<other>', methods=['GET', 'POST'])
+def resultsIntEdit(x, datavlan, voicevlan, other):
     """Display results for editing specific interface config settings.
 
     x = device id
-    y = interface name
     d = data vlan
-    v = voice vlan
+    v = voice vlandddd
     o = other
     """
     initialChecks()
@@ -900,6 +886,9 @@ def resultsIntEdit(x, y, datavlan, voicevlan, other):
     host = db_modifyDatabase.getHostByID(x)
 
     activeSession = retrieveSSHSession(host)
+
+    # Get interface from passed variabel in URL
+    hostinterface = request.args.get('int', '')
 
     # Decode 'other' string
     other = unquote_plus(other).decode('utf-8')
@@ -911,19 +900,14 @@ def resultsIntEdit(x, y, datavlan, voicevlan, other):
     other = other.replace('\r\n', '\n')
 
     # Remove dashes from interface in URL and edit interface config
-    result = host.run_edit_interface_cmd(interfaceReplaceSlash(y), datavlan, voicevlan, other, activeSession)
+    result = host.run_edit_interface_cmd(hostinterface, datavlan, voicevlan, other, activeSession)
 
-    writeToLog('edited interface %s on host %s' % (y, host.hostname))
-    return render_template("results/resultsinterfaceedit.html",
-                           host=host,
-                           interface=y,
-                           datavlan=datavlan,
-                           voicevlan=voicevlan,
-                           other=other,
-                           result=result)
+    writeToLog('edited interface %s on host %s' % (hostinterface, host.hostname))
+    return render_template("results/resultsinterfaceedit.html", host=host,
+                           interface=hostinterface, datavlan=datavlan,
+                           voicevlan=voicevlan, other=other, result=result)
 
 
-@app.route('/results/resultshostdeleted/', methods=['GET', 'POST'])
 @app.route('/results/resultshostdeleted/<x>', methods=['GET', 'POST'])
 def resultsHostDeleted(x):
     """Display results for deleting device from local database.
@@ -931,17 +915,18 @@ def resultsHostDeleted(x):
     x = device ID
     """
     host = db_modifyDatabase.getHostByID(x)
-    # Removes host from database
-    result = db_modifyDatabase.deleteHostInDB(host.id)
-    if result:
-        disconnectSpecificSSHSession(host)
-        writeToLog('deleted host %s in database' % (host.hostname))
-        return render_template("results/resultshostdeleted.html",
-                               host=host,
-                               result=result)
+    if host:
+        # Removes host from database
+        result = db_modifyDatabase.deleteHostInDB(host.id)
+        if result:
+            disconnectSpecificSSHSession(host)
+            writeToLog('deleted host %s in database' % (host.hostname))
+            return render_template("results/resultshostdeleted.html",
+                                   host=host, result=result)
+        else:
+            return redirect(url_for('confirmHostDelete', x=host.id))
     else:
-        return redirect(url_for('confirmHostDelete',
-                                x=host.id))
+        return redirect(url_for('index'))
 
 
 @app.route('/results/resultscmdcustom/', methods=['GET', 'POST'])
@@ -1017,7 +1002,7 @@ def modalSpecificInterfaceOnHost(x, y):
     # Replace's '=' with '.'
     host.interface = interface.replace('=', '.')
 
-    intConfig, intMacHead, intMacBody, intStats = host.pull_interface_info(activeSession)
+    intConfig, intMacAddr, intStats = host.pull_interface_info(activeSession)
     macToIP = ''
 
     writeToLog('viewed interface %s on host %s' % (interface, host.hostname))
@@ -1025,19 +1010,16 @@ def modalSpecificInterfaceOnHost(x, y):
                            host=host,
                            interface=interface,
                            intConfig=intConfig,
-                           intMacHead=intMacHead,
-                           intMacBody=intMacBody,
+                           intMacAddr=intMacAddr,
                            macToIP=macToIP,
                            intStats=intStats)
 
 
-@app.route('/modaleditinterface/', methods=['GET', 'POST'])
-@app.route('/modaleditinterface/<x>/<y>', methods=['GET', 'POST'])
-def modalEditInterfaceOnHost(x, y):
+@app.route('/modaleditinterface/<x>', methods=['GET', 'POST'])
+def modalEditInterfaceOnHost(x):
     """Display modal to edit specific interface on device.
 
     x = device id
-    y = interface name
     """
     initialChecks()
 
@@ -1045,22 +1027,25 @@ def modalEditInterfaceOnHost(x, y):
 
     activeSession = retrieveSSHSession(host)
 
-    # Removes dashes from interface in URL
-    interface = interfaceReplaceSlash(y)
+    # Removes dashes from interface in URLdddd
+    # interface = interfaceReplaceSlash(y)
     # Replace's '=' with '.'
-    host.interface = interface.replace('=', '.')
+    # host.interface = interface.replace('=', '.')
+
+    # Set interface to passed parameter in URL
+    host.interface = request.args.get('int', '')
 
     intConfig = host.pull_interface_config(activeSession)
     # Edit form
-    form = EditInterfaceForm(request.values, host=host, interface=interface)
+    form = EditInterfaceForm(request.values, host=host, interface=host.interface)
 
     if form.validate_on_submit():
-        flash('Interface to edit - "%s"' % (interface))
+        flash('Interface to edit - "%s"' % (host.interface))
         return redirect('/confirm/confirmintedit')
 
     return render_template("/editinterface.html",
                            hostid=host.id,
-                           interface=interface,
+                           hostinterface=host.interface,
                            intConfig=intConfig,
                            form=form)
 
@@ -1133,12 +1118,11 @@ def modalCmdShowCDPNeigh(x):
 
     host = db_modifyDatabase.getHostByID(x)
     activeSession = retrieveSSHSession(host)
-    tableHeader, tableBody = host.pull_cdp_neighbor(activeSession)
+    neigh = host.pull_cdp_neighbor(activeSession)
     writeToLog('viewed CDP neighbors via button on host %s' % (host.hostname))
     return render_template("/cmdshowcdpneigh.html",
                            host=host,
-                           tableHeader=tableHeader,
-                           tableBody=tableBody)
+                           neigh=neigh)
 
 
 @app.route('/modalcmdshowinventory/', methods=['GET', 'POST'])
@@ -1260,45 +1244,38 @@ def hostShellOutput(x, m, y):
     """
     initialChecks()
 
-    output = []
     configError = False
 
     host = db_modifyDatabase.getHostByID(x)
     activeSession = retrieveSSHSession(host)
 
-    # Decode command in URL received from javascript
-    command = unquote_plus(y).decode('utf-8')
-
     # Replace '_' with '/'
-    command = interfaceReplaceSlash(command)
+    command = interfaceReplaceSlash(unquote_plus(y).decode('utf-8'))
 
     # Append prompt and command executed to beginning of output
-    output.append(host.find_prompt_in_session(activeSession) + command)
+    # output.append(host.find_prompt_in_session(activeSession) + command)
 
     # Check if last character is a '?'
     if command[-1] == '?':
         if m == 'c':
             # Get command output as a list.
-            # Insert list contents into 'output' list.
+            # Insert list contents into 'output' list.dddd
             configError = True
+            output = ''
         else:
-            # Get command output as a list.
-            # Insert list contents into 'output' list.
-            output.extend(getCmdOutputNoCR(activeSession, command))
-            # Append prompt and command executed to end of output
-            output.append(host.find_prompt_in_session(activeSession))
+            # Run command on provided existing SSH session and returns output.
+            # Since we set normalize to False, we need to do this.
+            # The normalize() function in NetMiko does rstrip and adds a CR to the end of the command.
+            output = activeSession.send_command(command.strip(), normalize=False).splitlines()
 
     else:
         if m == 'c':
-            # Get command output as a list.
-            # Insert list contents into 'output' list.
-            output.extend(getCfgCmdOutput(activeSession, command))
+            # Get configuration command output from network device, split output by newline
+            output = activeSession.send_config_set(command, exit_config_mode=False).splitlines()
+            # Remove first item in list, as Netmiko returns the command ran only in the output
+            output.pop(0)
         else:
-            # Get command output as a list.
-            # Insert list contents into 'output' list.
-            output.extend(host.get_cmd_output(command, activeSession))
-            # Append prompt and command executed to end of output.
-            output.append(host.find_prompt_in_session(activeSession))
+            output = host.get_cmd_output(command, activeSession)
 
     writeToLog('ran command on host %s - %s' % (host.hostname, command))
 
@@ -1319,7 +1296,8 @@ def enterConfigMode(x):
 
     host = db_modifyDatabase.getHostByID(x)
     activeSession = retrieveSSHSession(host)
-    host.enter_config_mode(activeSession)
+    # Enter configuration mode on device using existing SSH session
+    activeSession.config_mode()
     writeToLog('entered config mode via iShell on host %s' % (host.hostname))
     return ('', 204)
 
@@ -1334,7 +1312,8 @@ def exitConfigMode(x):
 
     host = db_modifyDatabase.getHostByID(x)
     activeSession = retrieveSSHSession(host)
-    host.exit_config_mode(activeSession)
+    # Exit configuration mode on device using existing SSH session
+    activeSession.exit_config_mode()
 
     writeToLog('exited config mode via iShell on host %s' % (host.hostname))
     return ('', 204)
@@ -1480,8 +1459,10 @@ def editSettings():
     """Modify Netconfig settings."""
     initialChecks()
 
-    # Import contents of settings file
-    file = readFromFile(app.config['SETTINGSFILE'])
-    return render_template('/editsettings.html',
-                           title='Edit Netconfig settings',
-                           file=file)
+    try:
+        with open(app.config['SETTINGSFILE'], 'r') as s:
+            return render_template('/editsettings.html',
+                                   title='Edit Netconfig settings',
+                                   file=s.readlines())
+    except:
+        return render_template('errors/500.html', error="Unable to read Settings File"), 500

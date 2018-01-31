@@ -4,24 +4,28 @@
 			<div class="table-responsive">
 				<table class="table table-striped table-hover table-condensed">
 					<h2 class="text-primary">CDP Neighbors for {{ host.hostname }}:</h2><br /><br />
-					<p>
 						{% autoescape false %}
-						<tr>
-							{% for x in tableHeader.split(',') %}
-								<th>{{ x }}</th>
-							{% endfor %}
-						</tr>
-						{% for x in tableBody %} <!-- x is a single line in the array -->
-							<tr>
-								{% for y in x.split(',') %} <!-- y is a single word in the line -->
-									{% if y %}
-										<td>{{ y }}</td>
-									{% endif %}
+							<thead>
+								<tr>
+									<th>Device ID</th>
+									<th>IP Address</th>
+									<th>Local Interface</th>
+									<th>Platform</th>
+									<th>Port ID</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for x in neigh %}
+									<tr>
+										<td> {{ x.device_id }} </td>
+										<td> {{ x.remote_ip }} </td>
+										<td> {{ x.local_iface }} </td>
+										<td> {{ x.platform }} </td>
+										<td> {{ x.port_id }} </td>
+									</tr>
 								{% endfor %}
-							</tr>
-						{% endfor %}
+							</tbody>
 						{% endautoescape %}
-					</p>
 				</table>
 			</div>
 		</div>
