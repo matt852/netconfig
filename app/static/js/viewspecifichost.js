@@ -315,7 +315,7 @@ $('#modalCfgCmdCustom').on('hidden.bs.modal', function() {
   modal.find('.modal-result').text('')
 })
 
-$('#modalSaveConfig').on('show.bs.modal', function(event) {
+$('#modalSaveConfig').on('shown.bs.modal', function(event) {
   var button = $(event.relatedTarget) // Button that triggered the modal
 
   var hostname = button.data('hostname') // Extract info from data-* attributes
@@ -324,7 +324,11 @@ $('#modalSaveConfig').on('show.bs.modal', function(event) {
   var modal = $(this)
 
   modal.find('.modal-title').text('Saving running configuration on ' + hostname)
-  modal.find('.modal-result').load('/modalcmdsaveconfig/' + hostid)
+  modal.find('.modal-result').load('/modalcmdsaveconfig/' + hostid, function() {
+    $("#loading").hide();
+    $("#loadingWheel").hide();
+    $("#loadingContentHide").show();
+  });
 })
 
 $('#modalSaveConfig').on('hidden.bs.modal', function() {

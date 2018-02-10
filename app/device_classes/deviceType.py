@@ -1,4 +1,4 @@
-from device_definitions.cisco import CiscoIOS, CiscoNXOS, CiscoASA
+from .device_definitions.cisco import CiscoIOS, CiscoNXOS, CiscoASA
 
 # The keys of this dictionary are the supported device_types
 CLASS_MAPPER = {

@@ -9,7 +9,7 @@
             <div class="panel panel-danger">
                 <div class="panel-heading">Edit Interface?</div>
             	<div class="panel-body">
-                    {% set otherURL = otherEncoded|replace('/','_') %}
+                    {% set otherURL = otherEncoded|replace('/','___') %}
                     
     				<p>Are you sure you want to modify interface <strong>{{ hostinterface }}</strong> on host <strong>{{ host.hostname }}</strong>?</p>
                     <p>The following commands will be executed:</p>

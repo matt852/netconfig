@@ -1,7 +1,17 @@
 NetConfig
 =========
 
-What NetConfig Is
+.. image:: https://travis-ci.org/v1tal3/netconfig.svg?branch=master
+    :target: https://travis-ci.org/v1tal3/netconfig
+
+.. image:: https://travis-ci.org/v1tal3/netconfig.svg?branch=development
+    :target: https://travis-ci.org/v1tal3/netconfig
+
+.. image:: https://coveralls.io/repos/github/v1tal3/netconfig/badge.svg?branch=master
+    :target: https://coveralls.io/github/v1tal3/netconfig?branch=master
+
+
+What Is NetConfig?
 ------------------
 
 NetConfig started out as a graphical overlay for my existing Python scripts, and I've been expanding it's features ever since.  It was originally built specifically for Cisco switches, routers, and firewalls, using IOS, IOS-XE, NX-OS, and ASA operating systems.  All device data is pulled in real-time via SSH and Netmiko.
@@ -12,12 +22,6 @@ NetConfig can retrieve a list of devices in one of two ways:
 - Retrieved via API calls on an existing NetBox installation
 
 In version 1.1, vendor neutral support was added using individual device files.
-
-What NetConfig Isn't
----------------------
-
-- Automation tool.
-- Error checking tool.  All manual commands entered are submitted as is, just like if entered via a manual SSH session
 
 Features
 --------

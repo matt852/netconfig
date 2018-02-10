@@ -66,6 +66,13 @@ FastEthernet1/0/3      unassigned      YES unset  administratively down down
             self.assertEqual(x['hold_time'], y['hold_time'])
             self.assertEqual(x['platform'], y['platform'])
             self.assertEqual(x['device_id'], y['device_id'])
+    
+    def test_replace_double_spaces_commas(self):
+        """Test function for replacing all double spaces in provided input with commas."""
+        input_data = '      a   bc    d e ff ghij   k  l m   '
+        expected_output = ',a, bc,d e ff ghij, k,l m, '
+        actual_output = self.device.replace_double_spaces_commas(input_data)
+        self.assertEqual(actual_output, expected_output)
 
 
 if __name__ == '__main__':

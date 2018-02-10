@@ -1,0 +1,138 @@
+Test writing backlog of functions:
+(
+    --- means a test has been written
+    -x- means a test is not needed, or not planned to be written
+    -i- means a test is being written but not yet completed
+)
+
+device_classes-->device_definitions-->base_device
+    -x-def reset_session_mode(self, activeSession):
+    -x-def revert_session_mode(self, activeSession, originalState):
+    -x-def run_ssh_command(self, command, activeSession):
+    -x-def run_ssh_config_commands(self, cmdList, activeSession):
+    -x-def run_multiple_commands(self, command, activeSession):
+    -x-def run_multiple_config_commands(self, command, activeSession):
+    -x-def get_cmd_output(self, command, activeSession):
+    -x-def get_cmd_output_with_commas(self, command, activeSession):
+    -x-def find_prompt_in_session(self, activeSession):
+    ---def replace_double_spaces_commas(self, x):
+
+device_classes-->device_definitions-->cisco_base_device
+    def check_invalid_input_detected(self, x):
+    def get_cmd_enter_configuration_mode(self):
+    def get_cmd_exit_configuration_mode(self):
+    def get_cmd_enable_interface(self):
+    def get_cmd_disable_interface(self):
+    ---def cleanup_ios_output(self, iosOutput):
+    def cleanup_nxos_output(self, nxosOutput):
+    def run_enable_interface_cmd(self, interface, activeSession):
+    def run_disable_interface_cmd(self, interface, activeSession):
+    def get_save_config_cmd(self):
+    def save_config_on_device(self, activeSession):
+    def run_edit_interface_cmd(self, interface, datavlan, voicevlan, other, activeSession):
+    def cmd_show_inventory(self):
+    def cmd_show_version(self):
+    def pull_inventory(self, activeSession):
+    def pull_version(self, activeSession):
+    def renameCDPInterfaces(self, x):
+    -i-def cleanup_cdp_neighbor_output(self, inputData):
+        * iox-xe version not yet completed
+
+device_classes-->device_definitions-->cisco-->cisco_asa
+    def cmd_run_config(self):
+    def cmd_start_config(self):
+    def pull_run_config(self, activeSession):
+    def pull_start_config(self, activeSession):
+    def pull_cdp_neighbor(self, activeSession):
+    def pull_interface_config(self, activeSession):
+    ---def pull_interface_mac_addresses(self, activeSession):
+    def pull_interface_statistics(self, activeSession):
+    def pull_interface_info(self, activeSession):
+    def pull_device_uptime(self, activeSession):
+    def pull_host_interfaces(self, activeSession):
+    ---def count_interface_status(self, interfaces):
+
+device_classes-->device_definitions-->cisco-->cisco_ios
+    def cmd_run_config(self):
+    def cmd_start_config(self):
+    def cmd_cdp_neighbor(self):
+    def pull_run_config(self, activeSession):
+    def pull_start_config(self, activeSession):
+    def pull_cdp_neighbor(self, activeSession):
+    def pull_interface_config(self, activeSession):
+    ---def pull_interface_mac_addresses(self, activeSession):
+    def pull_interface_statistics(self, activeSession):
+    def pull_interface_info(self, activeSession):
+    def pull_device_uptime(self, activeSession):
+    def pull_host_interfaces(self, activeSession):
+    ---def count_interface_status(self, interfaces):
+
+device_classes-->device_definitions-->cisco-->cisco_nxos
+    def cmd_run_config(self):
+    def cmd_start_config(self):
+    def cmd_cdp_neighbor(self):
+    def pull_run_config(self, activeSession):
+    def pull_start_config(self, activeSession):
+    def pull_cdp_neighbor(self, activeSession):
+    def pull_interface_config(self, activeSession):
+    ---def pull_interface_mac_addresses(self, activeSession):
+    def pull_interface_statistics(self, activeSession):
+    def pull_interface_info(self, activeSession):
+    def pull_device_uptime(self, activeSession):
+    def pull_host_interfaces(self, activeSession):
+    def count_interface_status(self, interfaces):
+    def get_interface_status(self, interface):
+
+scripts_bank-->db_modifyDatabase
+    def addHostToDB(hostname, ipv4_addr, type, ios_type, local_creds):
+    def importHostsToDB(csvImport):
+    def deleteHostInDB(x):
+    def getHosts(page):
+    def getHostsAll():
+    def getHostByHostname(x):
+    def getHostIDbyHostname(x):
+    def retrieveHostByID(x):
+    def getHostByID(x):
+    def getHostnameByID(x):
+    def getHostsByIOSType(x):
+    def editHostInDatabase(originalHostID, hostname, ipv4_addr, hosttype, ios_type, local_creds, local_creds_updated):
+    def searchHostInDB(x):
+
+scripts_bank-->netboxAPI
+    def getDeviceType(x):
+    def getDeviceTypeOS(x):
+    def getHostByID(x):
+    def getHosts():
+    def getHostID(x):
+    def getHostName(id):
+    def getHostIPAddr(id):
+    def getHostType(id):
+
+scripts_bank-->ping_hosts
+    def reachable(hosts):
+
+scripts_bank-->redis_logic
+    def generateSessionUUID():
+    def deleteUserInRedis():
+    def resetUserRedisExpireTimer():
+    def storeUserInRedis(user, pw, privpw='', host=''):
+
+scripts_bank-->lib-->flask_functions
+    def checkUserLoggedInStatus():
+    def checkSSHSessionMatchesID(sshid, hostid):
+
+---scripts_bank-->lib-->functions
+    ---def setUserCredentials(username, password, privPassword=''):
+    ---def containsSkipped(x):
+    ---def removeDictKey(d, key):
+    ---def isInteger(x):
+
+scripts_bank-->lib-->netmiko_functions
+    def sessionIsAlive(ssh):
+    def sshSkipCheck(x):
+    def connectToSSH(host, creds):
+    def disconnectFromSSH(ssh):
+    def runSSHCommandOnce(command, host, creds):
+    def runMultipleSSHCommandsWithCmdHead(cmdList, host, creds):
+    def runMultipleSSHCommandsInSession(cmdList, ssh):
+    def getSSHSession(host, creds):

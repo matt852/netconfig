@@ -1,39 +1,25 @@
 <h2>Commands</h2>
 <div class="btn-group-vertical btn-group-justified">
 	<a href="modalSaveConfig" data-toggle="modal" data-target="#modalSaveConfig" data-hostid="{{ host.id }}" data-hostname="{{ host.hostname }}"><button type="button" class="btn btn-default text-left"><span class="pull-left"><i class="glyphicon glyphicon-menu-right"></i> Save Running-Config</span></button></a>
-
 	<br />
 	<hr />
-
 	{% if host.type != 'Firewall' %}
-	<a href="modalCmdShowCDPNeigh" data-toggle="modal" data-target="#modalCmdShowCDPNeigh" data-hostid="{{ host.id }}" data-hostname="{{ host.hostname }}"><button type="button" class="btn btn-default text-left"><span class="pull-left"><i class="glyphicon glyphicon-menu-right"></i> Show CDP Neighbors</span></button></a>
-
-	<br />
+		<a href="modalCmdShowCDPNeigh" data-toggle="modal" data-target="#modalCmdShowCDPNeigh" data-hostid="{{ host.id }}" data-hostname="{{ host.hostname }}"><button type="button" class="btn btn-default text-left"><span class="pull-left"><i class="glyphicon glyphicon-menu-right"></i> Show CDP Neighbors</span></button></a>
+		<br />
 	{% endif %}
-
 	<a href="modalCmdShowInventory" data-toggle="modal" data-target="#modalCmdShowInventory" data-hostid="{{ host.id }}" data-hostname="{{ host.hostname }}"><button type="button" class="btn btn-default text-left"><span class="pull-left"><i class="glyphicon glyphicon-menu-right"></i> Show Inventory</span></button></a>
-
 	<br />
-
 	<a href="modalCmdShowRunConfig" data-toggle="modal" data-target="#modalCmdShowRunConfig" data-hostid="{{ host.id }}" data-hostname="{{ host.hostname }}"><button type="button" class="btn btn-default text-left"><span class="pull-left"><i class="glyphicon glyphicon-menu-right"></i> Show Running Config</span></button></a>
-
 	<br />
-
 	<a href="modalCmdShowStartConfig" data-toggle="modal" data-target="#modalCmdShowStartConfig" data-hostid="{{ host.id }}" data-hostname="{{ host.hostname }}"><button type="button" class="btn btn-default text-left"><span class="pull-left"><i class="glyphicon glyphicon-menu-right"></i> Show Startup Config</span></button></a>
-
 	<br />
-
 	<a href="modalCmdShowVersion" data-toggle="modal" data-target="#modalCmdShowVersion" data-hostid="{{ host.id }}" data-hostname="{{ host.hostname }}"><button type="button" class="btn btn-default text-left"><span class="pull-left"><i class="glyphicon glyphicon-menu-right"></i> Show Version</span></button></a>
-
 	<br />
 	<hr />
 <!-- Currently does not work in v1.1, need to fix
 	<a href="modalCmdCustom" data-toggle="modal" data-target="#modalCmdCustom" data-hostid="{{ host.id }}" data-hostname="{{ host.hostname }}"><button type="button" class="btn btn-default text-left"><span class="pull-left"><i class="glyphicon glyphicon-menu-right"></i> Bulk Commands</span></button></a>
-
 	<br />
-	
 	<a href="modalCfgCmdCustom" data-toggle="modal" data-target="#modalCfgCmdCustom" data-hostid="{{ host.id }}" data-hostname="{{ host.hostname }}"><button type="button" class="btn btn-default text-left"><span class="pull-left"><i class="glyphicon glyphicon-menu-right"></i> Bulk Config Commands</span></button></a>
-
 	<br />
 	<hr />
 -->

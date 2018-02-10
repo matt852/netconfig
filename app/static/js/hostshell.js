@@ -46,7 +46,7 @@ function handle(e) {
 
           // Replace '/' with '_'
           // '/' doesn't get encoded in 'encodeURI'
-          newstr = str.replace(/\//g, '_');
+          newstr = str.replace(/\//g, '___');
           encStr = encodeURI(newstr);
 
           // '?' isn't included in getElementById value, nor is it encoded, so the encoded value for '?' has to be manually entered if it was inputted by the user

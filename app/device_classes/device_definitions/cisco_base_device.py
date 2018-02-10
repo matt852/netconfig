@@ -1,4 +1,4 @@
-from base_device import BaseDevice
+from .base_device import BaseDevice
 
 
 class CiscoBaseDevice(BaseDevice):
@@ -55,7 +55,6 @@ class CiscoBaseDevice(BaseDevice):
 
     def cleanup_nxos_output(self, nxosOutput):
         """Clean up returned NX-OS output from 'show ip interface brief'."""
-        # TODO cleanup like cleanup_ios_output
         data = []
 
         for line in nxosOutput.splitlines():

@@ -6,23 +6,25 @@ import socket
 
 from datetime import timedelta
 
-from urllib import quote_plus, unquote_plus
+try:
+    from urllib import quote_plus, unquote_plus  # Python 2
+except ImportError:
+    from urllib.parse import quote_plus, unquote_plus  # Python 3
 
-from app import app
+from app import app, netbox
 
 from flask import flash, g, jsonify, redirect, render_template
 from flask import request, session, url_for
 
 from redis import StrictRedis
 
-from scripts_bank import db_modifyDatabase
-from scripts_bank import netboxAPI
-from scripts_bank import ping_hosts as ph
-from scripts_bank.redis_logic import deleteUserInRedis, resetUserRedisExpireTimer, storeUserInRedis
-from scripts_bank.lib.functions import removeDictKey, setUserCredentials
-from scripts_bank.lib.flask_functions import checkUserLoggedInStatus
-from scripts_bank.lib.netmiko_functions import disconnectFromSSH, getSSHSession
-from scripts_bank.lib.netmiko_functions import sessionIsAlive
+from .scripts_bank import db_modifyDatabase
+from .scripts_bank import ping_hosts as ph
+from .scripts_bank.redis_logic import deleteUserInRedis, resetUserRedisExpireTimer, storeUserInRedis
+from .scripts_bank.lib.functions import removeDictKey, setUserCredentials
+from .scripts_bank.lib.flask_functions import checkUserLoggedInStatus
+from .scripts_bank.lib.netmiko_functions import disconnectFromSSH, getSSHSession
+from .scripts_bank.lib.netmiko_functions import sessionIsAlive
 
 from .forms import AddHostForm, CustomCfgCommandsForm, CustomCommandsForm
 from .forms import EditHostForm, EditInterfaceForm, ImportHostsForm, LoginForm
@@ -442,9 +444,11 @@ def resultsAddHost():
     ipv4_addr = request.form['ipv4_addr']
     hosttype = request.form['hosttype']
     ios_type = request.form['ios_type']
+    print "Test"
     # If checkbox is unchecked, this fails as the request.form['local_creds'] value returned is False
     try:
-        local_creds = request.form['local_creds']
+        if request.form['local_creds']:
+            local_creds = True
     except:
         local_creds = False
 
@@ -567,7 +571,7 @@ def viewHosts(page=1):
                                hosts=hosts,
                                status=status)
     elif app.config['DATALOCATION'] == 'netbox':
-        hosts = netboxAPI.getHosts()
+        hosts = netbox.getHosts()
         return render_template('/dcimnetbox.html',
                                title='View hosts in database',
                                hosts=hosts)
@@ -746,6 +750,9 @@ def resultsHostEdit(x):
 
     x = original host ID
     """
+    if 'modal' in x:
+        return ('', 204)
+
     storedHost = db_modifyDatabase.retrieveHostByID(x)
     # Save all existing host variables, as the class stores get updated later in the function
     origHostname = storedHost.hostname
@@ -878,7 +885,7 @@ def resultsIntEdit(x, datavlan, voicevlan, other):
 
     x = device id
     d = data vlan
-    v = voice vlandddd
+    v = voice vlan
     o = other
     """
     initialChecks()
@@ -893,8 +900,8 @@ def resultsIntEdit(x, datavlan, voicevlan, other):
     # Decode 'other' string
     other = unquote_plus(other).decode('utf-8')
 
-    # Replace '_' with '/'
-    other = interfaceReplaceSlash(other)
+    # Replace '___' with '/'
+    other = other.replace('___', '/')
 
     # Replace '\r\n' with '\n'
     other = other.replace('\r\n', '\n')
@@ -1027,7 +1034,7 @@ def modalEditInterfaceOnHost(x):
 
     activeSession = retrieveSSHSession(host)
 
-    # Removes dashes from interface in URLdddd
+    # Removes dashes from interface in URL
     # interface = interfaceReplaceSlash(y)
     # Replace's '=' with '.'
     # host.interface = interface.replace('=', '.')
@@ -1249,8 +1256,10 @@ def hostShellOutput(x, m, y):
     host = db_modifyDatabase.getHostByID(x)
     activeSession = retrieveSSHSession(host)
 
-    # Replace '_' with '/'
-    command = interfaceReplaceSlash(unquote_plus(y).decode('utf-8'))
+    # Replace '___' with '/'
+    x = unquote_plus(y).decode('utf-8')
+    command = x.replace('___', '/')
+    # command = interfaceReplaceSlash(unquote_plus(y).decode('utf-8'))
 
     # Append prompt and command executed to beginning of output
     # output.append(host.find_prompt_in_session(activeSession) + command)
@@ -1259,7 +1268,7 @@ def hostShellOutput(x, m, y):
     if command[-1] == '?':
         if m == 'c':
             # Get command output as a list.
-            # Insert list contents into 'output' list.dddd
+            # Insert list contents into 'output' list.
             configError = True
             output = ''
         else:

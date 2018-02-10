@@ -1,7 +1,13 @@
 language: python
 python:
   - "2.7"
+before_install:
+  - pip install coveralls
 install:
   - pip install -r requirements.txt
 script:
   python -m unittest discover
+after_success:
+  - coveralls
+notifications:
+  slack: netconfig-group:gUDIl72WBF0iDG8gAVQxXjyD

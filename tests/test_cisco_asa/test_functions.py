@@ -43,6 +43,13 @@ FastEthernet1/0/3      unassigned      YES unset  administratively down down
         """Test pull_interface_mac_addresses function."""
         expected_output = ''
         self.assertEqual(self.device.pull_interface_mac_addresses(None), expected_output)
+    
+    def test_replace_double_spaces_commas(self):
+        """Test function for replacing all double spaces in provided input with commas."""
+        input_data = '      a   bc    d e ff ghij   k  l m   '
+        expected_output = ',a, bc,d e ff ghij, k,l m, '
+        actual_output = self.device.replace_double_spaces_commas(input_data)
+        self.assertEqual(actual_output, expected_output)
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,8 +1,20 @@
-from app import app, db, models
+from app import app, db, models, netbox
 from sqlalchemy import asc, func
 from netaddr import IPAddress, core
-import netboxAPI
 from ..device_classes import deviceType as dt
+
+
+class Host(object):
+    """Generic Host class that mimics Host db.model"""
+
+    def __init__(self, id, hostname, ipv4_addr, type, ios_type, local_creds=False):
+        """Initilization method."""
+        self.id = id
+        self.hostname = hostname
+        self.ipv4_addr = ipv4_addr
+        self.type = type
+        self.ios_type = ios_type
+        self.local_creds = local_creds
 
 
 def addHostToDB(hostname, ipv4_addr, type, ios_type, local_creds):
@@ -137,14 +149,22 @@ def retrieveHostByID(x):
     Does not return SSH session.
     x = host id
     """
-    if app.config['DATALOCATION'] == 'local':
-        host = models.Host.query.filter_by(id=x).first()
-    elif app.config['DATALOCATION'] == 'netbox':
-        host = netboxAPI.getHostByID(x)
-        # Local credentials with Netbox is not currently supported, so we manually set it to False here.
-        host.local_creds = False
 
-    return host
+    # TODO do we need to check this every single time we get a host?
+    # There should be a host wrapper that handles the location under the hood
+
+    if app.config['DATALOCATION'] == 'local':
+        # TODO handle downstream to use a dictionary not a model
+        return models.Host.query.filter_by(id=x).first()
+    elif app.config['DATALOCATION'] == 'netbox':
+
+        host = netbox.getHostByID(x)
+
+        return Host(str(x), host['name'],
+                    host['primary_ip']['address'].split('/', 1)[0],
+                    host['device_type']['model'],
+                    # can we get this in the previous response?
+                    netbox.getDeviceTypeOS(host['device_type']['id']))
 
 
 def getHostByID(x):
