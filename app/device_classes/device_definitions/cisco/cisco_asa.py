@@ -66,7 +66,7 @@ class CiscoASA(CiscoBaseDevice):
     def pull_host_interfaces(self, activeSession):
         """Retrieve list of interfaces on device."""
         result = self.run_ssh_command('show interface ip brief', activeSession)
-        return self.cleanup_ios_output(result)
+        return self.cleanup_asa_output(result)
 
     def count_interface_status(self, interfaces):
         """Return count of interfaces.
@@ -89,5 +89,32 @@ class CiscoASA(CiscoBaseDevice):
                 data['total'] -= 1
 
             data['total'] += 1
+
+        return data
+
+    def cleanup_asa_output(self, iosOutput):
+        """Clean up returned ASA output from 'show ip interface brief'."""
+        data = []
+
+        for line in iosOutput.splitlines():
+            try:
+                x = line.split()
+                if x[0] == "Interface":
+                    continue
+                else:
+                    interface = {}
+                    interface['name'] = x[0]
+                    interface['address'] = x[1]
+                    if "admin" in x[4]:
+                        interface['status'] = x[4] + " " + x[5]
+                        interface['protocol'] = x[6]
+                    else:
+                        interface['status'] = x[4]
+                        interface['protocol'] = x[5]
+                    # Leave blank for now
+                    interface['description'] = ''
+                    data.append(interface)
+            except IndexError:
+                continue
 
         return data

@@ -31,61 +31,6 @@ class CiscoBaseDevice(BaseDevice):
         command = "shutdown"
         return command
 
-    def cleanup_ios_output(self, iosOutputA, iosOutputB):
-        """Clean up returned IOS output from 'show ip interface brief'."""
-        data = []
-        descLine = ''
-
-        for a, b in zip(iosOutputA.splitlines(), iosOutputB.splitlines()):
-            try:
-                x = a.split()  # show ip interface brief output
-                y = b.split()  # show interface description output
-                if x[0] == "Interface":
-                    continue
-                else:
-                    interface = {}
-                    interface['name'] = x[0]
-                    interface['address'] = x[1]
-                    if 'admin' in y[1]: 
-                        interface['status'] = y[1] + " " + y[2]
-                        interface['protocol'] = y[3]
-                        # Get all elements from 4th index onward, but combine into readable string
-                        for z in y[4:]:
-                            descLine = descLine + str(z) + " "
-                    else:
-                        interface['status'] = y[1]
-                        interface['protocol'] = y[2]
-                        # Get all elements from 3rd index onward, but combine into readable string
-                        for z in y[3:]:
-                            descLine = descLine + str(z) + " "
-                    interface['description'] = descLine.strip()
-                    data.append(interface)
-            except IndexError:
-                continue
-
-        return data
-
-    def cleanup_nxos_output(self, nxosOutput):
-        """Clean up returned NX-OS output from 'show ip interface brief'."""
-        data = []
-
-        for line in nxosOutput.splitlines():
-            if line:
-                x = line.split(',')
-                try:
-                    interface = {}
-                    interface['name'] = x[0]
-                    interface['address'] = x[1]
-                    interface['description'] = x[2]
-                    interface['method'] = ''
-                    interface['protocol'] = x[3]
-                    interface['status'] = self.get_interface_status(x[3])
-                    data.append(interface)
-                except IndexError:
-                    continue
-
-        return data
-
     def run_enable_interface_cmd(self, interface, activeSession):
         """Enable interface on device using existing SSH session."""
         cmdList = []

@@ -173,3 +173,39 @@ class CiscoIOS(CiscoBaseDevice):
             data['total'] += 1
 
         return data
+
+    def cleanup_ios_output(self, iosOutputA, iosOutputB):
+        """Clean up returned IOS output from 'show ip interface brief'."""
+        data = []
+        descLine = ''
+
+        for a, b in zip(iosOutputA.splitlines(), iosOutputB.splitlines()):
+            try:
+                x = a.split()  # show ip interface brief output
+                y = b.split()  # show interface description output
+                if x[0] == "Interface":
+                    continue
+                else:
+                    interface = {}
+                    interface['name'] = x[0]
+                    interface['address'] = x[1]
+                    if 'admin' in y[1]: 
+                        interface['status'] = y[1] + " " + y[2]
+                        interface['protocol'] = y[3]
+                        # Get all elements from 4th index onward, but combine into readable string
+                        for z in y[4:]:
+                            descLine = descLine + str(z) + " "
+                    else:
+                        interface['status'] = y[1]
+                        interface['protocol'] = y[2]
+                        # Get all elements from 3rd index onward, but combine into readable string
+                        for z in y[3:]:
+                            descLine = descLine + str(z) + " "
+                    # Truncate description to 20 characters if longer then 20 characters
+                    interface['description'] = (descLine[:25] + '..') if len(descLine) > 25 else descLine.strip()
+                    #interface['description'] = descLine.strip()
+                    data.append(interface)
+            except IndexError:
+                continue
+
+        return data

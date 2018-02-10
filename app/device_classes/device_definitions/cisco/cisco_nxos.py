@@ -255,3 +255,26 @@ class CiscoNXOS(CiscoBaseDevice):
             return 'up'
         else:
             return 'unknown'
+
+    def cleanup_nxos_output(self, nxosOutput):
+        """Clean up returned NX-OS output from 'show ip interface brief'."""
+        data = []
+
+        for line in nxosOutput.splitlines():
+            if line:
+                x = line.split(',')
+                try:
+                    interface = {}
+                    interface['name'] = x[0]
+                    interface['address'] = x[1]
+                    # Truncate description to 20 characters if longer then 20 characters
+                    interface['description'] = (x[2][:25] + '..') if len(x[2]) > 25 else x[2]
+                    #interface['description'] = x[2]
+                    interface['method'] = ''
+                    interface['protocol'] = x[3]
+                    interface['status'] = self.get_interface_status(x[3])
+                    data.append(interface)
+                except IndexError:
+                    continue
+
+        return data
