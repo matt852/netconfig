@@ -9,30 +9,37 @@ class TestCiscoIOS(unittest.TestCase):
         """Initialize static class testing variables."""
         self.device = CiscoIOS('na', 'na', 'na', 'na', 'na', 'na')
 
-        self.interface_input_data = '''
+        self.interface_input_dataA = '''
 Interface              IP-Address      OK? Method Status                Protocol
 Vlan1                  192.168.0.1     YES DHCP   up                    up
 FastEthernet1/0/1      unassigned      YES NVRAM  up                    down
 FastEthernet1/0/2      unassigned      YES unset  down                  down
 FastEthernet1/0/3      unassigned      YES unset  administratively down down
 '''
+        self.interface_input_dataB = '''
+Interface                      Status         Protocol Description
+Vl1                            up             up
+Fa1/0/1                        up             down
+Fa1/0/2                        down           down
+Fa1/0/3                        admin down     down     Connection to ABC Switch
+'''
 
         self.interface_expected_output = [{'status': 'up', 'name': 'Vlan1',
                                            'address': '192.168.0.1', 'protocol': 'up',
-                                           'method': 'DHCP'},
+                                           'description': ''},
                                           {'status': 'up', 'name': 'FastEthernet1/0/1',
                                            'address': 'unassigned', 'protocol': 'down',
-                                           'method': 'NVRAM'},
+                                           'description': ''},
                                           {'status': 'down', 'name': 'FastEthernet1/0/2',
                                            'address': 'unassigned', 'protocol': 'down',
-                                           'method': 'unset'},
-                                          {'status': 'administratively', 'name': 'FastEthernet1/0/3',
+                                           'description': ''},
+                                          {'status': 'admin down', 'name': 'FastEthernet1/0/3',
                                            'address': 'unassigned', 'protocol': 'down',
-                                           'method': 'unset'}]
+                                           'description': 'Connection to ABC Switch'}]
 
     def test_cleanup_ios_output(self):
         """Test IOS interface output cleanup function."""
-        actual_output = self.device.cleanup_ios_output(self.interface_input_data)
+        actual_output = self.device.cleanup_ios_output(self.interface_input_dataA, self.interface_input_dataB)
 
         self.assertEqual(actual_output, self.interface_expected_output)
 

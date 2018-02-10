@@ -145,9 +145,10 @@ class CiscoIOS(CiscoBaseDevice):
 
     def pull_host_interfaces(self, activeSession):
         """Retrieve list of interfaces on device."""
-        result = self.run_ssh_command('show ip interface brief', activeSession)
+        resultA = self.run_ssh_command('show ip interface brief', activeSession)
+        resultB = self.run_ssh_command('show interface description', activeSession)
 
-        return self.cleanup_ios_output(result)
+        return self.cleanup_ios_output(resultA, resultB)
 
     def count_interface_status(self, interfaces):
         """Return count of interfaces.
@@ -160,7 +161,7 @@ class CiscoIOS(CiscoBaseDevice):
         data['up'] = data['down'] = data['disabled'] = data['total'] = 0
 
         for x in interfaces:
-            if 'administratively' in x['status']:
+            if 'admin' in x['status']:
                 data['disabled'] += 1
             elif 'down' in x['protocol']:
                 data['down'] += 1
