@@ -8,14 +8,9 @@ from .device_classes import deviceType as dt
 
 class DataHandler(object):
 
-    def __init__(self, source, url=None, posts_per_page=15):
-        if source:
-            self.source = source
-            self.url = url
-            self.posts_per_page = posts_per_page
-        else:
-            print("Unable to setup DataHandler")
-            sys.exit(1)
+    def __init__(self, source, url=None):
+        self.source = source
+        self.url = url
 
     def addHostToDB(self, hostname, ipv4_addr, type, ios_type, local_creds):
         """Add host to database.  Returns True if successful."""

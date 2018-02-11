@@ -83,33 +83,15 @@ device_classes-->device_definitions-->cisco-->cisco_nxos
     def count_interface_status(self, interfaces):
     def get_interface_status(self, interface):
 
-scripts_bank-->db_modifyDatabase
+scripts_bank-->data_handler
     def addHostToDB(hostname, ipv4_addr, type, ios_type, local_creds):
     def importHostsToDB(csvImport):
+    def getOSType(i):
     def deleteHostInDB(x):
-    def getHosts(page):
-    def getHostsAll():
-    def getHostByHostname(x):
-    def getHostIDbyHostname(x):
+    def getHosts():
     def retrieveHostByID(x):
     def getHostByID(x):
-    def getHostnameByID(x):
-    def getHostsByIOSType(x):
     def editHostInDatabase(originalHostID, hostname, ipv4_addr, hosttype, ios_type, local_creds, local_creds_updated):
-    def searchHostInDB(x):
-
-scripts_bank-->netboxAPI
-    def getDeviceType(x):
-    def getDeviceTypeOS(x):
-    def getHostByID(x):
-    def getHosts():
-    def getHostID(x):
-    def getHostName(id):
-    def getHostIPAddr(id):
-    def getHostType(id):
-
-scripts_bank-->ping_hosts
-    def reachable(hosts):
 
 scripts_bank-->redis_logic
     def generateSessionUUID():

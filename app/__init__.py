@@ -11,8 +11,11 @@ app.config.from_object('config')
 app.config.from_pyfile('settings.py', silent=True)
 db = SQLAlchemy(app)
 Bootstrap(app)
-datahandler = DataHandler(app.config['DATALOCATION'],
-                          app.config['NETBOXSERVER'])
+try:
+    datahandler = DataHandler(app.config['DATALOCATION'],
+                              app.config['NETBOXSERVER'])
+except KeyError:
+    datahandler = DataHandler('local')
 
 from app import views, models
 
