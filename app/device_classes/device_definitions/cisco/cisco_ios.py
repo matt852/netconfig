@@ -201,9 +201,8 @@ class CiscoIOS(CiscoBaseDevice):
                         # Get all elements from 3rd index onward, but combine into readable string
                         for z in y[3:]:
                             descLine = descLine + str(z) + " "
-                    # Truncate description to 20 characters if longer then 20 characters
+                    # Truncate description to 25 characters if longer then 25 characters
                     interface['description'] = (descLine[:25] + '..') if len(descLine) > 25 else descLine.strip()
-                    #interface['description'] = descLine.strip()
                     data.append(interface)
             except IndexError:
                 continue

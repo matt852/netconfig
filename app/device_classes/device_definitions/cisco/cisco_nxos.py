@@ -267,7 +267,7 @@ class CiscoNXOS(CiscoBaseDevice):
                     interface = {}
                     interface['name'] = x[0]
                     interface['address'] = x[1]
-                    # Truncate description to 20 characters if longer then 20 characters
+                    # Truncate description to 25 characters if longer then 25 characters
                     interface['description'] = (x[2][:25] + '..') if len(x[2]) > 25 else x[2]
                     #interface['description'] = x[2]
                     interface['method'] = ''
