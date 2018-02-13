@@ -41,4 +41,4 @@ SETTINGSFILE = os.path.join(basedir, 'instance/settings.py')
 BOOTSTRAP_SERVE_LOCAL = True
 
 # Current version
-VERSION = '1.3.4 (beta)'
+VERSION = '1.3.4a (beta)'
