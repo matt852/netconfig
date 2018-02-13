@@ -27,7 +27,6 @@ python-engineio
 python-openid
 python-socketio
 pytz
-requests
 snowballstemmer
 Sphinx
 sphinxcontrib-websupport
