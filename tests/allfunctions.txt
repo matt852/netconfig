@@ -23,8 +23,6 @@ device_classes-->device_definitions-->cisco_base_device
     def get_cmd_exit_configuration_mode(self):
     def get_cmd_enable_interface(self):
     def get_cmd_disable_interface(self):
-    ---def cleanup_ios_output(self, iosOutput):
-    def cleanup_nxos_output(self, nxosOutput):
     def run_enable_interface_cmd(self, interface, activeSession):
     def run_disable_interface_cmd(self, interface, activeSession):
     def get_save_config_cmd(self):
@@ -46,6 +44,7 @@ device_classes-->device_definitions-->cisco-->cisco_asa
     def pull_cdp_neighbor(self, activeSession):
     def pull_interface_config(self, activeSession):
     ---def pull_interface_mac_addresses(self, activeSession):
+    def cleanup_asa_output(self, asaOutput):
     def pull_interface_statistics(self, activeSession):
     def pull_interface_info(self, activeSession):
     def pull_device_uptime(self, activeSession):
@@ -61,6 +60,7 @@ device_classes-->device_definitions-->cisco-->cisco_ios
     def pull_cdp_neighbor(self, activeSession):
     def pull_interface_config(self, activeSession):
     ---def pull_interface_mac_addresses(self, activeSession):
+    ---def cleanup_ios_output(self, iosOutput):
     def pull_interface_statistics(self, activeSession):
     def pull_interface_info(self, activeSession):
     def pull_device_uptime(self, activeSession):
@@ -76,12 +76,13 @@ device_classes-->device_definitions-->cisco-->cisco_nxos
     def pull_cdp_neighbor(self, activeSession):
     def pull_interface_config(self, activeSession):
     ---def pull_interface_mac_addresses(self, activeSession):
+    ---def cleanup_nxos_output(self, nxosOutput):
     def pull_interface_statistics(self, activeSession):
     def pull_interface_info(self, activeSession):
     def pull_device_uptime(self, activeSession):
     def pull_host_interfaces(self, activeSession):
-    def count_interface_status(self, interfaces):
-    def get_interface_status(self, interface):
+    ---def count_interface_status(self, interfaces):
+    ---def get_interface_status(self, interface):
 
 scripts_bank-->db_modifyDatabase
     def addHostToDB(hostname, ipv4_addr, type, ios_type, local_creds):

@@ -234,9 +234,9 @@ class CiscoNXOS(CiscoBaseDevice):
         for x in interfaces:
             if 'disabled' in x['status']:
                 data['disabled'] += 1
-            elif 'down' in x['status']:
+            elif 'down' in x['protocol']:
                 data['down'] += 1
-            elif 'up' in x['status']:
+            elif 'up' in x['protocol']:
                 data['up'] += 1
 
             data['total'] += 1
@@ -245,11 +245,9 @@ class CiscoNXOS(CiscoBaseDevice):
 
     def get_interface_status(self, interface):
         """Return status of interface."""
-        down_strings = ['down', 'notconnect', 'noOperMembers', 'sfpAbsent']
+        down_strings = ['down', 'notconnect', 'noOperMembers', 'sfpAbsent', 'disabled']
 
-        if 'disabled' in interface:
-            return 'disabled'
-        elif any(x in interface for x in down_strings):
+        if any(x in interface for x in down_strings):
             return 'down'
         elif 'connected' in interface:
             return 'up'
@@ -270,9 +268,8 @@ class CiscoNXOS(CiscoBaseDevice):
                     # Truncate description to 25 characters if longer then 25 characters
                     interface['description'] = (x[2][:25] + '..') if len(x[2]) > 25 else x[2]
                     #interface['description'] = x[2]
-                    interface['method'] = ''
-                    interface['protocol'] = x[3]
-                    interface['status'] = self.get_interface_status(x[3])
+                    interface['status'] = x[3]
+                    interface['protocol'] = self.get_interface_status(x[3])
                     data.append(interface)
                 except IndexError:
                     continue
