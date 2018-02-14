@@ -32,9 +32,7 @@ device_classes-->device_definitions-->cisco_base_device
     def cmd_show_version(self):
     def pull_inventory(self, activeSession):
     def pull_version(self, activeSession):
-    def renameCDPInterfaces(self, x):
-    -i-def cleanup_cdp_neighbor_output(self, inputData):
-        * iox-xe version not yet completed
+    ---def renameCDPInterfaces(self, x):
 
 device_classes-->device_definitions-->cisco-->cisco_asa
     def cmd_run_config(self):
@@ -44,12 +42,13 @@ device_classes-->device_definitions-->cisco-->cisco_asa
     def pull_cdp_neighbor(self, activeSession):
     def pull_interface_config(self, activeSession):
     ---def pull_interface_mac_addresses(self, activeSession):
-    def cleanup_asa_output(self, asaOutput):
+    ---def cleanup_asa_output(self, asaOutput):
     def pull_interface_statistics(self, activeSession):
     def pull_interface_info(self, activeSession):
     def pull_device_uptime(self, activeSession):
     def pull_host_interfaces(self, activeSession):
     ---def count_interface_status(self, interfaces):
+    ---def clean_interface_description(self, x):
 
 device_classes-->device_definitions-->cisco-->cisco_ios
     def cmd_run_config(self):
@@ -66,6 +65,7 @@ device_classes-->device_definitions-->cisco-->cisco_ios
     def pull_device_uptime(self, activeSession):
     def pull_host_interfaces(self, activeSession):
     ---def count_interface_status(self, interfaces):
+    ---def cleanup_cdp_neighbor_output(self, inputData):
 
 device_classes-->device_definitions-->cisco-->cisco_nxos
     def cmd_run_config(self):
