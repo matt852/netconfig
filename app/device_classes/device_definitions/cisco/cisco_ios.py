@@ -203,6 +203,8 @@ class CiscoIOS(CiscoBaseDevice):
                             descLine = descLine + str(z) + " "
                     # Truncate description to 25 characters if longer then 25 characters
                     interface['description'] = (descLine[:25] + '..') if len(descLine) > 25 else descLine.strip()
+                    # Set to '--' if empty
+                    interface['description'] = interface['description'] or '--'
                     data.append(interface)
             except IndexError:
                 continue

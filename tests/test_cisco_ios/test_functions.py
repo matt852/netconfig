@@ -26,13 +26,13 @@ Fa1/0/3                        admin down     down     Connection to ABC Switch
 
         self.interface_expected_output = [{'status': 'up', 'name': 'Vlan1',
                                            'address': '192.168.0.1', 'protocol': 'up',
-                                           'description': ''},
+                                           'description': '--'},
                                           {'status': 'up', 'name': 'FastEthernet1/0/1',
                                            'address': 'unassigned', 'protocol': 'down',
-                                           'description': ''},
+                                           'description': '--'},
                                           {'status': 'down', 'name': 'FastEthernet1/0/2',
                                            'address': 'unassigned', 'protocol': 'down',
-                                           'description': ''},
+                                           'description': '--'},
                                           {'status': 'admin down', 'name': 'FastEthernet1/0/3',
                                            'address': 'unassigned', 'protocol': 'down',
                                            'description': 'Connection to ABC Switch'}]

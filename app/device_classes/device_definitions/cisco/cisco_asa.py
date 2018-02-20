@@ -99,7 +99,8 @@ class CiscoASA(CiscoBaseDevice):
         try:
             x['description']
         except KeyError:
-            x['description'] = ""
+            # Set to '--' if empty
+            x['description'] = "--"
         # Truncate description to 25 characters if longer then 25 characters
         return (x['description'][:25] + '..') if len(x['description']) > 25 else x['description'].strip()
 

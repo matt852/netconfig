@@ -267,7 +267,8 @@ class CiscoNXOS(CiscoBaseDevice):
                     interface['address'] = x[1]
                     # Truncate description to 25 characters if longer then 25 characters
                     interface['description'] = (x[2][:25] + '..') if len(x[2]) > 25 else x[2]
-                    #interface['description'] = x[2]
+                    # Set to '--' if empty
+                    interface['description'] = interface['description'] or '--'
                     interface['status'] = x[3]
                     interface['protocol'] = self.get_interface_status(x[3])
                     data.append(interface)

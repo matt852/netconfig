@@ -109,7 +109,7 @@ Interface GigabitEthernet0/2 "", is administratively down, line protocol is down
                                            'description': 'Inside interface test to ..'},
                                           {'status': 'admin down', 'name': 'GigabitEthernet0/2',
                                            'address': 'unassigned', 'protocol': 'down',
-                                           'description': ''}]
+                                           'description': '--'}]
 
     def test_cleanup_asa_output(self):
         """Test ASA interface output cleanup function."""
