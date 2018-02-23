@@ -24,38 +24,39 @@
 						<tr>
 							<!-- Blank column used for checkbox -->
 							<th></th>
-						    <th>Hostname</th>
-						    <th>IPv4 Address</th>
-						    <th>Type</th>
-						    <th class="text-center">Status</th>
-						    <th class="text-center">Options</th>
-						    <th style="display:none">DB ID</th>
+					    <th>Hostname</th>
+					    <th>IPv4 Address</th>
+					    <th>Type</th>
+					    <th class="text-center">Status</th>
+					    <th class="text-center">Options</th>
+						    <!-- <th style="display:none">DB ID</th> -->
 						</tr>
 					</thead>
 				    <tbody>
-				    	<!-- hosts is a Paginate object -->
-						{% for host in hosts.items %}
+						{% for host in hosts %}
 							<tr>
 								<td></td>
-								{% if status[host.hostname] %}
-									{% if host.local_creds %}
-										<td id="tdDevice"><a href="modalLocalCredentials" data-toggle="modal" data-target="#modalLocalCredentials" data-hostid="{{ host.id }}" data-hostname="{{ host.hostname }}"  onclick="loading();return false;">{{ host.hostname }}</a></td>
+									{% if host['local_creds'] %}
+										<td id="tdDevice"><a href="modalLocalCredentials" data-toggle="modal" data-target="#modalLocalCredentials" data-hostid="{{ host['id'] }}" data-hostname="{{ host.hostname }}"  onclick="loading();return false;">{{ host.hostname }}</a></td>
 									{% else %}
-										<td><a href="/db/viewhosts/{{ host.id }}">{{ host.hostname }}</a></td>
+										<td><a href="/db/viewhosts/{{ host['id'] }}">{{ host['hostname'] }}</a></td>
 									{% endif %}
-								{% else %}
-									<td>{{ host.hostname }}</td>
-								{% endif %}
-							    <td>{{ host.ipv4_addr }}</td>
-							    <td>{{ host.type }}</td>
-							    {% if status[host.hostname] %}
+							    <td>{{ host['ipv4_addr'] }}</td>
+							    <td>{{ host['type'] }}</td>
 									<td class="text-center"><i class="glyphicon glyphicon-ok" aria-hidden="true" style="color:green"></i></td>
-							    {% else %}
-									<td class="text-center"><i class="glyphicon glyphicon-remove" aria-hidden="true" style="color:red"></i></td>
-							    {% endif %}
-							    <td class="text-center"><a href="/edithost/{{ host.id }}" class="btn btn-xs btn-warning" title="Edit Device"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
-							    <a href="/confirm/confirmhostdelete/{{ host.id }}" class="btn btn-xs btn-danger" title="Delete Device"><i class="glyphicon glyphicon-ban-circle" aria-hidden="true"></i></a></td>
-							    <td style="display:none">{{ host.id }}</td>
+
+							    <td class="text-center">
+									{% if host['source'] == "local" %}
+										<a href="/edithost/{{ host['id'] }}" class="btn btn-xs btn-warning" title="Edit Device"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
+							    	<a href="/confirm/confirmhostdelete/{{ host['id'] }}" class="btn btn-xs btn-danger" title="Delete Device"><i class="glyphicon glyphicon-ban-circle" aria-hidden="true"></i></a>
+									{% elif host['source'] == "netbox" %}
+										<a href="{{ config.NETBOXSERVER }}/dcim/devices/{{ host['id'] }}" class="btn btn-xs btn-info" title="Open Device in Netbox" target="_blank"><i class="glyphicon glyphicon-search" aria-hidden="true"></i></a>
+										<a href="{{ config.NETBOXSERVER }}/dcim/devices/{{ host['id'] }}/edit" class="btn btn-xs btn-warning" title="Edit Device in Netbox" target="_blank"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
+										<a href="{{ config.NETBOXSERVER }}/dcim/devices/{{ host['id'] }}/delete" class="btn btn-xs btn-danger" title="Delete Device in Netbox" target="_blank"><i class="glyphicon glyphicon-ban-circle" aria-hidden="true"></i></a>
+									{% endif %}
+									</td>
+									<!-- TODO figure out how to add search bar outside of this td -->
+									<td style="display:none">{{ host['id'] }}</td>
 							</tr>
 						{% endfor %}
 					</tbody>
