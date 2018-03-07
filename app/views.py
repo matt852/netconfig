@@ -1,7 +1,5 @@
 import logging
 
-import operator
-
 import socket
 
 from datetime import timedelta
@@ -251,7 +249,7 @@ def getNamesOfSSHSessionDevices():
             hostList.append(datahandler.retrieveHostByID(y[0]))
 
     # Reorder list in alphabetical order
-    hostList = sorted(hostList, key=operator.attrgetter('hostname'))
+    hostList = sorted(hostList, key=lambda k: k['hostname'])
     return hostList
 
 
