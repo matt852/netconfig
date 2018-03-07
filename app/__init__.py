@@ -13,7 +13,7 @@ db = SQLAlchemy(app)
 Bootstrap(app)
 try:
     datahandler = DataHandler(app.config['DATALOCATION'],
-                              app.config['NETBOXSERVER'])
+                              netboxURL=app.config['NETBOXSERVER'])
 except KeyError:
     datahandler = DataHandler('local')
 

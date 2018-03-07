@@ -1,16 +1,18 @@
-#!/usr/bin/env python
-import sys
+#!/usr/bin/python
 import app
-from netaddr import IPAddress, core
+import sys
 import requests
+from netaddr import IPAddress, core
 from .device_classes import deviceType as dt
 
 
 class DataHandler(object):
+    """Handler object for SSH connections."""
 
-    def __init__(self, source, url=None):
+    def __init__(self, source, netboxURL=None):
+        """Data handler initialization function."""
         self.source = source
-        self.url = url
+        self.url = netboxURL
 
     def addHostToDB(self, hostname, ipv4_addr, type, ios_type, local_creds):
         """Add host to database.  Returns True if successful."""
@@ -33,7 +35,7 @@ class DataHandler(object):
         Format: Hostname,IPAddress,DeviceType,IOSType
         """
 
-        # TODO refactor
+        # TO DO refactor
 
         # For each line in csvImport, run validation checks
         for x in csvImport.splitlines():
@@ -102,7 +104,7 @@ class DataHandler(object):
         returns os
         """
 
-        # TODO consider returning None instead of Error?
+        # TO DO consider returning None instead of Error?
 
         if self.source == 'netbox':
             r = requests.get(self.url + '/api/dcim/device-types/' + str(i))
@@ -116,7 +118,7 @@ class DataHandler(object):
                 return "Error"
 
         else:
-            # TODO this isn't great since I'm using the same input above
+            # TO DO this isn't great since I'm using the same input above
             # for both id and os (figure out a way around this)
             i = os
 
@@ -157,7 +159,7 @@ class DataHandler(object):
 
             for host in app.models.Host.query.order_by(app.models.Host.hostname).all():
 
-                # TODO consider adding this to the database?
+                # TO DO consider adding this to the database?
                 h = host.__dict__
                 h['source'] = "local"
 
@@ -192,13 +194,13 @@ class DataHandler(object):
         x = host id
         """
 
-        # TODO consider merging with getHosts
+        # TO DO consider merging with getHosts
 
         if self.source == 'local':
-            # TODO handle downstream to use a dictionary not a model
+            # TO DO handle downstream to use a dictionary not a model
             host = app.models.Host.query.filter_by(id=x).first()
-
             return host.__dict__
+
         elif self.source == 'netbox':
 
             r = requests.get(self.url + '/api/dcim/devices/' + str(x))
@@ -225,7 +227,7 @@ class DataHandler(object):
         """
         host = self.retrieveHostByID(x)
 
-        # TODO see if I can get rid of this
+        # TO DO see if I can get rid of this
 
         # Get host class based on device type
         return dt.DeviceHandler(id=host['id'], hostname=host['hostname'],

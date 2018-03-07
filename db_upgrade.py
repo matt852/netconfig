@@ -1,4 +1,4 @@
-#!flask/bin/python
+#!/usr/bin/python
 
 # From https://blog.miguelgrinberg.com/
 
