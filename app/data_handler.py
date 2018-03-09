@@ -36,23 +36,30 @@ class DataHandler(object):
         """
 
         # TO DO refactor
+        # Keep track of failed devices
+        failedDevices = []
+        deviceCounter = 0
 
         # For each line in csvImport, run validation checks
         for x in csvImport.splitlines():
+            deviceCounter += 1
             if x:
                 # Split array by comma's
                 xArray = x.split(',')
-                # 0 is hostname, 1 is IP address, 2 is device type, 3 is ios type
+                # 0 is hostname, 1 is IP address, 2 is device type, 3 is ios type, 4 is local creds
+                if len(xArray) not in (4, 5):
+                    return False, "Invalid parameter count for host %s - 5 fields expected, but only %s were entered." % (xArray[0], len(xArray)), failedDevices
+
                 try:
                     IPAddress(xArray[1])
                 except core.AddrFormatError:
-                    return False, "Invalid IP address for host %s - value entered: %s" % (xArray[0], xArray[1])
+                    return False, "Invalid IP address for host %s - value entered: %s" % (xArray[0], xArray[1]), failedDevices
 
                 if xArray[2].lower() not in ("switch", "router", "firewall"):
-                    return False, "Invalid device type for host %s - value entered: %s" % (xArray[0], xArray[2])
+                    return False, "Invalid device type for host %s - value entered: %s" % (xArray[0], xArray[2]), failedDevices
 
                 if xArray[3].strip().lower() not in ("ios", "ios-xe", "nx-os", "asa"):
-                    return False, "Invalid IOS type for host %s - value entered: %s" % (xArray[0], xArray[3])
+                    return False, "Invalid IOS type for host %s - value entered: %s" % (xArray[0], xArray[3]), failedDevices
 
         # Each line has been validated, so import all lines into DB
         for x in csvImport.splitlines():
@@ -72,13 +79,17 @@ class DataHandler(object):
                 else:
                     type = "Error"
 
-                ios_type = self.getOSType(xArray[3].strip())
+                ios_type = self.getOSType(xArray[3].strip().lower())
 
-                if xArray[4].strip().lower() == 'true':
-                    local_creds = True
-                elif xArray[4].strip().lower() == 'false':
-                    local_creds = False
-                else:
+                try:
+                    if xArray[4].strip().lower() == 'true':
+                        local_creds = True
+                    elif xArray[4].strip().lower() == 'false':
+                        local_creds = False
+                    else:
+                        local_creds = False
+                except IndexError:
+                    # Local creds setting isn't set, so default to False
                     local_creds = False
 
                 try:
@@ -91,11 +102,17 @@ class DataHandler(object):
                     app.db.session.flush()
                     app.db.session.commit()
                 except:
-                    return False, "Error during import of devices into database"
+                    app.db.session.rollback()
+                    failedDevices.append(hostname)
+                    #return False, "Error during import of devices into database"
 
-        return True, "Successfully added all %s devices" % (len(csvImport))
+        # If there were any failures, return False
+        if failedDevices:
+            return False, "Errors occurred during import", failedDevices 
+        else:
+            return True, ("Successfully added all %s devices" % (deviceCounter)), failedDevices
 
-    def getOSType(self, i=None):
+    def getOSType(self, os):
         """
         Process OS Type
 
@@ -117,18 +134,13 @@ class DataHandler(object):
             else:
                 return "Error"
 
-        else:
-            # TO DO this isn't great since I'm using the same input above
-            # for both id and os (figure out a way around this)
-            i = os
-
-        if os.lower() == 'ios':
+        if os == 'ios':
             return "cisco_ios"
-        elif os.lower() == 'ios-xe':
+        elif os == 'ios-xe':
             return "cisco_xe"
-        elif os.lower() == 'nx-os':
+        elif os == 'nx-os':
             return "cisco_nxos"
-        elif os.lower() == 'asa':
+        elif os == 'asa':
             return "cisco_asa"
         else:
             return "Error"

@@ -9,9 +9,19 @@
 			<h2 class="text-primary">Import Devices - Result</h2>
 			<p>
 				{% if response %}
-					All devices successfully imported
+					Import successful - {{ message }}<br />
 				{% else %}
-					Error with import - {{ message }}
+					Error with import - {{ message }}<br /><br />
+					{% if failedDevices %}
+						All devices added except for the following skipped devices:<br />
+						<ul>
+						{% for x in failedDevices %}
+							<li>{{ x }}</li>	
+						{% endfor %}
+						</ul>
+					{% else %}
+					    <br />Please retry the import again.<br />
+					{% endif %}
 				{% endif %}
 			</p>
 		</div>
