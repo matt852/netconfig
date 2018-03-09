@@ -538,15 +538,15 @@ def resultsMultipleHostDelete(x):
             hostList.append(host)
             result = datahandler.deleteHostInDB(x)
             if result:
-                writeToLog('deleted host %s in database' % (host.hostname))
+                writeToLog('deleted host %s in database' % (host['hostname']))
             else:
-                writeToLog('unable to delete host %s in database' % (host.hostname))
+                writeToLog('unable to delete host %s in database' % (host['hostname']))
                 overallResult = False
             try:
                 disconnectSpecificSSHSession(host)
-                writeToLog('disconnected any remaining active sessions for host %s' % (host.hostname))
+                writeToLog('disconnected any remaining active sessions for host %s' % (host['hostname']))
             except:
-                writeToLog('unable to attempt to disconnect host %s active sessions' % (host.hostname))
+                writeToLog('unable to attempt to disconnect host %s active sessions' % (host['hostname']))
 
     overallResult = True
     return render_template("results/resultsmultiplehostdeleted.html",
