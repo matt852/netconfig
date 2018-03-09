@@ -28,44 +28,44 @@
                                             <tr>
                                                 <td>Hostname</td>
                                                 <td>{{ origHostname }}</td>
-                                                <td>{{ storedHost.hostname }}</td>
+                                                <td>{{ storedHost['hostname'] }}</td>
                                             </tr>
                                         {% endif %}
                                         {% if ipv4_addr != '' %}
                                             <tr>
                                                 <td>IPv4 Address</td>
                                                 <td>{{ origIpv4_addr }}</td>
-                                                <td>{{ storedHost.ipv4_addr }}</td>
+                                                <td>{{ storedHost['ipv4_addr'] }}</td>
                                             </tr>
                                         {% endif %}
                                         {% if hosttype != '' %}
                                             <tr>
                                                 <td>Device Type</td>
                                                 <td>{{ origHosttype }}</td>
-                                                <td>{{ storedHost.type }}</td>
+                                                <td>{{ storedHost['type'] }}</td>
                                             </tr>
                                         {% endif %}
                                         {% if ios_type != '' %}
                                             <tr>
                                                 <td>IOS Type</td>
                                                 <td>{{ origIos_type}}</td>
-                                                <td>{{ storedHost.ios_type }}</td>
+                                                <td>{{ storedHost['ios_type'] }}</td>
                                             </tr>
                                         {% endif %}
                                         {% if local_creds_updated %}
                                             <tr>
                                                 <td>Use Local/Different Credentials</td>
                                                 <td>{{ origLocal_creds }}</td>
-                                                <td>{{ storedHost.local_creds }}</td>
+                                                <td>{{ storedHost['local_creds'] }}</td>
                                             </tr>
                                         {% endif %}
                                     </tbody>
                                 </table>
                                 <div class="text-right">
-                                    {% if storedHost.local_creds %}
-                                        <td id="tdDevice"><a href="modalLocalCredentials" class="btn btn-success" data-toggle="modal" data-target="#modalLocalCredentials" data-hostid="{{ storedHost.id }}" data-hostname="{{ storedHost.hostname }}"  onclick="loading();return false;">Go to {{ storedHost.hostname }}</a></td>
+                                    {% if storedHost['local_creds'] %}
+                                        <td id="tdDevice"><a href="modalLocalCredentials" class="btn btn-success" data-toggle="modal" data-target="#modalLocalCredentials" data-hostid="{{ storedHost['id'] }}" data-hostname="{{ storedHost['hostname'] }}"  onclick="loading();return false;">Go to {{ storedHost['hostname'] }}</a></td>
                                     {% else %}
-                                        <a href="/db/viewhosts/{{ storedHost.id }}" class="btn btn-success">Go to {{ storedHost.hostname }}</a>
+                                        <a href="/db/viewhosts/{{ storedHost['id'] }}" class="btn btn-success">Go to {{ storedHost['hostname'] }}</a>
                                     {% endif %}
                                     <a href="/db/viewhosts" class="btn btn-primary">View All Hosts</a>
                                 </div>

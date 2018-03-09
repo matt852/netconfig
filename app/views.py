@@ -741,11 +741,11 @@ def resultsHostEdit(x):
 
     storedHost = datahandler.retrieveHostByID(x)
     # Save all existing host variables, as the class stores get updated later in the function
-    origHostname = storedHost.hostname
-    origIpv4_addr = storedHost.ipv4_addr
-    origHosttype = storedHost.type
-    origIos_type = storedHost.ios_type
-    origLocal_creds = storedHost.local_creds
+    origHostname = storedHost['hostname']
+    origIpv4_addr = storedHost['ipv4_addr']
+    origHosttype = storedHost['type']
+    origIos_type = storedHost['ios_type']
+    origLocal_creds = storedHost['local_creds']
 
     # Save form user inputs into new variables
     hostname = request.form['hostname']
@@ -766,17 +766,17 @@ def resultsHostEdit(x):
     #  and clear them from the SSH dict
     try:
         disconnectSpecificSSHSession(storedHost)
-        writeToLog('disconnected and cleared saved SSH session information for edited host %s' % (storedHost.hostname))
+        writeToLog('disconnected and cleared saved SSH session information for edited host %s' % (storedHost['hostname']))
     except (socket.error, EOFError):
-        writeToLog('no existing SSH sessions for edited host %s' % (storedHost.hostname))
+        writeToLog('no existing SSH sessions for edited host %s' % (storedHost['hostname']))
     except:
-        writeToLog('could not clear SSH session for edited host %s' % (storedHost.hostname))
+        writeToLog('could not clear SSH session for edited host %s' % (storedHost['hostname']))
 
-    result = datahandler.editHostInDatabase(storedHost.id, hostname, ipv4_addr, hosttype, ios_type, local_creds, local_creds_updated)
+    result = datahandler.editHostInDatabase(storedHost['id'], hostname, ipv4_addr, hosttype, ios_type, local_creds, local_creds_updated)
 
     if result:
         # updatedHost = datahandler.retrieveHostByID(x)
-        writeToLog('edited host %s in database' % (storedHost.hostname))
+        writeToLog('edited host %s in database' % (storedHost['hostname']))
         return render_template("results/resultshostedit.html",
                                title='Edit host confirm',
                                storedHost=storedHost,
