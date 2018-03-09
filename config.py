@@ -40,5 +40,8 @@ SETTINGSFILE = os.path.join(basedir, 'instance/settings.py')
 # Bootstrap configuration
 BOOTSTRAP_SERVE_LOCAL = True
 
+# Global SSH new connection timeout
+SSH_TIMEOUT = 10
+
 # Current version
 VERSION = '1.3.4 (beta)'

@@ -440,7 +440,6 @@ def resultsAddHost():
     ipv4_addr = request.form['ipv4_addr']
     hosttype = request.form['hosttype']
     ios_type = request.form['ios_type']
-    print "Test"
     # If checkbox is unchecked, this fails as the request.form['local_creds'] value returned is False
     try:
         if request.form['local_creds']:
@@ -448,7 +447,7 @@ def resultsAddHost():
     except:
         local_creds = False
 
-    response, hostid = datahandler.addHostToDB(hostname, ipv4_addr, hosttype, ios_type, local_creds)
+    response, hostid, e = datahandler.addHostToDB(hostname, ipv4_addr, hosttype, ios_type, local_creds)
     if response:
         writeToLog('added host %s to database' % (hostname))
         return render_template("/results/resultsaddhost.html",
@@ -460,6 +459,8 @@ def resultsAddHost():
                                local_creds=local_creds,
                                hostid=hostid)
     else:
+        writeToLog('exception thrown when adding new host to database: %s' % (e))
+        # TO-DO Add popup error message here
         return redirect(url_for('addHosts'))
 
 

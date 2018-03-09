@@ -24,9 +24,9 @@ class DataHandler(object):
             # This enables pulling ID for newly inserted host
             app.db.session.flush()
             app.db.session.commit()
-            return True, host.id
-        except:
-            return False, 0
+            return True, host.id, None
+        except Exception as e:
+            return False, 0, e
 
     def importHostsToDB(self, csvImport):
         """Import hosts to database.
@@ -133,7 +133,7 @@ class DataHandler(object):
         else:
             return "Error"
 
-    def deleteHostInDB(x):
+    def deleteHostInDB(self, x):
         """Remove host from database.
 
         Returns True if successful.
