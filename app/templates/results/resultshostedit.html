@@ -42,14 +42,14 @@
                                             <tr>
                                                 <td>Device Type</td>
                                                 <td>{{ origHosttype }}</td>
-                                                <td>{{ type }}</td>
+                                                <td>{{ hosttype }}</td>
                                             </tr>
                                         {% endif %}
                                         {% if ios_type != '' %}
                                             <tr>
                                                 <td>IOS Type</td>
                                                 <td>{{ origIos_type}}</td>
-                                                <td>{{ storedHost['ios_type'] }}</td>
+                                                <td>{{ ios_type }}</td>
                                             </tr>
                                         {% endif %}
                                         {% if local_creds_updated %}
