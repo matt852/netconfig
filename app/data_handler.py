@@ -2,6 +2,7 @@
 import app
 import sys
 import requests
+from requests.exceptions import ConnectionError
 import csv
 from sqlalchemy.exc import IntegrityError, InvalidRequestError
 
@@ -166,7 +167,10 @@ class DataHandler(object):
                 data.append(h)
 
         elif self.source == 'netbox':
-            r = requests.get(self.url + '/api/dcim/devices/?limit=0')
+            try:
+                r = requests.get(self.url + '/api/dcim/devices/?limit=0')
+            except ConnectionError:
+                return data
 
             if r.status_code == requests.codes.ok:
 
