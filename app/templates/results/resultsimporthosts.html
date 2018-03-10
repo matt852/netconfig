@@ -6,24 +6,50 @@
 <div class="container-fluid">
 	<div class="row">
 		<div class="col-md-9">
-			<h2 class="text-primary">Import Devices - Result</h2>
-			<p>
-				{% if response %}
-					Import successful - {{ message }}<br />
-				{% else %}
-					Error with import - {{ message }}<br /><br />
-					{% if failedDevices %}
-						All devices added except for the following skipped devices:<br />
-						<ul>
-						{% for x in failedDevices %}
-							<li>{{ x }}</li>	
-						{% endfor %}
-						</ul>
-					{% else %}
-					    <br />Please retry the import again.<br />
-					{% endif %}
-				{% endif %}
-			</p>
+			<h2 class="text-primary">Device Import Results</h2>
+			{% if errors %}
+			<div class="alert alert-danger" role="alert">
+				Errors detected when importing new devices!
+			</div>
+			{% endif %}
+			{% if hosts %}
+					<h3>Imported Devices</h3>
+					<table class="table table-striped table-hover table-condensed display">
+						<thead>
+  					<tr>
+							<th>Host</th>
+							<th>IP</th>
+						</tr>
+						</thead>
+						<tbody>
+					{% for host in hosts %}
+						<tr>
+    					<td><a href="/db/viewhosts/{{ host['id'] }}">{{ host['hostname'] }}</a></td>
+    					<td>{{ host['ipv4_addr'] }}</td>
+  					</tr>
+					{% endfor %}
+					</tbody>
+				</table>
+			{% endif %}
+			{% if errors %}
+			<h3>Errors</h3>
+					<table class="table table-striped table-hover table-condensed display">
+						<thead>
+  					<tr>
+							<th>Host</th>
+							<th>Error</th>
+						</tr>
+						</thead>
+						<tbody>
+					{% for x in errors %}
+						<tr>
+    					<td>{{ x['host'] }}</td>
+    					<td>{{ x['error'] }}</td>
+  					</tr>
+					{% endfor %}
+					</tbody>
+				</table>
+			{% endif %}
 		</div>
 	</div>
 	<div class="row">

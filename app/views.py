@@ -481,16 +481,10 @@ def resultsImportHosts():
     """Confirm CSV import device details prior to saving to local database."""
     initialChecks()
     csvImport = request.form['csvimport']
-    writeToLog('imported hosts to database')
-    response, message, failedDevices = datahandler.importHostsToDB(csvImport)
-    writeToLog('import result: %s' % (message))
-    if failedDevices:
-        writeToLog('import device failures: %s' % (failedDevices))
+    hosts, errors = datahandler.importHostsToDB(csvImport)
     return render_template("/results/resultsimporthosts.html",
-                           title='Import devices result',
-                           response=response,
-                           message=message,
-                           failedDevices=failedDevices)
+                           title='Import devices result', hosts=hosts,
+                           errors=errors)
 
 
 @app.route('/edithost/<x>', methods=['GET'])

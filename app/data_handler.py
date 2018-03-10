@@ -2,6 +2,9 @@
 import app
 import sys
 import requests
+import csv
+from sqlalchemy.exc import IntegrityError, InvalidRequestError
+
 from netaddr import IPAddress, core
 from .device_classes import deviceType as dt
 
@@ -35,82 +38,64 @@ class DataHandler(object):
         Format: Hostname,IPAddress,DeviceType,IOSType
         """
 
-        # TO DO refactor
-        # Keep track of failed devices
-        failedDevices = []
-        deviceCounter = 0
+        reader = csv.reader(csvImport.strip().splitlines())
+        errors = []
+        hosts = []
+        for row in reader:
 
-        # For each line in csvImport, run validation checks
-        for x in csvImport.splitlines():
-            deviceCounter += 1
-            if x:
-                # Split array by comma's
-                xArray = x.split(',')
-                # 0 is hostname, 1 is IP address, 2 is device type, 3 is ios type, 4 is local creds
-                if len(xArray) not in (4, 5):
-                    return False, "Invalid parameter count for host %s - 5 fields expected, but only %s were entered." % (xArray[0], len(xArray)), failedDevices
+            if len(row) < 4:
+                error = {'host': row[0], 'error': "Invalid entry"}
+                errors.append(error)
+                continue
 
-                try:
-                    IPAddress(xArray[1])
-                except core.AddrFormatError:
-                    return False, "Invalid IP address for host %s - value entered: %s" % (xArray[0], xArray[1]), failedDevices
+            error = {}
 
-                if xArray[2].lower() not in ("switch", "router", "firewall"):
-                    return False, "Invalid device type for host %s - value entered: %s" % (xArray[0], xArray[2]), failedDevices
+            try:
+                IPAddress(row[1])
+            except core.AddrFormatError:
+                error = {'host': row[0], 'error': "Invalid IP address"}
+                errors.append(error)
+            if row[2].lower() not in ("switch", "router", "firewall"):
+                error = {'host': row[0], 'error': "Invalid device type"}
+                errors.append(error)
+            if row[3].lower() not in ("ios", "ios-xe", "nx-os", "asa"):
+                error = {'host': row[0], 'error': "Invalid IOS type"}
+                errors.append(error)
 
-                if xArray[3].strip().lower() not in ("ios", "ios-xe", "nx-os", "asa"):
-                    return False, "Invalid IOS type for host %s - value entered: %s" % (xArray[0], xArray[3]), failedDevices
+            # check if we succeed validation for this entry
+            # if we don't pass validation, skip to the next line
+            if error:
+                print("we had errors")
+                continue
 
-        # Each line has been validated, so import all lines into DB
-        for x in csvImport.splitlines():
-            if x:
-                # Split array by comma's
-                xArray = x.split(',')
-                # 0 is hostname, 1 is IP address, 2 is device type, 3 is ios type, 4 is local creds
-                hostname = xArray[0]
-                ipv4_addr = xArray[1]
+            ios_type = self.getOSType(row[3].strip())
 
-                if xArray[2].lower() == 'switch':
-                    type = "Switch"
-                elif xArray[2].lower() == 'router':
-                    type = "Router"
-                elif xArray[2].lower() == 'firewall':
-                    type = "Firewall"
+            try:
+                if row[4].strip().lower() == 'true':
+                    local_creds = True
                 else:
-                    type = "Error"
-
-                ios_type = self.getOSType(xArray[3].strip().lower())
-
-                try:
-                    if xArray[4].strip().lower() == 'true':
-                        local_creds = True
-                    elif xArray[4].strip().lower() == 'false':
-                        local_creds = False
-                    else:
-                        local_creds = False
-                except IndexError:
-                    # Local creds setting isn't set, so default to False
                     local_creds = False
+            except IndexError:
+                local_creds = False
 
-                try:
-                    host = app.models.Host(hostname=hostname,
-                                           ipv4_addr=ipv4_addr, type=type,
-                                           ios_type=ios_type,
-                                           local_creds=local_creds)
-                    app.db.session.add(host)
-                    # This enables pulling ID for newly inserted host
-                    app.db.session.flush()
-                    app.db.session.commit()
-                except:
-                    app.db.session.rollback()
-                    failedDevices.append(hostname)
-                    #return False, "Error during import of devices into database"
+            try:
+                host = app.models.Host(hostname=row[0], ipv4_addr=row[1],
+                                       type=row[2].capitalize(),
+                                       ios_type=ios_type,
+                                       local_creds=local_creds)
+                app.db.session.add(host)
+                app.db.session.flush()
+                hosts.append({"id": host.id, "hostname": row[0],
+                              "ipv4_addr": row[1]})
+            except IntegrityError:
+                continue
 
-        # If there were any failures, return False
-        if failedDevices:
-            return False, "Errors occurred during import", failedDevices 
-        else:
-            return True, ("Successfully added all %s devices" % (deviceCounter)), failedDevices
+        try:
+            app.db.session.commit()
+        except (IntegrityError, InvalidRequestError):
+            app.db.session.rollback()
+
+        return hosts, errors
 
     def getOSType(self, os):
         """
@@ -158,8 +143,11 @@ class DataHandler(object):
             host = app.models.Host.query.filter_by(id=x).first()
             app.db.session.delete(host)
             app.db.session.commit()
+            # writeToLog('deleted host %s in database' % (host.hostname))
             return True
-        except:
+        except IntegrityError as err:
+            # writeToLog('unable to delete host %s in database' % (host.hostname))
+            # writeToLog(err)
             return False
 
     def getHosts(self):
@@ -211,7 +199,10 @@ class DataHandler(object):
         if self.source == 'local':
             # TO DO handle downstream to use a dictionary not a model
             host = app.models.Host.query.filter_by(id=x).first()
-            return host.__dict__
+            try:
+                return host.__dict__
+            except AttributeError:
+                return {}
 
         elif self.source == 'netbox':
 
