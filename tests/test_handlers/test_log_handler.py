@@ -18,3 +18,12 @@ class TestLogHandler(unittest.TestCase):
         assert self.logger.level == "INFO"
         self.logger.level = "DEBUG"
         assert self.logger.level == "DEBUG"
+
+    def tearDown(self):
+        try:
+            os.remove(self.tmpfile)
+            return True
+        # the file may not exist
+        # TODO investigate why
+        except (IOError, OSError):
+            return True
