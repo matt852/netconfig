@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
 from flask_script import Manager
 from data_handler import DataHandler
+from log_handler import LogHandler
 
 
 app = Flask(__name__, instance_relative_config=True)
@@ -16,6 +17,8 @@ try:
                               netboxURL=app.config['NETBOXSERVER'])
 except KeyError:
     datahandler = DataHandler('local')
+
+logger = LogHandler(app.config['SYSLOGFILE'])
 
 from app import views, models
 

@@ -140,7 +140,7 @@ class CiscoASA(CiscoBaseDevice):
                     interface['description'] = line.replace('Description:', '').strip()
             except IndexError:
                 continue
-        
+
         # If no description was configured, manually set it to an empty string
         interface['description'] = self.clean_interface_description(interface)
         # Needed for last interface in output

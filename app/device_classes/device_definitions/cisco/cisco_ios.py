@@ -189,7 +189,7 @@ class CiscoIOS(CiscoBaseDevice):
                     interface = {}
                     interface['name'] = x[0]
                     interface['address'] = x[1]
-                    if 'admin' in y[1]: 
+                    if 'admin' in y[1]:
                         interface['status'] = y[1] + " " + y[2]
                         interface['protocol'] = y[3]
                         # Get all elements from 4th index onward, but combine into readable string

@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
 
-
 class UserCredentials(object):
     """Stores interface authentication session results when searching for a client on the network."""
 

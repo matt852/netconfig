@@ -1,6 +1,5 @@
 #!/usr/bin/python
 import app
-import sys
 import requests
 from requests.exceptions import ConnectionError
 import csv
@@ -11,7 +10,7 @@ from .device_classes import deviceType as dt
 
 
 class DataHandler(object):
-    """Handler object for SSH connections."""
+    """Handler object for data sources."""
 
     def __init__(self, source, netboxURL=None):
         """Data handler initialization function."""
@@ -28,6 +27,7 @@ class DataHandler(object):
             # This enables pulling ID for newly inserted host
             app.db.session.flush()
             app.db.session.commit()
+            app.logger.write_log("Added new host %s to database" % (host.hostname))
             return True, host.id, None
         except Exception as e:
             return False, 0, e
@@ -66,7 +66,6 @@ class DataHandler(object):
             # check if we succeed validation for this entry
             # if we don't pass validation, skip to the next line
             if error:
-                print("we had errors")
                 continue
 
             ios_type = self.getOSType(row[3].strip())
@@ -110,7 +109,10 @@ class DataHandler(object):
         # TO DO consider returning None instead of Error?
 
         if self.source == 'netbox':
-            r = requests.get(self.url + '/api/dcim/device-types/' + str(i))
+            try:
+                r = requests.get(self.url + '/api/dcim/device-types/' + str(os))
+            except ConnectionError:
+                return "Error"
             if r.status_code == requests.codes.ok:
 
                 try:
@@ -144,11 +146,11 @@ class DataHandler(object):
             host = app.models.Host.query.filter_by(id=x).first()
             app.db.session.delete(host)
             app.db.session.commit()
-            # writeToLog('deleted host %s in database' % (host.hostname))
+            app.logger.write_log('deleted host %s in database' % (host.hostname))
             return True
         except IntegrityError as err:
-            # writeToLog('unable to delete host %s in database' % (host.hostname))
-            # writeToLog(err)
+            app.logger.write_log('unable to delete host %s in database' % (host.hostname))
+            app.logger.write_log(err)
             return False
 
     def getHosts(self):
@@ -210,7 +212,10 @@ class DataHandler(object):
 
         elif self.source == 'netbox':
 
-            r = requests.get(self.url + '/api/dcim/devices/' + str(x))
+            try:
+                r = requests.get(self.url + '/api/dcim/devices/' + str(x))
+            except ConnectionError:
+                return None
 
             if r.status_code == requests.codes.ok:
                 d = r.json()

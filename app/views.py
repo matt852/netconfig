@@ -1,7 +1,4 @@
-import logging
-
 import socket
-
 from datetime import timedelta
 
 try:
@@ -9,13 +6,10 @@ try:
 except ImportError:
     from urllib.parse import quote_plus, unquote_plus  # Python 3
 
-from app import app, datahandler
-
+from app import app, datahandler, logger
 from flask import flash, g, jsonify, redirect, render_template
 from flask import request, session, url_for
-
 from redis import StrictRedis
-
 from .scripts_bank.redis_logic import deleteUserInRedis, resetUserRedisExpireTimer, storeUserInRedis
 from .scripts_bank.lib.functions import removeDictKey, setUserCredentials
 from .scripts_bank.lib.flask_functions import checkUserLoggedInStatus
@@ -26,50 +20,8 @@ from .forms import AddHostForm, CustomCfgCommandsForm, CustomCommandsForm
 from .forms import EditHostForm, EditInterfaceForm, ImportHostsForm, LoginForm
 from .forms import LocalCredentialsForm
 
-# Gets page referrer
-# referrer = request.headers.get("Referer")
-
 # Global Variables #
 ssh = {}
-
-#####
-# Logging - Begin #
-# Plan to remove this logging section,
-#  and use it's relocated function in functions.py
-#####
-
-# Syslogging
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-# Create a file handler
-handler = logging.FileHandler(app.config['SYSLOGFILE'])
-handler.setLevel(logging.INFO)
-# Create a logging format
-formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', '%Y-%m-%d %H:%M:%S')
-handler.setFormatter(formatter)
-# Add the handlers to the logger
-logger.addHandler(handler)
-
-
-def writeToLog(msg, currentUser=''):
-    """Write 'msg' to syslog.log file.
-
-    Try/catch in case User isn't logged in, and Netconfig URL is access directly.
-    """
-    try:
-        # If user isn't set in session, use provided user for logging (eg: after logging out)
-        if currentUser:
-            logger.info(currentUser + ' - ' + msg)
-        else:
-            # Syslog file
-            logger.info(session['USER'] + ' - ' + msg)
-    except:
-        return render_template("index.html", title='Home')
-
-
-###################
-# Logging - End #
-###################
 
 
 def initialChecks():
@@ -162,14 +114,14 @@ def retrieveSSHSession(host):
     sshKey = getSSHKeyForHost(host)
 
     if not checkHostExistingSSHSession(host):
-        writeToLog('initiated new SSH connection to %s' % (host.hostname))
+        logger.write_log('initiated new SSH connection to %s' % (host.hostname))
         # If no currently active SSH sessions, initiate a new one
         ssh[sshKey] = getSSHSession(host, creds)
 
     # Run test to verify if socket connection is still open or not
     if not checkHostActiveSSHSession(host):
         # If session is closed, reestablish session and log event
-        writeToLog('reestablished SSH connection to %s' % (host.hostname))
+        logger.write_log('reestablished SSH connection to %s' % (host.hostname))
         ssh[sshKey] = getSSHSession(host, creds)
 
     # Clear all credential based variables from memory
@@ -192,7 +144,7 @@ def disconnectSpecificSSHSession(host):
         if int(y[0]) == int(host.id):
             disconnectFromSSH(ssh[x])
             ssh.pop(x)
-            writeToLog('disconnected SSH session to provided host %s from user %s' % (host.hostname, session['USER']))
+            logger.write_log('disconnected SSH session to provided host %s from user %s' % (host.hostname, session['USER']))
 
 
 def disconnectAllSSHSessions():
@@ -208,13 +160,13 @@ def disconnectAllSSHSessions():
             disconnectFromSSH(ssh[x])
             host = datahandler.getHostByID(y[0])
             ssh = removeDictKey(ssh, x)
-            writeToLog('disconnected SSH session to device %s for user %s' % (host.hostname, y[1]))
+            logger.write_log('disconnected SSH session to device %s for user %s' % (host.hostname, y[1]))
 
     # Try statement needed as 500 error thrown if user is not currently logged in.
     try:
-        writeToLog('disconnected all SSH sessions for user %s' % (session['USER']))
+        logger.write_log('disconnected all SSH sessions for user %s' % (session['USER']))
     except:
-        writeToLog('disconnected all SSH sessions without an active user logged in')
+        logger.write_log('disconnected all SSH sessions without an active user logged in')
 
 
 def countAllSSHSessions():
@@ -351,7 +303,7 @@ def index():
     else:
         try:
             if storeUserInRedis(request.form['user'], request.form['pw']):
-                writeToLog('logged in')
+                logger.write_log('logged in')
                 return redirect(url_for('viewHosts'))
             else:
                 return render_template("index.html", title='Home')
@@ -375,16 +327,16 @@ def logout():
     try:
         currentUser = session['USER']
         deleteUserInRedis()
-        writeToLog('deleted user %s data stored in Redis' % (currentUser))
+        logger.write_log('deleted user %s data stored in Redis' % (currentUser))
         session.pop('USER', None)
-        writeToLog('deleted user %s as stored in session variable' % (currentUser), currentUser=currentUser)
+        logger.write_log('deleted user %s as stored in session variable' % (currentUser), currentUser=currentUser)
         u = session['UUID']
         session.pop('UUID', None)
-        writeToLog('deleted UUID %s for user %s as stored in session variable' % (u, currentUser), currentUser=currentUser)
+        logger.write_log('deleted UUID %s for user %s as stored in session variable' % (u, currentUser), currentUser=currentUser)
     except KeyError:
-        writeToLog('Exception thrown on logout.')
+        logger.write_log('Exception thrown on logout.')
         return redirect(url_for('index'))
-    writeToLog('logged out')
+    logger.write_log('logged out')
 
     return redirect(url_for('index'))
 
@@ -393,7 +345,7 @@ def logout():
 def disconnectAllSSH():
     """Disconnect all SSH sessions for all users."""
     disconnectAllSSHSessions()
-    writeToLog('disconnected all active SSH sessions')
+    logger.write_log('disconnected all active SSH sessions')
     return redirect(url_for('index'))
 
 
@@ -449,7 +401,6 @@ def resultsAddHost():
 
     response, hostid, e = datahandler.addHostToDB(hostname, ipv4_addr, hosttype, ios_type, local_creds)
     if response:
-        writeToLog('added host %s to database' % (hostname))
         return render_template("/results/resultsaddhost.html",
                                title='Add host result',
                                hostname=hostname,
@@ -459,7 +410,7 @@ def resultsAddHost():
                                local_creds=local_creds,
                                hostid=hostid)
     else:
-        writeToLog('exception thrown when adding new host to database: %s' % (e))
+        logger.write_log('exception thrown when adding new host to database: %s' % (e))
         # TO-DO Add popup error message here
         return redirect(url_for('addHosts'))
 
@@ -533,17 +484,12 @@ def resultsMultipleHostDelete(x):
         if x:
             host = datahandler.retrieveHostByID(x)
             hostList.append(host)
-            result = datahandler.deleteHostInDB(x)
-            if result:
-                writeToLog('deleted host %s in database' % (host['hostname']))
-            else:
-                writeToLog('unable to delete host %s in database' % (host['hostname']))
-                overallResult = False
+            datahandler.deleteHostInDB(x)
             try:
                 disconnectSpecificSSHSession(host)
-                writeToLog('disconnected any remaining active sessions for host %s' % (host['hostname']))
+                logger.write_log('disconnected any remaining active sessions for host %s' % (host['hostname']))
             except:
-                writeToLog('unable to attempt to disconnect host %s active sessions' % (host['hostname']))
+                logger.write_log('unable to attempt to disconnect host %s active sessions' % (host['hostname']))
 
     overallResult = True
     return render_template("results/resultsmultiplehostdeleted.html",
@@ -555,7 +501,7 @@ def resultsMultipleHostDelete(x):
 @app.route('/db/viewhosts')
 def viewHosts():
     """Display all devices."""
-    writeToLog('viewed all hosts')
+    logger.write_log('viewed all hosts')
     hosts = datahandler.getHosts()
 
     # TODO this should happen not during the view render
@@ -573,7 +519,7 @@ def deviceUptime(x):
     initialChecks()
     host = datahandler.getHostByID(x)
     activeSession = retrieveSSHSession(host)
-    writeToLog('retrieved uptime on host %s' % (host.hostname))
+    logger.write_log('retrieved uptime on host %s' % (host.hostname))
     return jsonify(host.pull_device_uptime(activeSession))
 
 
@@ -595,7 +541,7 @@ def viewSpecificHost(x):
 
     host = datahandler.getHostByID(x)
 
-    writeToLog('accessed host %s using IPv4 address %s' % (host.hostname, host.ipv4_addr))
+    logger.write_log('accessed host %s using IPv4 address %s' % (host.hostname, host.ipv4_addr))
 
     # Try statement as if this page was accessed directly and not via the Local Credentials form it will fail and we want to operate normally
     # Variable to determine if successfully connected o host use local credentials
@@ -605,7 +551,7 @@ def viewSpecificHost(x):
             # Set to True if variables are set correctly from local credentials form
             varFormSet = True
             activeSession = retrieveSSHSession(host)
-            writeToLog('local credentials saved to REDIS for accessing host %s' % (host.hostname))
+            logger.write_log('local credentials saved to REDIS for accessing host %s' % (host.hostname))
 
     except:
         # If no form submitted (not using local credentials), get SSH session
@@ -613,7 +559,7 @@ def viewSpecificHost(x):
         if not varFormSet:
             # Get any existing SSH sessions
             activeSession = retrieveSSHSession(host)
-            writeToLog('credentials used of currently logged in user for accessing host %s' % (host.hostname))
+            logger.write_log('credentials used of currently logged in user for accessing host %s' % (host.hostname))
 
     result = host.pull_host_interfaces(activeSession)
 
@@ -644,7 +590,7 @@ def callDisconnectSpecificSSHSession(x):
         disconnectSpecificSSHSession(host)
     except:
         # Log error if unable to disconnect specific SSH session
-        writeToLog('unable to disconnect SSH session to provided host %s from user %s' % (host.hostname, session['USER']))
+        logger.write_log('unable to disconnect SSH session to provided host %s from user %s' % (host.hostname, session['USER']))
     return redirect(url_for('viewHosts'))
 
 
@@ -764,17 +710,17 @@ def resultsHostEdit(x):
     #  and clear them from the SSH dict
     try:
         disconnectSpecificSSHSession(storedHost)
-        writeToLog('disconnected and cleared saved SSH session information for edited host %s' % (storedHost['hostname']))
+        logger.write_log('disconnected and cleared saved SSH session information for edited host %s' % (storedHost['hostname']))
     except (socket.error, EOFError):
-        writeToLog('no existing SSH sessions for edited host %s' % (storedHost['hostname']))
+        logger.write_log('no existing SSH sessions for edited host %s' % (storedHost['hostname']))
     except:
-        writeToLog('could not clear SSH session for edited host %s' % (storedHost['hostname']))
+        logger.write_log('could not clear SSH session for edited host %s' % (storedHost['hostname']))
 
     result = datahandler.editHostInDatabase(storedHost['id'], hostname, ipv4_addr, hosttype, ios_type, local_creds, local_creds_updated)
 
     if result:
         # updatedHost = datahandler.retrieveHostByID(x)
-        writeToLog('edited host %s in database' % (storedHost['hostname']))
+        logger.write_log('edited host %s in database' % (storedHost['hostname']))
         return render_template("results/resultshostedit.html",
                                title='Edit host confirm',
                                storedHost=storedHost,
@@ -837,7 +783,7 @@ def resultsIntEnabled(x, y):
     # Removes dashes from interface in URL and enabel interface
     result = host.run_enable_interface_cmd(interfaceReplaceSlash(y), activeSession)
 
-    writeToLog('enabled interface %s on host %s' % (y, host.hostname))
+    logger.write_log('enabled interface %s on host %s' % (y, host.hostname))
     return render_template("results/resultsinterfaceenabled.html",
                            host=host, interface=y, result=result)
 
@@ -858,7 +804,7 @@ def resultsIntDisabled(x, y):
     # Removes dashes from interface in URL and disable interface
     result = host.run_disable_interface_cmd(interfaceReplaceSlash(y), activeSession)
 
-    writeToLog('disabled interface %s on host %s' % (y, host.hostname))
+    logger.write_log('disabled interface %s on host %s' % (y, host.hostname))
     return render_template("results/resultsinterfacedisabled.html",
                            host=host, interface=y, result=result)
 
@@ -893,7 +839,7 @@ def resultsIntEdit(x, datavlan, voicevlan, other):
     # Remove dashes from interface in URL and edit interface config
     result = host.run_edit_interface_cmd(hostinterface, datavlan, voicevlan, other, activeSession)
 
-    writeToLog('edited interface %s on host %s' % (hostinterface, host.hostname))
+    logger.write_log('edited interface %s on host %s' % (hostinterface, host.hostname))
     return render_template("results/resultsinterfaceedit.html", host=host,
                            interface=hostinterface, datavlan=datavlan,
                            voicevlan=voicevlan, other=other, result=result)
@@ -911,7 +857,6 @@ def resultsHostDeleted(x):
         result = datahandler.deleteHostInDB(host.id)
         if result:
             disconnectSpecificSSHSession(host)
-            writeToLog('deleted host %s in database' % (host.hostname))
             return render_template("results/resultshostdeleted.html",
                                    host=host, result=result)
         else:
@@ -937,7 +882,7 @@ def resultsCmdCustom():
     session.pop('COMMAND', None)
     session.pop('HOSTID', None)
 
-    writeToLog('ran custom commands on host %s' % (host.hostname))
+    logger.write_log('ran custom commands on host %s' % (host.hostname))
     return render_template("results/resultscmdcustom.html",
                            host=host,
                            command=command,
@@ -962,7 +907,7 @@ def resultsCfgCmdCustom():
     session.pop('HOSTID', None)
     session.pop('IOS_TYPE', None)
 
-    writeToLog('ran custom config commands on host %s' % (host.hostname))
+    logger.write_log('ran custom config commands on host %s' % (host.hostname))
     return render_template("results/resultscfgcmdcustom.html",
                            host=host,
                            command=command,
@@ -996,7 +941,7 @@ def modalSpecificInterfaceOnHost(x, y):
     intConfig, intMacAddr, intStats = host.pull_interface_info(activeSession)
     macToIP = ''
 
-    writeToLog('viewed interface %s on host %s' % (interface, host.hostname))
+    logger.write_log('viewed interface %s on host %s' % (interface, host.hostname))
     return render_template("/viewspecificinterfaceonhost.html",
                            host=host,
                            interface=interface,
@@ -1055,7 +1000,7 @@ def modalLocalCredentials(x):
         return redirect('/db/viewhosts/%s' % (host.id))
 
     form = LocalCredentialsForm()
-    writeToLog('saved local credentials for host %s' % (host.hostname))
+    logger.write_log('saved local credentials for host %s' % (host.hostname))
     return render_template('localcredentials.html',
                            title='Login with local SSH credentials',
                            form=form,
@@ -1074,7 +1019,7 @@ def modalCmdShowRunConfig(x):
     host = datahandler.getHostByID(x)
     activeSession = retrieveSSHSession(host)
     hostConfig = host.pull_run_config(activeSession)
-    writeToLog('viewed running-config via button on host %s' % (host.hostname))
+    logger.write_log('viewed running-config via button on host %s' % (host.hostname))
     return render_template("/cmdshowrunconfig.html",
                            host=host,
                            hostConfig=hostConfig)
@@ -1092,7 +1037,7 @@ def modalCmdShowStartConfig(x):
     host = datahandler.getHostByID(x)
     activeSession = retrieveSSHSession(host)
     hostConfig = host.pull_start_config(activeSession)
-    writeToLog('viewed startup-config via button on host %s' % (host.hostname))
+    logger.write_log('viewed startup-config via button on host %s' % (host.hostname))
     return render_template("/cmdshowstartconfig.html",
                            host=host,
                            hostConfig=hostConfig)
@@ -1110,7 +1055,7 @@ def modalCmdShowCDPNeigh(x):
     host = datahandler.getHostByID(x)
     activeSession = retrieveSSHSession(host)
     neigh = host.pull_cdp_neighbor(activeSession)
-    writeToLog('viewed CDP neighbors via button on host %s' % (host.hostname))
+    logger.write_log('viewed CDP neighbors via button on host %s' % (host.hostname))
     return render_template("/cmdshowcdpneigh.html",
                            host=host,
                            neigh=neigh)
@@ -1129,7 +1074,7 @@ def modalCmdShowInventory(x):
     activeSession = retrieveSSHSession(host)
     result = host.pull_inventory(activeSession)
 
-    writeToLog('viewed inventory info via button on host %s' % (host.hostname))
+    logger.write_log('viewed inventory info via button on host %s' % (host.hostname))
     return render_template("/cmdshowinventory.html",
                            host=host,
                            result=result)
@@ -1148,7 +1093,7 @@ def modalCmdShowVersion(x):
     activeSession = retrieveSSHSession(host)
     result = host.pull_version(activeSession)
 
-    writeToLog('viewed version info via button on host %s' % (host.hostname))
+    logger.write_log('viewed version info via button on host %s' % (host.hostname))
     return render_template("/cmdshowversion.html",
                            host=host,
                            result=result)
@@ -1202,7 +1147,7 @@ def modalCmdSaveConfig(x):
     activeSession = retrieveSSHSession(host)
     host.save_config_on_device(activeSession)
 
-    writeToLog('saved config via button on host %s' % (host.hostname))
+    logger.write_log('saved config via button on host %s' % (host.hostname))
     return render_template("/cmdsaveconfig.html",
                            host=host)
 
@@ -1220,7 +1165,7 @@ def hostShell(x):
     # Exit config mode if currently in it on page refresh/load
     exitConfigMode(host.id)
 
-    writeToLog('accessed interactive shell on host %s' % (host.hostname))
+    logger.write_log('accessed interactive shell on host %s' % (host.hostname))
     return render_template("hostshell.html",
                            host=host)
 
@@ -1270,7 +1215,7 @@ def hostShellOutput(x, m, y):
         else:
             output = host.get_cmd_output(command, activeSession)
 
-    writeToLog('ran command on host %s - %s' % (host.hostname, command))
+    logger.write_log('ran command on host %s - %s' % (host.hostname, command))
 
     return render_template("hostshelloutput.html",
                            output=output,
@@ -1291,7 +1236,7 @@ def enterConfigMode(x):
     activeSession = retrieveSSHSession(host)
     # Enter configuration mode on device using existing SSH session
     activeSession.config_mode()
-    writeToLog('entered config mode via iShell on host %s' % (host.hostname))
+    logger.write_log('entered config mode via iShell on host %s' % (host.hostname))
     return ('', 204)
 
 
@@ -1308,7 +1253,7 @@ def exitConfigMode(x):
     # Exit configuration mode on device using existing SSH session
     activeSession.exit_config_mode()
 
-    writeToLog('exited config mode via iShell on host %s' % (host.hostname))
+    logger.write_log('exited config mode via iShell on host %s' % (host.hostname))
     return ('', 204)
 
 
@@ -1377,7 +1322,7 @@ def resultsMultiIntEnabled(x, y):
             a = interfaceReplaceSlash(a)
             result.append(host.run_enable_interface_cmd(a, activeSession))
 
-    writeToLog('enabled multiple interfaces on host %s' % (host.hostname))
+    logger.write_log('enabled multiple interfaces on host %s' % (host.hostname))
     return render_template("results/resultsmultipleintenabled.html",
                            host=host,
                            interfaces=y,
@@ -1404,7 +1349,7 @@ def resultsMultiIntDisabled(x, y):
             a = interfaceReplaceSlash(a)
             result.append(host.run_disable_interface_cmd(a, activeSession))
 
-    writeToLog('disabled multiple interfaces on host %s' % (host.hostname))
+    logger.write_log('disabled multiple interfaces on host %s' % (host.hostname))
     return render_template("results/resultsmultipleintdisabled.html",
                            host=host,
                            interfaces=y,
@@ -1432,7 +1377,7 @@ def resultsMultiIntEdit(x, y):
 
     result.append(host.save_config_on_device(activeSession))
 
-    writeToLog('edited multiple interfaces on host %s' % (host.hostname))
+    logger.write_log('edited multiple interfaces on host %s' % (host.hostname))
     return render_template("results/resultsmultipleintedit.html",
                            host=host,
                            interfaces=y,
