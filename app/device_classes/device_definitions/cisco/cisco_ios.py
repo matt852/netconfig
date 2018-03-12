@@ -177,7 +177,6 @@ class CiscoIOS(CiscoBaseDevice):
     def cleanup_ios_output(self, iosOutputA, iosOutputB):
         """Clean up returned IOS output from 'show ip interface brief'."""
         data = []
-        descLine = ''
 
         for a, b in zip(iosOutputA.splitlines(), iosOutputB.splitlines()):
             try:
@@ -187,6 +186,7 @@ class CiscoIOS(CiscoBaseDevice):
                     continue
                 else:
                     interface = {}
+                    descLine = ''
                     interface['name'] = x[0]
                     interface['address'] = x[1]
                     if 'admin' in y[1]:

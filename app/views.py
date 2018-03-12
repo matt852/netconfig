@@ -1,5 +1,6 @@
 import socket
 from datetime import timedelta
+from operator import attrgetter
 
 try:
     from urllib import quote_plus, unquote_plus  # Python 2
@@ -59,7 +60,7 @@ def checkHostActiveSSHSession(host):
             return True
         else:
             return False
-    except:
+    except KeyError:
         # If try statement fails, return False as it's not alive
         return False
 
@@ -119,7 +120,7 @@ def retrieveSSHSession(host):
         ssh[sshKey] = getSSHSession(host, creds)
 
     # Run test to verify if socket connection is still open or not
-    if not checkHostActiveSSHSession(host):
+    elif not checkHostActiveSSHSession(host):
         # If session is closed, reestablish session and log event
         logger.write_log('reestablished SSH connection to %s' % (host.hostname))
         ssh[sshKey] = getSSHSession(host, creds)
@@ -160,7 +161,7 @@ def disconnectAllSSHSessions():
             disconnectFromSSH(ssh[x])
             host = datahandler.getHostByID(y[0])
             ssh = removeDictKey(ssh, x)
-            logger.write_log('disconnected SSH session to device %s for user %s' % (host.hostname, y[1]))
+            logger.write_log('disconnected SSH session to device %s for user %s' % (host.hostname, session['USER']))
 
     # Try statement needed as 500 error thrown if user is not currently logged in.
     try:
@@ -198,10 +199,10 @@ def getNamesOfSSHSessionDevices():
         # y[1] is uuid
         if str(y[1]) == str(session['UUID']):
             # Get host by y[0] (host.id)
-            hostList.append(datahandler.retrieveHostByID(y[0]))
+            hostList.append(datahandler.getHostByID(y[0]))
 
     # Reorder list in alphabetical order
-    hostList = sorted(hostList, key=lambda k: k['hostname'])
+    hostList = sorted(hostList, key=attrgetter('hostname'))
     return hostList
 
 
@@ -212,7 +213,7 @@ def ajaxCheckHostActiveSession(x):
     Used for AJAX call only, on main viewhosts.html page.
     x = host id
     """
-    host = datahandler.retrieveHostByID(x)
+    host = datahandler.getHostByID(x)
 
     if host:
         if checkHostActiveSSHSession(host):
@@ -466,7 +467,7 @@ def confirmMultipleHostDelete(x):
     hostList = []
     for host in x.split('&'):
         if host:
-            hostList.append(datahandler.retrieveHostByID(host))
+            hostList.append(datahandler.getHostByID(host))
     return render_template("confirm/confirmmultiplehostdelete.html",
                            hostList=hostList,
                            x=x)
@@ -483,14 +484,14 @@ def resultsMultipleHostDelete(x):
     hostList = []
     for x in x.split('&'):
         if x:
-            host = datahandler.retrieveHostByID(x)
+            host = datahandler.getHostByID(x)
             hostList.append(host)
             datahandler.deleteHostInDB(x)
             try:
                 disconnectSpecificSSHSession(host)
-                logger.write_log('disconnected any remaining active sessions for host %s' % (host['hostname']))
+                logger.write_log('disconnected any remaining active sessions for host %s' % (host.hostname))
             except:
-                logger.write_log('unable to attempt to disconnect host %s active sessions' % (host['hostname']))
+                logger.write_log('unable to attempt to disconnect host %s active sessions' % (host.hostname))
 
     overallResult = True
     return render_template("results/resultsmultiplehostdeleted.html",
@@ -507,7 +508,8 @@ def viewHosts():
 
     # TODO this should happen not during the view render
     # status = ph.reachable(hosts)
-    return render_template('/db/viewhosts.html', hosts=hosts,
+    return render_template('/db/viewhosts.html',
+                           hosts=hosts,
                            title='View hosts in database')
 
 
@@ -585,7 +587,7 @@ def callDisconnectSpecificSSHSession(x):
 
     x = ID of host to disconnect.
     """
-    host = datahandler.retrieveHostByID(x)
+    host = datahandler.getHostByID(x)
     # Disconnect device.
     try:
         disconnectSpecificSSHSession(host)
@@ -684,13 +686,13 @@ def resultsHostEdit(x):
     if 'modal' in x:
         return ('', 204)
 
-    storedHost = datahandler.retrieveHostByID(x)
+    storedHost = datahandler.getHostByID(x)
     # Save all existing host variables, as the class stores get updated later in the function
-    origHostname = storedHost['hostname']
-    origIpv4_addr = storedHost['ipv4_addr']
-    origHosttype = storedHost['type']
-    origIos_type = storedHost['ios_type']
-    origLocal_creds = storedHost['local_creds']
+    origHostname = storedHost.hostname
+    origIpv4_addr = storedHost.ipv4_addr
+    origHosttype = storedHost.type
+    origIos_type = storedHost.ios_type
+    origLocal_creds = storedHost.local_creds
 
     # Save form user inputs into new variables
     hostname = request.form['hostname']
@@ -711,17 +713,16 @@ def resultsHostEdit(x):
     #  and clear them from the SSH dict
     try:
         disconnectSpecificSSHSession(storedHost)
-        logger.write_log('disconnected and cleared saved SSH session information for edited host %s' % (storedHost['hostname']))
+        logger.write_log('disconnected and cleared saved SSH session information for edited host %s' % (storedHost.hostname))
     except (socket.error, EOFError):
-        logger.write_log('no existing SSH sessions for edited host %s' % (storedHost['hostname']))
+        logger.write_log('no existing SSH sessions for edited host %s' % (storedHost.hostname))
     except:
-        logger.write_log('could not clear SSH session for edited host %s' % (storedHost['hostname']))
+        logger.write_log('could not clear SSH session for edited host %s' % (storedHost.hostname))
 
-    result = datahandler.editHostInDatabase(storedHost['id'], hostname, ipv4_addr, hosttype, ios_type, local_creds, local_creds_updated)
+    result = datahandler.editHostInDatabase(storedHost.id, hostname, ipv4_addr, hosttype, ios_type, local_creds, local_creds_updated)
 
     if result:
-        # updatedHost = datahandler.retrieveHostByID(x)
-        logger.write_log('edited host %s in database' % (storedHost['hostname']))
+        logger.write_log('edited host %s in database' % (storedHost.hostname))
         return render_template("results/resultshostedit.html",
                                title='Edit host confirm',
                                storedHost=storedHost,

@@ -63,9 +63,9 @@
                                 </table>
                                 <div class="text-right">
                                     {% if local_creds %}
-                                        <td id="tdDevice"><a href="modalLocalCredentials" class="btn btn-success" data-toggle="modal" data-target="#modalLocalCredentials" data-hostid="{{ storedHost['id'] }}" data-hostname="{{ storedHost['hostname'] }}"  onclick="loading();return false;">Go to {% if hostname != '' %}{{ hostname }}{% else %}{{ origHostname }}{% endif %}</a></td>
+                                        <td id="tdDevice"><a href="modalLocalCredentials" class="btn btn-success" data-toggle="modal" data-target="#modalLocalCredentials" data-hostid="{{ storedHost.id }}" data-hostname="{{ storedHost.hostname }}"  onclick="loading();return false;">Go to {% if hostname != '' %}{{ hostname }}{% else %}{{ origHostname }}{% endif %}</a></td>
                                     {% else %}
-                                        <a href="/db/viewhosts/{{ storedHost['id'] }}" class="btn btn-success">Go to {% if hostname != '' %}{{ hostname }}{% else %}{{ origHostname }}{% endif %}</a>
+                                        <a href="/db/viewhosts/{{ storedHost.id }}" class="btn btn-success">Go to {% if hostname != '' %}{{ hostname }}{% else %}{{ origHostname }}{% endif %}</a>
                                     {% endif %}
                                     <a href="/db/viewhosts" class="btn btn-primary">View All Hosts</a>
                                 </div>
