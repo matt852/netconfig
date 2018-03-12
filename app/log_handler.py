@@ -7,11 +7,11 @@ class LogHandler(object):
 
     def __init__(self, filename="netconfig.log", level="INFO"):
         """Initialize class."""
-        self.logger = logging.getLogger("__name__")
+        self.logger = logging.getLogger(__name__)
         self.filename = filename
         self.level = level.upper()
 
-        logging.getLogger().setLevel(self.level)
+        self.logger.setLevel(self.level)
         logging.basicConfig(filename=self.filename,
                             format='%(asctime)s %(levelname)s: %(message)s')
 

@@ -329,10 +329,10 @@ def logout():
         deleteUserInRedis()
         logger.write_log('deleted user %s data stored in Redis' % (currentUser))
         session.pop('USER', None)
-        logger.write_log('deleted user %s as stored in session variable' % (currentUser), currentUser=currentUser)
+        logger.write_log('deleted user %s as stored in session variable' % (currentUser), user=currentUser)
         u = session['UUID']
         session.pop('UUID', None)
-        logger.write_log('deleted UUID %s for user %s as stored in session variable' % (u, currentUser), currentUser=currentUser)
+        logger.write_log('deleted UUID %s for user %s as stored in session variable' % (u, currentUser), user=currentUser)
     except KeyError:
         logger.write_log('Exception thrown on logout.')
         return redirect(url_for('index'))
