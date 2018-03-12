@@ -43,7 +43,6 @@ class DataHandler(object):
         errors = []
         hosts = []
         for row in reader:
-
             if len(row) < 4:
                 error = {'host': row[0], 'error': "Invalid entry"}
                 errors.append(error)
@@ -87,7 +86,7 @@ class DataHandler(object):
                 app.db.session.flush()
                 hosts.append({"id": host.id, "hostname": row[0],
                               "ipv4_addr": row[1]})
-            except IntegrityError:
+            except (IntegrityError, InvalidRequestError):
                 continue
 
         try:
