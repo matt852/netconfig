@@ -433,7 +433,8 @@ def resultsImportHosts():
     initialChecks()
     hosts, errors = datahandler.importHostsToDB(request.form['csvimport'])
     return render_template("/results/resultsimporthosts.html",
-                           title='Import devices result', hosts=hosts,
+                           title='Import devices result',
+                           hosts=hosts,
                            errors=errors)
 
 

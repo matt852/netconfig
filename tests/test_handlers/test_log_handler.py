@@ -1,25 +1,19 @@
 import unittest
-import tempfile
 import os
 from app.log_handler import LogHandler
+from tempfile import gettempdir
 
 
 class TestLogHandler(unittest.TestCase):
+    """Unit testing for log handler class."""
 
     def setUp(self):
         """Initialize static class testing variables."""
-        self.tmpfile = os.path.join(tempfile.gettempdir(), "log.log")
+        self.tmpfile = os.path.join(gettempdir(), "log.log")
         self.logger = LogHandler(self.tmpfile)
 
-    def test_filename(self):
-        assert self.logger.filename == self.tmpfile
-
-    def test_log_level(self):
-        assert self.logger.level == "INFO"
-        self.logger.level = "DEBUG"
-        assert self.logger.level == "DEBUG"
-
     def tearDown(self):
+        """Run on completion of tests."""
         try:
             os.remove(self.tmpfile)
             return True
@@ -27,3 +21,13 @@ class TestLogHandler(unittest.TestCase):
         # TODO investigate why
         except (IOError, OSError):
             return True
+
+    def test_filename(self):
+        """Validate filename is what's expected."""
+        self.assertEqual(self.logger.filename, self.tmpfile)
+
+    def test_log_level(self):
+        """Validate logging level is correct and can be changed successfully."""
+        self.assertEqual(self.logger.level, "INFO")
+        self.logger.level = "DEBUG"
+        self.assertEqual(self.logger.level, "DEBUG")
