@@ -55,44 +55,45 @@ class DataHandler(object):
             except core.AddrFormatError:
                 error = {'host': row[0], 'error': "Invalid IP address"}
                 errors.append(error)
-            if row[2].lower() not in ("switch", "router", "firewall"):
+            if row[2].lower().strip() not in ("switch", "router", "firewall"):
                 error = {'host': row[0], 'error': "Invalid device type"}
                 errors.append(error)
-            if row[3].lower() not in ("ios", "ios-xe", "nx-os", "asa"):
-                error = {'host': row[0], 'error': "Invalid IOS type"}
+
+            ios_type = self.getOSType(row[3].lower())
+            if ios_type.lower() == "error":
+                error = {'host': row[0], 'error': "Invalid OS type"}
                 errors.append(error)
 
             # check if we succeed validation for this entry
             # if we don't pass validation, skip to the next line
             if error:
                 continue
+            else:
 
-            ios_type = self.getOSType(row[3].strip())
-
-            try:
-                if row[4].strip().lower() == 'true':
-                    local_creds = True
-                else:
+                try:
+                    if row[4].strip().lower() == 'true':
+                        local_creds = True
+                    else:
+                        local_creds = False
+                except IndexError:
                     local_creds = False
-            except IndexError:
-                local_creds = False
 
-            try:
-                host = app.models.Host(hostname=row[0], ipv4_addr=row[1],
-                                       type=row[2].capitalize(),
-                                       ios_type=ios_type,
-                                       local_creds=local_creds)
-                app.db.session.add(host)
-                app.db.session.flush()
-                hosts.append({"id": host.id, "hostname": row[0],
-                              "ipv4_addr": row[1]})
-            except (IntegrityError, InvalidRequestError):
-                continue
+                try:
+                    host = app.models.Host(hostname=row[0], ipv4_addr=row[1],
+                                           type=row[2].capitalize(),
+                                           ios_type=ios_type,
+                                           local_creds=local_creds)
+                    app.db.session.add(host)
+                    app.db.session.flush()
+                    hosts.append({"id": host.id, "hostname": row[0],
+                                  "ipv4_addr": row[1]})
+                except (IntegrityError, InvalidRequestError):
+                    continue
 
-        try:
-            app.db.session.commit()
-        except (IntegrityError, InvalidRequestError):
-            app.db.session.rollback()
+                try:
+                    app.db.session.commit()
+                except (IntegrityError, InvalidRequestError):
+                    app.db.session.rollback()
 
         return hosts, errors
 
@@ -111,15 +112,16 @@ class DataHandler(object):
             try:
                 r = requests.get(self.url + '/api/dcim/device-types/' + str(os))
             except ConnectionError:
-                return "Error"
+                log_handler.write_log("Connection error trying to connect to " + self.url)
+                return "error"
             if r.status_code == requests.codes.ok:
 
                 try:
-                    os = r.json()['custom_fields']['Netconfig_OS']['label']
+                    os = r.json()['custom_fields']['Netconfig_OS']['label'].strip()
                 except KeyError:
-                    return "Error"
+                    return "error"
             else:
-                return "Error"
+                return "error"
 
         if os == 'ios':
             return "cisco_ios"
@@ -130,7 +132,7 @@ class DataHandler(object):
         elif os == 'asa':
             return "cisco_asa"
         else:
-            return "Error"
+            return "error"
 
     def deleteHostInDB(self, x):
         """Remove host from database.
@@ -171,6 +173,7 @@ class DataHandler(object):
             try:
                 r = requests.get(self.url + '/api/dcim/devices/?limit=0')
             except ConnectionError:
+                log_handler.write_log("Connection error trying to connect to " + self.url)
                 return data
 
             if r.status_code == requests.codes.ok:
@@ -214,6 +217,7 @@ class DataHandler(object):
             try:
                 r = requests.get(self.url + '/api/dcim/devices/' + str(x))
             except ConnectionError:
+                log_handler.write_log("Connection error trying to connect to " + self.url)
                 return None
 
             if r.status_code == requests.codes.ok:

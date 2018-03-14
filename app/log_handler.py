@@ -1,6 +1,9 @@
 import logging
 from flask import session
 
+# TODO remove this class and handler logging in the main app
+# This enables us to use different log levels
+
 
 class LogHandler(object):
     """Global log handler class."""
@@ -25,6 +28,6 @@ class LogHandler(object):
             try:
                 # Log with currently logged in user
                 self.logger.info(session['USER'] + ' - ' + msg)
-            except:
+            except KeyError:
                 # If no user logged in, just log message only
                 self.logger.info(msg)
