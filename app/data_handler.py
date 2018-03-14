@@ -22,7 +22,7 @@ class DataHandler(object):
         try:
             host = app.models.Host(hostname=hostname, ipv4_addr=ipv4_addr,
                                    type=type.capitalize(),
-                                   ios_type=ios_type.capitalize(),
+                                   ios_type=ios_type,
                                    local_creds=local_creds)
             app.db.session.add(host)
             # This enables pulling ID for newly inserted host
@@ -49,7 +49,7 @@ class DataHandler(object):
         hosts = []
         for row in reader:
             if len(row) < 4:
-                error = {'host': row[0], 'error': "Invalid entry"}
+                error = {'hostname': row[0], 'error': "Invalid number of fields in entry"}
                 errors.append(error)
                 continue
 
@@ -58,15 +58,15 @@ class DataHandler(object):
             try:
                 IPAddress(row[1])
             except core.AddrFormatError:
-                error = {'host': row[0], 'error': "Invalid IP address"}
+                error = {'hostname': row[0], 'error': "Invalid IP address"}
                 errors.append(error)
             if row[2].lower().strip() not in ("switch", "router", "firewall"):
-                error = {'host': row[0], 'error': "Invalid device type"}
+                error = {'hostname': row[0], 'error': "Invalid device type"}
                 errors.append(error)
 
             ios_type = self.getOSType(row[3].lower())
             if ios_type.lower() == "error":
-                error = {'host': row[0], 'error': "Invalid OS type"}
+                error = {'hostname': row[0], 'error': "Invalid OS type"}
                 errors.append(error)
 
             # check if we succeed validation for this entry
@@ -108,7 +108,7 @@ class DataHandler(object):
                             emsg = "Unspecified duplicate field error with device when inserting into database"
                     else:
                         emsg = "Error when adding device into database"
-                    error = {'host': row[0], 'error': emsg}
+                    error = {'hostname': row[0], 'error': emsg}
                     errors.append(error)
                     app.db.session.rollback()
                     continue
