@@ -28,6 +28,6 @@ class LogHandler(object):
             try:
                 # Log with currently logged in user
                 self.logger.info(session['USER'] + ' - ' + msg)
-            except KeyError:
+            except (RuntimeError, KeyError):
                 # If no user logged in, just log message only
                 self.logger.info(msg)

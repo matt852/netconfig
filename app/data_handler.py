@@ -21,12 +21,17 @@ class DataHandler(object):
         """Add host to database.  Returns True if successful."""
         try:
             host = app.models.Host(hostname=hostname, ipv4_addr=ipv4_addr,
-                                   type=type, ios_type=ios_type,
+                                   type=type.capitalize(),
+                                   ios_type=ios_type.capitalize(),
                                    local_creds=local_creds)
             app.db.session.add(host)
             # This enables pulling ID for newly inserted host
             app.db.session.flush()
             app.db.session.commit()
+        except (IntegrityError, InvalidRequestError) as e:
+            return False, 0, e
+
+        try:
             app.logger.write_log("Added new host %s to database" % (host.hostname))
             return True, host.id, None
         except Exception as e:
@@ -79,9 +84,12 @@ class DataHandler(object):
                     local_creds = False
 
                 try:
-                    host = app.models.Host(hostname=row[0], ipv4_addr=row[1],
+
+                    # TODO could probably use self.addHostToDB
+                    host = app.models.Host(hostname=row[0].strip(),
+                                           ipv4_addr=row[1],
                                            type=row[2].capitalize(),
-                                           ios_type=ios_type,
+                                           ios_type=ios_type.capitalize(),
                                            local_creds=local_creds)
                     app.db.session.add(host)
                     app.db.session.flush()
