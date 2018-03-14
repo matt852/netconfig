@@ -3,16 +3,16 @@ from datetime import timedelta
 from operator import attrgetter
 
 try:
-    from urllib import quote_plus, unquote_plus  # Python 2
+    from urllib import quote_plus, unquote_plus, urlopen  # Python 2
 except ImportError:
-    from urllib.parse import quote_plus, unquote_plus  # Python 3
+    from urllib.parse import quote_plus, unquote_plus, urlopen  # Python 3
 
 from app import app, datahandler, logger
 from flask import flash, g, jsonify, redirect, render_template
 from flask import request, session, url_for
 from redis import StrictRedis
 from .scripts_bank.redis_logic import deleteUserInRedis, resetUserRedisExpireTimer, storeUserInRedis
-from .scripts_bank.lib.functions import removeDictKey, setUserCredentials
+from .scripts_bank.lib.functions import checkForVersionUpdate, removeDictKey, setUserCredentials
 from .scripts_bank.lib.flask_functions import checkUserLoggedInStatus
 from .scripts_bank.lib.netmiko_functions import disconnectFromSSH, getSSHSession
 from .scripts_bank.lib.netmiko_functions import sessionIsAlive
@@ -359,6 +359,12 @@ def getSSHSessionsCount():
     initialChecks()
     count = countAllSSHSessions()
     return jsonify(count=count)
+
+
+@app.route('/checkupdates')
+def checkUpdates():
+    """Check for NetConfig updates on GitHub."""
+    return checkForVersionUpdate(app.config)
 
 
 @app.route('/displayrecentdevicenames')
