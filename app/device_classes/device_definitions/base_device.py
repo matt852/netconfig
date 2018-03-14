@@ -23,7 +23,7 @@ class BaseDevice(object):
         If so, exits config mode.
         """
         if activeSession.check_config_mode():
-            self.exit_config_mode(activeSession)
+            activeSession.exit_config_mode()
             # Return True since session was originally in config mode
             return True
         # Return False if session is not in config mode
@@ -35,9 +35,9 @@ class BaseDevice(object):
         Not currently used.
         """
         if originalState and not activeSession.check_config_mode():
-            self.enter_config_mode(activeSession)
+            activeSession.enter_config_mode()
         elif activeSession.check_config_mode() and not originalState:
-            self.exit_config_mode()
+            activeSession.exit_config_mode()
 
     def run_ssh_command(self, command, activeSession):
         """Execute single command on device using existing SSH session."""
