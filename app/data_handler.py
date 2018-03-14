@@ -74,7 +74,6 @@ class DataHandler(object):
             if error:
                 continue
             else:
-
                 try:
                     if row[4].strip().lower() == 'true':
                         local_creds = True
@@ -84,24 +83,35 @@ class DataHandler(object):
                     local_creds = False
 
                 try:
-
                     # TODO could probably use self.addHostToDB
                     host = app.models.Host(hostname=row[0].strip(),
                                            ipv4_addr=row[1],
                                            type=row[2].capitalize(),
-                                           ios_type=ios_type.capitalize(),
+                                           ios_type=ios_type,
                                            local_creds=local_creds)
                     app.db.session.add(host)
                     app.db.session.flush()
+                    app.db.session.commit()
+                    # Do this last, as we only want to add the host to var 'hosts' if it was fully successful
                     hosts.append({"id": host.id, "hostname": row[0],
                                   "ipv4_addr": row[1]})
-                except (IntegrityError, InvalidRequestError):
-                    continue
-
-                try:
-                    app.db.session.commit()
-                except (IntegrityError, InvalidRequestError):
+                except (IntegrityError, InvalidRequestError) as e:
+                    # Split error message on spaces
+                    if '(sqlite3.IntegrityError) UNIQUE constraint failed' in e.message:
+                        e = e.message.split()
+                        # These if statements needed because the 'hostname' and 'ipv4_addr' fields are set to unique in the database
+                        if e[-1] == "host.hostname":
+                            emsg = "Duplicate hostname - already exists in database"
+                        elif e[-1] == "host.ipv4_addr":
+                            emsg = "Duplicate IP address - already exists in database"
+                        else:
+                            emsg = "Unspecified duplicate field error with device when inserting into database"
+                    else:
+                        emsg = "Error when adding device into database"
+                    error = {'host': row[0], 'error': emsg}
+                    errors.append(error)
                     app.db.session.rollback()
+                    continue
 
         return hosts, errors
 
