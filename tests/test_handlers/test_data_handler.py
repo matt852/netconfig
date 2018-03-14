@@ -63,4 +63,3 @@ class TestDataHandler(unittest.TestCase):
         hosts_result, err_result = self.datahandler.importHostsToDB(csv_data)
         assert hosts_expect == hosts_result
         assert err_expect == err_result
-        # return False

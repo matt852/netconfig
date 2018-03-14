@@ -98,10 +98,10 @@ class DataHandler(object):
                 except (IntegrityError, InvalidRequestError):
                     continue
 
-                try:
-                    app.db.session.commit()
-                except (IntegrityError, InvalidRequestError):
-                    app.db.session.rollback()
+            try:
+                app.db.session.commit()
+            except (IntegrityError, InvalidRequestError):
+                app.db.session.rollback()
 
         return hosts, errors
 
