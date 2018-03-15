@@ -6,19 +6,28 @@
 <div class="container-fluid">
 	<div class="row">
 		<div class="col-md-9">
-			<h2 class="text-primary">Device Import Results</h2>
 			{% if errors %}
-			<div class="alert alert-danger" role="alert">
-				Errors detected when importing new devices!
-			</div>
+				<div class="alert alert-danger fade in" role="alert">
+					<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+					Errors detected when importing new devices!
+				</div>
 			{% endif %}
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-9">
+			<h2 class="text-primary">Device Import Results</h2><br />
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-9">
 			{% if hosts %}
 					<h3>Imported Devices</h3>
 					<table class="table table-striped table-hover table-condensed display">
 						<thead>
   					<tr>
-							<th>Host</th>
-							<th>IP</th>
+							<th>Hostname</th>
+							<th>IP Address</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -31,22 +40,26 @@
 					</tbody>
 				</table>
 			{% endif %}
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-9">
 			{% if errors %}
-			<h3>Errors</h3>
-					<table class="table table-striped table-hover table-condensed display">
-						<thead>
-  					<tr>
-							<th>Host</th>
-							<th>Error</th>
-						</tr>
-						</thead>
-						<tbody>
-					{% for x in errors %}
+				<h4 class="text-danger">Unsuccessful Device Imports</h4>
+				<table class="table table-striped table-hover table-condensed display">
+					<thead>
 						<tr>
-    					<td>{{ x['host'] }}</td>
-    					<td>{{ x['error'] }}</td>
-  					</tr>
-					{% endfor %}
+							<th style="width: 50%">Hostname</th>
+							<th style="width: 50%">Error Message</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for x in errors %}
+							<tr>
+								<td>{{ x['hostname'] }}</td>
+								<td>{{ x['error'] }}</td>
+							</tr>
+						{% endfor %}
 					</tbody>
 				</table>
 			{% endif %}

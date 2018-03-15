@@ -21,12 +21,18 @@ class DataHandler(object):
         """Add host to database.  Returns True if successful."""
         try:
             host = app.models.Host(hostname=hostname, ipv4_addr=ipv4_addr,
-                                   type=type, ios_type=ios_type,
+                                   type=type.capitalize(),
+                                   ios_type=ios_type,
                                    local_creds=local_creds)
             app.db.session.add(host)
             # This enables pulling ID for newly inserted host
             app.db.session.flush()
             app.db.session.commit()
+        except (IntegrityError, InvalidRequestError) as e:
+            app.db.session.rollback()
+            return False, 0, e
+
+        try:
             app.logger.write_log("Added new host %s to database" % (host.hostname))
             return True, host.id, None
         except Exception as e:
@@ -43,32 +49,43 @@ class DataHandler(object):
         errors = []
         hosts = []
         for row in reader:
+            error = {}
+
+            # Input validation checks
             if len(row) < 4:
-                error = {'host': row[0], 'error': "Invalid entry"}
+                error = {'hostname': row[0], 'error': "Invalid number of fields in entry"}
                 errors.append(error)
                 continue
-
-            error = {}
 
             try:
                 IPAddress(row[1])
             except core.AddrFormatError:
-                error = {'host': row[0], 'error': "Invalid IP address"}
+                error = {'hostname': row[0], 'error': "Invalid IP address"}
                 errors.append(error)
-            if row[2].lower() not in ("switch", "router", "firewall"):
-                error = {'host': row[0], 'error': "Invalid device type"}
-                errors.append(error)
-            if row[3].lower() not in ("ios", "ios-xe", "nx-os", "asa"):
-                error = {'host': row[0], 'error': "Invalid IOS type"}
-                errors.append(error)
-
-            # check if we succeed validation for this entry
-            # if we don't pass validation, skip to the next line
-            if error:
                 continue
 
-            ios_type = self.getOSType(row[3].strip())
+            if row[2].lower().strip() not in ("switch", "router", "firewall"):
+                error = {'hostname': row[0], 'error': "Invalid device type"}
+                errors.append(error)
+                continue
 
+            ios_type = self.getOSType(row[3].lower())
+            if ios_type.lower() == "error":
+                error = {'hostname': row[0], 'error': "Invalid OS type"}
+                errors.append(error)
+                continue
+
+            if app.models.Host.query.filter_by(hostname=row[0]).first():
+                error = {'hostname': row[0], 'error': "Duplicate hostname in database"}
+                errors.append(error)
+                continue
+
+            if app.models.Host.query.filter_by(ipv4_addr=row[1]).first():
+                error = {'hostname': row[0], 'error': "Duplicate IPv4 address in database"}
+                errors.append(error)
+                continue
+
+            # Initial validation checks completed successfully. Import into DB
             try:
                 if row[4].strip().lower() == 'true':
                     local_creds = True
@@ -78,20 +95,24 @@ class DataHandler(object):
                 local_creds = False
 
             try:
-                host = app.models.Host(hostname=row[0], ipv4_addr=row[1],
+                # TODO could probably use self.addHostToDB
+                host = app.models.Host(hostname=row[0].strip(),
+                                       ipv4_addr=row[1],
                                        type=row[2].capitalize(),
                                        ios_type=ios_type,
                                        local_creds=local_creds)
                 app.db.session.add(host)
                 app.db.session.flush()
+                # Do this last, as we only want to add the host to var 'hosts' if it was fully successful
                 hosts.append({"id": host.id, "hostname": row[0],
                               "ipv4_addr": row[1]})
-            except (IntegrityError, InvalidRequestError):
-                continue
+            except (IntegrityError, InvalidRequestError) as e:
+                app.db.session.rollback()
 
+        # Only commit once for all hosts added
         try:
             app.db.session.commit()
-        except (IntegrityError, InvalidRequestError):
+        except (IntegrityError, InvalidRequestError) as e:
             app.db.session.rollback()
 
         return hosts, errors
@@ -111,15 +132,16 @@ class DataHandler(object):
             try:
                 r = requests.get(self.url + '/api/dcim/device-types/' + str(os))
             except ConnectionError:
-                return "Error"
+                log_handler.write_log("Connection error trying to connect to " + self.url)
+                return "error"
             if r.status_code == requests.codes.ok:
 
                 try:
-                    os = r.json()['custom_fields']['Netconfig_OS']['label']
+                    os = r.json()['custom_fields']['Netconfig_OS']['label'].strip()
                 except KeyError:
-                    return "Error"
+                    return "error"
             else:
-                return "Error"
+                return "error"
 
         if os == 'ios':
             return "cisco_ios"
@@ -130,7 +152,7 @@ class DataHandler(object):
         elif os == 'asa':
             return "cisco_asa"
         else:
-            return "Error"
+            return "error"
 
     def deleteHostInDB(self, x):
         """Remove host from database.
@@ -171,6 +193,7 @@ class DataHandler(object):
             try:
                 r = requests.get(self.url + '/api/dcim/devices/?limit=0')
             except ConnectionError:
+                log_handler.write_log("Connection error trying to connect to " + self.url)
                 return data
 
             if r.status_code == requests.codes.ok:
@@ -214,6 +237,7 @@ class DataHandler(object):
             try:
                 r = requests.get(self.url + '/api/dcim/devices/' + str(x))
             except ConnectionError:
+                log_handler.write_log("Connection error trying to connect to " + self.url)
                 return None
 
             if r.status_code == requests.codes.ok:
