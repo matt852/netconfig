@@ -21,9 +21,9 @@ class DataHandler(object):
         """Add host to database.  Returns True if successful."""
         try:
             host = app.models.Host(hostname=hostname, ipv4_addr=ipv4_addr,
-                                   type=type.capitalize(),
-                                   ios_type=ios_type,
-                                   local_creds=local_creds)
+                        type=type.capitalize(),
+                        ios_type=ios_type,
+                        local_creds=local_creds)
             app.db.session.add(host)
             # This enables pulling ID for newly inserted host
             app.db.session.flush()
@@ -62,6 +62,7 @@ class DataHandler(object):
                 error = {'hostname': row[0], 'error': "Invalid IP address"}
                 errors.append(error)
                 continue
+
             if row[2].lower().strip() not in ("switch", "router", "firewall"):
                 error = {'hostname': row[0], 'error': "Invalid device type"}
                 errors.append(error)
@@ -73,7 +74,15 @@ class DataHandler(object):
                 errors.append(error)
                 continue
 
-            # TODO check validation with queries against database
+            if app.models.Host.query.filter_by(hostname=row[0]).first():
+                error = {'hostname': row[0], 'error': "Duplicate hostname in database"}
+                errors.append(error)
+                continue
+
+            if app.models.Host.query.filter_by(ipv4_addr=row[1]).first():
+                error = {'hostname': row[0], 'error': "Duplicate IPv4 address in database"}
+                errors.append(error)
+                continue
 
             # Initial validation checks completed successfully. Import into DB
             try:
@@ -87,10 +96,10 @@ class DataHandler(object):
             try:
                 # TODO could probably use self.addHostToDB
                 host = app.models.Host(hostname=row[0].strip(),
-                                        ipv4_addr=row[1],
-                                        type=row[2].capitalize(),
-                                        ios_type=ios_type,
-                                        local_creds=local_creds)
+                                       ipv4_addr=row[1],
+                                       type=row[2].capitalize(),
+                                       ios_type=ios_type,
+                                       local_creds=local_creds)
                 app.db.session.add(host)
                 app.db.session.flush()
                 app.db.session.commit()
@@ -98,22 +107,7 @@ class DataHandler(object):
                 hosts.append({"id": host.id, "hostname": row[0],
                               "ipv4_addr": row[1]})
             except (IntegrityError, InvalidRequestError) as e:
-                # Split error message on spaces
-                if '(sqlite3.IntegrityError) UNIQUE constraint failed' in e.message:
-                    e = e.message.split()
-                    # These if statements needed because the 'hostname' and 'ipv4_addr' fields are set to unique in the database
-                    if e[-1] == "host.hostname":
-                        emsg = "Duplicate hostname - already exists in database"
-                    elif e[-1] == "host.ipv4_addr":
-                        emsg = "Duplicate IP address - already exists in database"
-                    else:
-                        emsg = "Unspecified duplicate field error with device when inserting into database"
-                else:
-                    emsg = "Error when adding device into database"
-                error = {'hostname': row[0], 'error': emsg}
-                errors.append(error)
                 app.db.session.rollback()
-                continue
 
         return hosts, errors
 
