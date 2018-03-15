@@ -943,7 +943,7 @@ def modalSpecificInterfaceOnHost(x, y):
     intConfig, intMacAddr, intStats = host.pull_interface_info(activeSession)
     macToIP = ''
 
-    logger.write_log('viewed interface %s on host %s' % (interface, host.hostname))
+    logger.write_log('viewed interface %s on host %s' % (host.interface, host.hostname))
     return render_template("/viewspecificinterfaceonhost.html",
                            host=host,
                            interface=interface,
