@@ -29,6 +29,7 @@ class DataHandler(object):
             app.db.session.flush()
             app.db.session.commit()
         except (IntegrityError, InvalidRequestError) as e:
+            app.db.session.rollback()
             return False, 0, e
 
         try:
@@ -102,12 +103,17 @@ class DataHandler(object):
                                        local_creds=local_creds)
                 app.db.session.add(host)
                 app.db.session.flush()
-                app.db.session.commit()
                 # Do this last, as we only want to add the host to var 'hosts' if it was fully successful
                 hosts.append({"id": host.id, "hostname": row[0],
                               "ipv4_addr": row[1]})
             except (IntegrityError, InvalidRequestError) as e:
                 app.db.session.rollback()
+
+        # Only commit once for all hosts added
+        try:
+            app.db.session.commit()
+        except (IntegrityError, InvalidRequestError) as e:
+            app.db.session.rollback()
 
         return hosts, errors
 
