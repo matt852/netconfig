@@ -19,10 +19,8 @@ class TestDataHandler(unittest.TestCase):
         db.create_all()
 
     def test_addHostToDB(self):
-        """
-        Test adding a host to the database is successful
-        """
-        b, h_id, err = self.datahandler.addHostToDB("test", "192.168.56.2",
+        """Test adding a host to the database is successful."""
+        b, h_id, err = self.datahandler.addHostToDB("test", "192.168.1.5",
                                                     "switch", "cisco_ios",
                                                     False)
         assert b is True
@@ -33,7 +31,7 @@ class TestDataHandler(unittest.TestCase):
 11Test,10.0.1.2,Router,IOS-XE,False
 12Test,10.0.1.3,Firewall,ASA
 13Test,10.0.1.4,Switch
-14Test,10.0.1.5,blah
+14Test,10.0.1.5,blah,Router
 15Test,10.0.1.6,Switch,OSS
 16Test,10.0.1.7
 17Test,10.500.999.8,Switch,IOS,False
@@ -54,12 +52,20 @@ class TestDataHandler(unittest.TestCase):
                         'id': 5},
                         {'hostname': '20Test', 'ipv4_addr': '10.0.1.9',
                         'id': 6}]
-        err_expect = [{'host': '13Test', 'error': 'Invalid entry'},
-                      {'host': '14Test', 'error': 'Invalid entry'},
-                      {'host': '15Test', 'error': 'Invalid OS type'},
-                      {'host': '16Test', 'error': 'Invalid entry'},
-                      {'host': '17Test', 'error': 'Invalid IP address'}]
+        err_expect = [{'hostname': '13Test', 'error': 'Invalid number of fields in entry'},
+                      {'hostname': '14Test', 'error': 'Invalid device type'},
+                      {'hostname': '15Test', 'error': 'Invalid OS type'},
+                      {'hostname': '16Test', 'error': 'Invalid number of fields in entry'},
+                      {'hostname': '17Test', 'error': 'Invalid IP address'}]
+                      #{'hostname': '18Test', 'error': 'Duplicate hostname - already exists in database'} <---need to test
+                      #{'hostname': '18Test', 'error': 'Duplicate IP address - already exists in database'} <---need to test
 
         hosts_result, err_result = self.datahandler.importHostsToDB(csv_data)
-        assert hosts_expect == hosts_result
-        assert err_expect == err_result
+        for x, y in zip(hosts_expect, hosts_result):
+            self.assertEqual(x['hostname'], y['hostname'])
+            self.assertEqual(x['ipv4_addr'], y['ipv4_addr'])
+            self.assertEqual(x['id'], y['id'])
+
+        for x, y in zip(err_expect, err_result):
+            self.assertEqual(x['hostname'], y['hostname'])
+            self.assertEqual(x['error'], y['error'])

@@ -22,7 +22,7 @@ class DataHandler(object):
         try:
             host = app.models.Host(hostname=hostname, ipv4_addr=ipv4_addr,
                                    type=type.capitalize(),
-                                   ios_type=ios_type.capitalize(),
+                                   ios_type=ios_type,
                                    local_creds=local_creds)
             app.db.session.add(host)
             # This enables pulling ID for newly inserted host
@@ -48,60 +48,72 @@ class DataHandler(object):
         errors = []
         hosts = []
         for row in reader:
+            error = {}
+
+            # Input validation checks
             if len(row) < 4:
-                error = {'host': row[0], 'error': "Invalid entry"}
+                error = {'hostname': row[0], 'error': "Invalid number of fields in entry"}
                 errors.append(error)
                 continue
-
-            error = {}
 
             try:
                 IPAddress(row[1])
             except core.AddrFormatError:
-                error = {'host': row[0], 'error': "Invalid IP address"}
+                error = {'hostname': row[0], 'error': "Invalid IP address"}
                 errors.append(error)
+                continue
             if row[2].lower().strip() not in ("switch", "router", "firewall"):
-                error = {'host': row[0], 'error': "Invalid device type"}
+                error = {'hostname': row[0], 'error': "Invalid device type"}
                 errors.append(error)
+                continue
 
             ios_type = self.getOSType(row[3].lower())
             if ios_type.lower() == "error":
-                error = {'host': row[0], 'error': "Invalid OS type"}
+                error = {'hostname': row[0], 'error': "Invalid OS type"}
                 errors.append(error)
-
-            # check if we succeed validation for this entry
-            # if we don't pass validation, skip to the next line
-            if error:
                 continue
-            else:
 
-                try:
-                    if row[4].strip().lower() == 'true':
-                        local_creds = True
-                    else:
-                        local_creds = False
-                except IndexError:
+            # TODO check validation with queries against database
+
+            # Initial validation checks completed successfully. Import into DB
+            try:
+                if row[4].strip().lower() == 'true':
+                    local_creds = True
+                else:
                     local_creds = False
-
-                try:
-
-                    # TODO could probably use self.addHostToDB
-                    host = app.models.Host(hostname=row[0].strip(),
-                                           ipv4_addr=row[1],
-                                           type=row[2].capitalize(),
-                                           ios_type=ios_type.capitalize(),
-                                           local_creds=local_creds)
-                    app.db.session.add(host)
-                    app.db.session.flush()
-                    hosts.append({"id": host.id, "hostname": row[0],
-                                  "ipv4_addr": row[1]})
-                except (IntegrityError, InvalidRequestError):
-                    continue
+            except IndexError:
+                local_creds = False
 
             try:
+                # TODO could probably use self.addHostToDB
+                host = app.models.Host(hostname=row[0].strip(),
+                                        ipv4_addr=row[1],
+                                        type=row[2].capitalize(),
+                                        ios_type=ios_type,
+                                        local_creds=local_creds)
+                app.db.session.add(host)
+                app.db.session.flush()
                 app.db.session.commit()
-            except (IntegrityError, InvalidRequestError):
+                # Do this last, as we only want to add the host to var 'hosts' if it was fully successful
+                hosts.append({"id": host.id, "hostname": row[0],
+                              "ipv4_addr": row[1]})
+            except (IntegrityError, InvalidRequestError) as e:
+                # Split error message on spaces
+                if '(sqlite3.IntegrityError) UNIQUE constraint failed' in e.message:
+                    e = e.message.split()
+                    # These if statements needed because the 'hostname' and 'ipv4_addr' fields are set to unique in the database
+                    if e[-1] == "host.hostname":
+                        emsg = "Duplicate hostname - already exists in database"
+                    elif e[-1] == "host.ipv4_addr":
+                        emsg = "Duplicate IP address - already exists in database"
+                    else:
+                        emsg = "Unspecified duplicate field error with device when inserting into database"
+                else:
+                    emsg = "Error when adding device into database"
+                error = {'hostname': row[0], 'error': emsg}
+                errors.append(error)
                 app.db.session.rollback()
+                continue
 
         return hosts, errors
 
