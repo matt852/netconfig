@@ -13,7 +13,7 @@
 
             				<p>Are you sure you want to enable interface <strong>{{ interface }}</strong>?</p>
             				<p>The following commands will be executed:</p>
-    				
+
 <pre><code>{{ host.get_cmd_enter_configuration_mode() }}
 &nbsp;interface {{ interface }}
 &nbsp;&nbsp;{{ host.get_cmd_enable_interface() }}
@@ -22,7 +22,7 @@
         					<div class="text-right">
                         		{% set ifaceURL = interface|replace('/','_') %}
                         		<a href="/results/resultsinterfaceenabled/{{ host.id }}/{{ ifaceURL }}" class="btn btn-danger">Confirm</a>
-                        		<a href="/db/viewhosts/{{ host.id }}" class="btn btn-default">Cancel</a>
+                        		<a href="{{ url_for('viewSpecificHost', x=host.id)}}" class="btn btn-default">Cancel</a>
                     		</div>
                         </div>
                 	</div>

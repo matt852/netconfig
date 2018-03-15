@@ -30,7 +30,7 @@
 
                     <div class="text-right">
                         <a href="/results/resultscfgcmdcustom" class="btn btn-danger">Confirm</a>
-                        <a href="/db/viewhosts/{{ session['HOSTID'] }}" class="btn btn-default">Cancel</a>
+                        <a href="{{ url_for('viewSpecificHost', x=session['HOSTID'])}}" class="btn btn-default">Cancel</a>
                     </div>
                 </div>
             </div>

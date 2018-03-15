@@ -13,7 +13,7 @@
 				<p>Are you sure you want to delete host <strong>{{ host.hostname }}</strong> from the database?</p>
 					<div class="text-right">
                 		<a href="/results/resultshostdeleted/{{ host.id }}" class="btn btn-danger">Confirm</a>
-                		<a href="/db/viewhosts" class="btn btn-default">Cancel</a>
+                		<a href="{{ url_for('viewHosts')}}" class="btn btn-default">Cancel</a>
             		</div>
             	</div>
            	</div>

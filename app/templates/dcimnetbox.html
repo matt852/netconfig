@@ -31,7 +31,7 @@
 				    <tbody>
 						{% for host in hosts %}
 							<tr>
-								<td><a href="/db/viewhosts/{{ host['id'] }}">{{ host['name'] }}</a></td>
+								<td><a href="{{ url_for('viewSpecificHost', x=host['id'])}}">{{ host['name'] }}</a></td>
 							    <td>{{ host['primary_ip']['address'] }}</td>
 							    <td>{{ host['device_type']['manufacturer']['name'] }}</td>
 							    <td>{{ host['device_type']['model'] }}</td>

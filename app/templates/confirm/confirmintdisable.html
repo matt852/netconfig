@@ -22,7 +22,7 @@
 				            <div class="text-right">
                         		{% set ifaceURL = interface|replace('/','_') %}
                         		<a href="/results/resultsinterfacedisabled/{{ host.id }}/{{ ifaceURL }}" class="btn btn-danger">Confirm</a>
-                        		<a href="/db/viewhosts/{{ host.id }}" class="btn btn-default">Cancel</a>
+                        		<a href="{{ url_for('viewSpecificHost', x=host.id)}}" class="btn btn-default">Cancel</a>
                             </div>
                 		</div>
                 	</div>
