@@ -21,9 +21,9 @@ class DataHandler(object):
         """Add host to database.  Returns True if successful."""
         try:
             host = app.models.Host(hostname=hostname, ipv4_addr=ipv4_addr,
-                        type=type.capitalize(),
-                        ios_type=ios_type,
-                        local_creds=local_creds)
+                                   type=type.capitalize(),
+                                   ios_type=ios_type,
+                                   local_creds=local_creds)
             app.db.session.add(host)
             # This enables pulling ID for newly inserted host
             app.db.session.flush()
