@@ -21,11 +21,11 @@
               Network <b class="caret"></b>
             </a>
             <ul class="dropdown-menu" role="menu">
-              <li><a href="/db/viewhosts">View Devices</a></li>
+              <li><a href="{{ url_for('viewHosts')}}">View Devices</a></li>
               {% if config.DATALOCATION == 'local' %}
                 <li class="divider"></li>
-                <li><a href="/db/addhosts">Add Device</a></li>
-                <li><a href="/db/importhosts">Import Devices</a></li>
+                <li><a href="{{ url_for('addHosts')}}">Add Device</a></li>
+                <li><a href="{{ url_for('importHosts')}}">Import Devices</a></li>
               {% endif %}
             </ul>
           </li>
@@ -34,7 +34,7 @@
               Settings <b class="caret"></b>
             </a>
             <ul class="dropdown-menu" role="menu">
-              <li><a href="/editsettings">View Settings</a></li>
+              <li><a href="{{ url_for('editSettings')}}">View Settings</a></li>
             </ul>
           </li>
           <li class="dropdown">
@@ -64,11 +64,11 @@
             {% if session['USER'] %}
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" title="{{ session['USER'] }}" role="button" aria-haspopup="true" aria-expanded="false">{{ session['USER'] }} <b class="caret"></b></a>
               <ul class="dropdown-menu">
-                <li><a href="/disconnectAllSSH">Close Active SSH Sessions (<span id="activeSSHSessionCount"></span>)</a></li>
-                <li><a href="/logout">Logout</a></li>
+                <li><a href="{{ url_for('disconnectAllSSH')}}">Close Active SSH Sessions (<span id="activeSSHSessionCount"></span>)</a></li>
+                <li><a href="{{ url_for('logout')}}">Logout</a></li>
               </ul>
             {% else %}
-              <a href="/login">Login</a>
+              <a href="{{ url_for('login')}}">Login</a>
             {% endif %}
           </li>
         </ul>

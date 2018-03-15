@@ -7,8 +7,8 @@
 	<div class="row">
     	<div class="col-md-8">
     		<div class="pull-right">
-				<a href="/db/addhosts" class="btn btn-success" title="Add device to the local database"><i class="fa fa-plus"></i> Add Device</a>
-                <a href="/db/importhosts" class="btn btn-info"><i class="glyphicon glyphicon-info-sign" aria-hidden="true"></i> Import Devices</a>
+				<a href="{{ url_for('addHosts')}}" class="btn btn-success" title="Add device to the local database"><i class="fa fa-plus"></i> Add Device</a>
+        <a href="{{ url_for('importHosts')}}" class="btn btn-info"><i class="glyphicon glyphicon-info-sign" aria-hidden="true"></i> Import Devices</a>
 				<button id="btnDeleteDevices" class="btn btn-danger" title="Delete devices from the local database"><i class="glyphicon glyphicon-ban-circle" aria-hidden="true"></i> Delete Devices</button>
 			</div>
 		</div>
@@ -39,7 +39,7 @@
 									{% if host['local_creds'] %}
 										<td id="tdDevice"><a href="modalLocalCredentials" data-toggle="modal" data-target="#modalLocalCredentials" data-hostid="{{ host['id'] }}" data-hostname="{{ host.hostname }}"  onclick="loading();return false;">{{ host.hostname }}</a></td>
 									{% else %}
-										<td><a href="/db/viewhosts/{{ host['id'] }}">{{ host['hostname'] }}</a></td>
+										<td><a href="{{ url_for('viewSpecificHost', x=host['id'])}}">{{ host['hostname'] }}</a></td>
 									{% endif %}
 							    <td>{{ host['ipv4_addr'] }}</td>
 							    <td>{{ host['type'] }}</td>
@@ -47,8 +47,8 @@
 
 							    <td class="text-center">
 									{% if host['source'] == "local" %}
-										<a href="/edithost/{{ host['id'] }}" class="btn btn-xs btn-warning" title="Edit Device"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
-							    	<a href="/confirm/confirmhostdelete/{{ host['id'] }}" class="btn btn-xs btn-danger" title="Delete Device"><i class="glyphicon glyphicon-ban-circle" aria-hidden="true"></i></a>
+										<a href="{{ url_for('editHost', x=host['id'])}}" class="btn btn-xs btn-warning" title="Edit Device"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
+							    	<a href="{{ url_for('confirmHostDelete', x=host['id'])}}" class="btn btn-xs btn-danger" title="Delete Device"><i class="glyphicon glyphicon-ban-circle" aria-hidden="true"></i></a>
 									{% elif host['source'] == "netbox" %}
 										<a href="{{ config.NETBOXSERVER }}/dcim/devices/{{ host['id'] }}" class="btn btn-xs btn-info" title="Open Device in Netbox" target="_blank"><i class="glyphicon glyphicon-search" aria-hidden="true"></i></a>
 										<a href="{{ config.NETBOXSERVER }}/dcim/devices/{{ host['id'] }}/edit" class="btn btn-xs btn-warning" title="Edit Device in Netbox" target="_blank"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>

@@ -30,13 +30,13 @@
 					{% endif %}
 				{% endfor %}
 			</code>
-			
+
 		</div>
 	</div>
 	<div class="row">
 		<div class="col-md-9">
 			<div class="text-right">
-				<a href="/db/viewhosts/{{ host.id }}" class="btn btn-success">Return To Host</a>
+				<a href="{{ url_for('viewSpecificHost', x=host.id)}}" class="btn btn-success">Return To Host</a>
 			</div>
 		</div>
 	</div>

@@ -9,9 +9,9 @@
 	<div class="row">
 		<div class="col-md-8">
 			<div class="pull-right">
-				<a href="/db/viewhosts" class="btn btn-primary">View Host List</a>
-				<a href="/edithost/{{ host.id }}" class="btn btn-info">Edit Host</a>
-				<a href="/confirm/confirmhostdelete/{{ host.id }}" class="btn btn-danger" title="Delete Host">Delete Host</a>
+				<a href="{{ url_for('viewHosts')}}" class="btn btn-primary">View Host List</a>
+				<a href="{{ url_for('editHost', x=host.id)}}" class="btn btn-info">Edit Host</a>
+				<a href="{{ url_for('confirmHostDelete', x=host.id)}}" class="btn btn-danger" title="Delete Host">Delete Host</a>
 			</div>
 		</div>
 	</div>

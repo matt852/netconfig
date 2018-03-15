@@ -20,14 +20,14 @@
 							<th>Host</th>
 							<th>IP</th>
 						</tr>
-						</thead>
-						<tbody>
-					{% for host in hosts %}
-						<tr>
-    					<td><a href="/db/viewhosts/{{ host['id'] }}">{{ host['hostname'] }}</a></td>
-    					<td>{{ host['ipv4_addr'] }}</td>
-  					</tr>
-					{% endfor %}
+					</thead>
+					<tbody>
+						{% for host in hosts %}
+							<tr>
+								<td><a href="{{ url_for('viewSpecificHost', x=host['id'])}}">{{ host['hostname'] }}</a></td>
+								<td>{{ host['ipv4_addr'] }}</td>
+							</tr>
+						{% endfor %}
 					</tbody>
 				</table>
 			{% endif %}
@@ -55,7 +55,7 @@
 	<div class="row">
 		<div class="col-md-9">
 			<div class="text-right">
-				<a href="/db/viewhosts" class="btn btn-primary">View host list</a>
+				<a href="{{ url_for('viewHosts') }}" class="btn btn-primary">View host list</a>
 			</div>
 		</div>
 	</div>

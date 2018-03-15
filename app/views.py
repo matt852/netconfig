@@ -373,73 +373,65 @@ def displayRecentDeviceNames():
                            hosts=hosts)
 
 
-@app.route('/db/addhosts', methods=['GET', 'POST'])
+@app.route('/hosts/add', methods=['GET', 'POST'])
 def addHosts():
     """Add new device to local database."""
     initialChecks()
     form = AddHostForm()
-    if form.validate_on_submit():
-        return redirect(url_for('resultsAddHost'))
-    return render_template('/db/addhosts.html',
-                           title='Add hosts to database',
-                           form=form)
+    if request.method == "GET":
+        return render_template('/db/addhosts.html',
+                               title='Add hosts to database',
+                               form=form)
+    elif request.method == "POST":
+        if form.validate_on_submit():
+            hostname = request.form['hostname']
+            ipv4_addr = request.form['ipv4_addr']
+            hosttype = request.form['hosttype']
+            ios_type = request.form['ios_type']
+            local_creds = request.form['local_creds']
+
+            if 'local_creds' in request.form:
+                local_creds = True
+            else:
+                local_creds = False
+
+            response, hostid, e = datahandler.addHostToDB(hostname, ipv4_addr,
+                                                          hosttype, ios_type,
+                                                          local_creds)
+            if response:
+                return render_template("/results/resultsaddhost.html",
+                                       title='Add host result',
+                                       hostname=hostname,
+                                       ipv4_addr=ipv4_addr,
+                                       hosttype=hosttype,
+                                       ios_type=ios_type,
+                                       local_creds=local_creds,
+                                       hostid=hostid)
+            else:
+                logger.write_log('exception thrown when adding new host to database: %s' % (e))
+                render_template('/db/addhosts.html',
+                                title='Add hosts to database', form=form)
 
 
-@app.route('/results/resultsaddhost', methods=['GET', 'POST'])
-def resultsAddHost():
-    """Confirm new host details prior to saving in local database."""
-    initialChecks()
-    hostname = request.form['hostname']
-    ipv4_addr = request.form['ipv4_addr']
-    hosttype = request.form['hosttype']
-    ios_type = request.form['ios_type']
-    # If checkbox is unchecked, this fails as the request.form['local_creds'] value returned is False
-    try:
-        if request.form['local_creds']:
-            local_creds = True
-    except:
-        local_creds = False
-
-    response, hostid, e = datahandler.addHostToDB(hostname, ipv4_addr, hosttype, ios_type, local_creds)
-    if response:
-        return render_template("/results/resultsaddhost.html",
-                               title='Add host result',
-                               hostname=hostname,
-                               ipv4_addr=ipv4_addr,
-                               hosttype=hosttype,
-                               ios_type=ios_type,
-                               local_creds=local_creds,
-                               hostid=hostid)
-    else:
-        logger.write_log('exception thrown when adding new host to database: %s' % (e))
-        # TO-DO Add popup error message here
-        return redirect(url_for('addHosts'))
-
-
-@app.route('/db/importhosts', methods=['GET', 'POST'])
+@app.route('/hosts/import', methods=['GET', 'POST'])
 def importHosts():
     """Import devices into local database via CSV formatted text."""
     initialChecks()
     form = ImportHostsForm()
-    if form.validate_on_submit():
-        return redirect(url_for('resultsImportHosts'))
-    return render_template('/db/importhosts.html',
-                           title='Import hosts to database via CSV',
-                           form=form)
+    if request.method == "GET":
+        return render_template('/db/importhosts.html',
+                               title='Import hosts to database via CSV',
+                               form=form)
+    elif request.method == "POST":
+        # if form.validate_on_submit():
+        hosts, errors = datahandler.importHostsToDB(request.form['csvimport'])
+        return render_template("/results/resultsimporthosts.html",
+                               title='Import devices result',
+                               hosts=hosts,
+                               errors=errors)
 
 
-@app.route('/results/resultsimporthosts', methods=['GET', 'POST'])
-def resultsImportHosts():
-    """Confirm CSV import device details prior to saving to local database."""
-    initialChecks()
-    hosts, errors = datahandler.importHostsToDB(request.form['csvimport'])
-    return render_template("/results/resultsimporthosts.html",
-                           title='Import devices result',
-                           hosts=hosts,
-                           errors=errors)
-
-
-@app.route('/edithost/<x>', methods=['GET'])
+@app.route('/host/edit/<x>', methods=['GET'])
 def editHost(x):
     """Edit device details in local database.
 
@@ -448,7 +440,7 @@ def editHost(x):
     host = datahandler.getHostByID(x)
     form = EditHostForm()
     if form.validate_on_submit():
-        return redirect('/results/resultshostedit')
+        return redirect(url_for('resultsHostEdit'))
     return render_template('/edithost.html',
                            title='Edit host in database',
                            id=x,
@@ -500,7 +492,7 @@ def resultsMultipleHostDelete(x):
 
 
 # Shows all hosts in database
-@app.route('/db/viewhosts')
+@app.route('/hosts/view')
 def viewHosts():
     """Display all devices."""
     logger.write_log('viewed all hosts')
@@ -526,7 +518,7 @@ def deviceUptime(x):
     return jsonify(host.pull_device_uptime(activeSession))
 
 
-@app.route('/db/viewhosts/<x>', methods=['GET', 'POST'])
+@app.route('/hosts/view/<x>')
 def viewSpecificHost(x):
     """Display specific device page.
 
@@ -979,7 +971,7 @@ def modalEditInterfaceOnHost(x):
 
     if form.validate_on_submit():
         flash('Interface to edit - "%s"' % (host.interface))
-        return redirect('/confirm/confirmintedit')
+        return redirect(url_for('confirmIntEdit'))
 
     return render_template("/editinterface.html",
                            hostid=host.id,
@@ -999,7 +991,7 @@ def modalLocalCredentials(x):
     host = datahandler.getHostByID(x)
 
     if checkHostActiveSSHSession(host):
-        return redirect('/db/viewhosts/%s' % (host.id))
+        return redirect(url_for('viewHosts', x=host.id))
 
     form = LocalCredentialsForm()
     logger.write_log('saved local credentials for host %s' % (host.hostname))
@@ -1009,7 +1001,6 @@ def modalLocalCredentials(x):
                            host=host)
 
 
-@app.route('/modalcmdshowrunconfig/', methods=['GET', 'POST'])
 @app.route('/modalcmdshowrunconfig/<x>', methods=['GET', 'POST'])
 def modalCmdShowRunConfig(x):
     """Display modal with active/running configuration settings on device.
@@ -1394,7 +1385,7 @@ def resultsMultiIntEdit(x, y):
 # Settings #
 ############
 
-@app.route('/editsettings', methods=['GET', 'POST'])
+@app.route('/settings/edit', methods=['GET', 'POST'])
 def editSettings():
     """Modify Netconfig settings."""
     initialChecks()

@@ -7,7 +7,7 @@
 	<div class="row">
     	<div class="col-md-9">
 			<h2 class="text-primary">Add New Device to Database</h2>
-			<form action="{{ url_for('resultsAddHost') }}" method="post" name="addhosts">
+			<form action="{{ url_for('addHosts') }}" method="post" name="addhosts">
 			    {{ form.hidden_tag() }}
 			    <p>
 			        Please enter the device hostname:<br />
