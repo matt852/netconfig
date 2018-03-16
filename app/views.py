@@ -388,7 +388,6 @@ def addHosts():
             ipv4_addr = request.form['ipv4_addr']
             hosttype = request.form['hosttype']
             ios_type = request.form['ios_type']
-            local_creds = request.form['local_creds']
 
             if 'local_creds' in request.form:
                 local_creds = True
@@ -431,7 +430,7 @@ def importHosts():
                                errors=errors)
 
 
-@app.route('/host/edit/<x>', methods=['GET'])
+@app.route('/host/edit/<int:x>', methods=['GET'])
 def editHost(x):
     """Edit device details in local database.
 
@@ -441,10 +440,9 @@ def editHost(x):
     form = EditHostForm()
     if form.validate_on_submit():
         return redirect(url_for('resultsHostEdit'))
-    return render_template('/edithost.html',
+    return render_template('/db/edithost.html',
                            title='Edit host in database',
-                           id=x,
-                           originalHost=host.hostname,
+                           host=host,
                            form=form)
 
 
@@ -492,6 +490,7 @@ def resultsMultipleHostDelete(x):
 
 
 # Shows all hosts in database
+@app.route('/hosts')
 @app.route('/hosts/view')
 def viewHosts():
     """Display all devices."""
@@ -503,20 +502,6 @@ def viewHosts():
     return render_template('/db/viewhosts.html',
                            hosts=hosts,
                            title='View hosts in database')
-
-
-@app.route('/deviceuptime/<x>')
-def deviceUptime(x):
-    """Get uptime of selected device.
-
-    x = host id.
-    """
-    initialChecks()
-    host = datahandler.getHostByID(x)
-    activeSession = retrieveSSHSession(host)
-    logger.write_log('retrieved uptime on host %s' % (host.hostname))
-    return jsonify(host.pull_device_uptime(activeSession))
-
 
 @app.route('/hosts/view/<x>')
 def viewSpecificHost(x):
@@ -571,6 +556,19 @@ def viewSpecificHost(x):
         disconnectSpecificSSHSession(host)
         return redirect(url_for('noHostConnectError',
                                 host=host))
+
+
+@app.route('/deviceuptime/<x>')
+def deviceUptime(x):
+    """Get uptime of selected device.
+
+    x = host id.
+    """
+    initialChecks()
+    host = datahandler.getHostByID(x)
+    activeSession = retrieveSSHSession(host)
+    logger.write_log('retrieved uptime on host %s' % (host.hostname))
+    return jsonify(host.pull_device_uptime(activeSession))
 
 
 @app.route('/calldisconnectspecificsshsession/<x>')
@@ -668,7 +666,6 @@ def confirmIntEdit():
                            otherEncoded=otherEncoded)
 
 
-@app.route('/results/resultshostedit/', methods=['GET', 'POST'])
 @app.route('/results/resultshostedit/<x>', methods=['GET', 'POST'])
 def resultsHostEdit(x):
     """Confirm settings to edit host with in local database.
@@ -761,7 +758,7 @@ def confirmCfgCmdCustom():
 #################
 
 
-@app.route('/results/resultsinterfaceenabled/<x>/<y>', methods=['GET', 'POST'])
+@app.route('/results/resultsinterfaceenabled/<int:x>/<y>')
 def resultsIntEnabled(x, y):
     """Display results for enabling specific interface.
 
@@ -782,7 +779,7 @@ def resultsIntEnabled(x, y):
                            host=host, interface=y, result=result)
 
 
-@app.route('/results/resultsinterfacedisabled/<x>/<y>', methods=['GET', 'POST'])
+@app.route('/results/resultsinterfacedisabled/<int:x>/<y>')
 def resultsIntDisabled(x, y):
     """Display results for disabling specific interface.
 
@@ -803,7 +800,7 @@ def resultsIntDisabled(x, y):
                            host=host, interface=y, result=result)
 
 
-@app.route('/results/resultsinterfaceedit/<x>/<datavlan>/<voicevlan>/<other>', methods=['GET', 'POST'])
+@app.route('/results/resultsinterfaceedit/<int:x>/<datavlan>/<voicevlan>/<other>', methods=['GET', 'POST'])
 def resultsIntEdit(x, datavlan, voicevlan, other):
     """Display results for editing specific interface config settings.
 
@@ -839,7 +836,7 @@ def resultsIntEdit(x, datavlan, voicevlan, other):
                            voicevlan=voicevlan, other=other, result=result)
 
 
-@app.route('/results/resultshostdeleted/<x>', methods=['GET', 'POST'])
+@app.route('/results/resultshostdeleted/<int:x>')
 def resultsHostDeleted(x):
     """Display results for deleting device from local database.
 
@@ -859,7 +856,7 @@ def resultsHostDeleted(x):
         return redirect(url_for('index'))
 
 
-@app.route('/results/resultscmdcustom/', methods=['GET', 'POST'])
+@app.route('/results/resultscmdcustom/')
 def resultsCmdCustom():
     """Display results from bulk command execution on device."""
     initialChecks()
@@ -883,7 +880,7 @@ def resultsCmdCustom():
                            result=result)
 
 
-@app.route('/results/resultscfgcmdcustom/', methods=['GET', 'POST'])
+@app.route('/results/resultscfgcmdcustom/')
 def resultsCfgCmdCustom():
     """Display results from bulk configuration command execution on device."""
     initialChecks()
@@ -912,9 +909,7 @@ def resultsCfgCmdCustom():
 # Modal pages #
 ###############
 
-
-@app.route('/modalinterface/', methods=['GET', 'POST'])
-@app.route('/modalinterface/<x>/<y>', methods=['GET', 'POST'])
+@app.route('/modalinterface/<int:x>/<y>')
 def modalSpecificInterfaceOnHost(x, y):
     """Show specific interface details from device.
 
@@ -945,7 +940,7 @@ def modalSpecificInterfaceOnHost(x, y):
                            intStats=intStats)
 
 
-@app.route('/modaleditinterface/<x>', methods=['GET', 'POST'])
+@app.route('/modaleditinterface/<int:x>')
 def modalEditInterfaceOnHost(x):
     """Display modal to edit specific interface on device.
 
@@ -980,7 +975,7 @@ def modalEditInterfaceOnHost(x):
                            form=form)
 
 
-@app.route('/modallocalcredentials/<x>', methods=['GET', 'POST'])
+@app.route('/modallocalcredentials/<int:x>')
 def modalLocalCredentials(x):
     """Get local credentials from user.
 
@@ -1001,7 +996,7 @@ def modalLocalCredentials(x):
                            host=host)
 
 
-@app.route('/modalcmdshowrunconfig/<x>', methods=['GET', 'POST'])
+@app.route('/modalcmdshowrunconfig/<int:x>')
 def modalCmdShowRunConfig(x):
     """Display modal with active/running configuration settings on device.
 
@@ -1018,8 +1013,7 @@ def modalCmdShowRunConfig(x):
                            hostConfig=hostConfig)
 
 
-@app.route('/modalcmdshowstartconfig/', methods=['GET', 'POST'])
-@app.route('/modalcmdshowstartconfig/<x>', methods=['GET', 'POST'])
+@app.route('/modalcmdshowstartconfig/<int:x>')
 def modalCmdShowStartConfig(x):
     """Display modal with saved/stored configuration settings on device.
 
@@ -1036,8 +1030,7 @@ def modalCmdShowStartConfig(x):
                            hostConfig=hostConfig)
 
 
-@app.route('/modalcmdshowcdpneigh/', methods=['GET', 'POST'])
-@app.route('/modalcmdshowcdpneigh/<x>', methods=['GET', 'POST'])
+@app.route('/modalcmdshowcdpneigh/<int:x>')
 def modalCmdShowCDPNeigh(x):
     """Display modal with CDP/LLDP neighbors info for device.
 
@@ -1054,8 +1047,7 @@ def modalCmdShowCDPNeigh(x):
                            neigh=neigh)
 
 
-@app.route('/modalcmdshowinventory/', methods=['GET', 'POST'])
-@app.route('/modalcmdshowinventory/<x>', methods=['GET', 'POST'])
+@app.route('/modalcmdshowinventory/<int:x>')
 def modalCmdShowInventory(x):
     """Display modal with device inventory information.
 
@@ -1073,8 +1065,7 @@ def modalCmdShowInventory(x):
                            result=result)
 
 
-@app.route('/modalcmdshowversion/', methods=['GET', 'POST'])
-@app.route('/modalcmdshowversion/<x>', methods=['GET', 'POST'])
+@app.route('/modalcmdshowversion/<int:x>')
 def modalCmdShowVersion(x):
     """Display modal with device version information.
 
@@ -1092,7 +1083,7 @@ def modalCmdShowVersion(x):
                            result=result)
 
 
-@app.route('/modalcmdcustom/<x>', methods=['GET', 'POST'])
+@app.route('/modalcmdcustom/<int:x>')
 def modalCmdCustom(x):
     """Display modal to retrieve custom bulk commands to execute.
 
@@ -1110,7 +1101,7 @@ def modalCmdCustom(x):
                            form=form)
 
 
-@app.route('/modalcfgcmdcustom/<x>', methods=['GET', 'POST'])
+@app.route('/modalcfgcmdcustom/<int:x>')
 def modalCfgCmdCustom(x):
     """Display modal to retrieve custom bulk config commands to execute.
 
@@ -1128,7 +1119,7 @@ def modalCfgCmdCustom(x):
                            form=form)
 
 
-@app.route('/modalcmdsaveconfig/<x>', methods=['GET', 'POST'])
+@app.route('/modalcmdsaveconfig/<int:x>', methods=['GET', 'POST'])
 def modalCmdSaveConfig(x):
     """Save device configuration to memory and display result in modal.
 
@@ -1145,7 +1136,7 @@ def modalCmdSaveConfig(x):
                            host=host)
 
 
-@app.route('/db/viewhosts/hostshell/<x>', methods=['GET', 'POST'])
+@app.route('/db/viewhosts/hostshell/<int:x>', methods=['GET', 'POST'])
 def hostShell(x):
     """Display iShell input fields.
 
@@ -1163,7 +1154,7 @@ def hostShell(x):
                            host=host)
 
 
-@app.route('/hostshelloutput/<x>/<m>/<y>', methods=['GET', 'POST'])
+@app.route('/hostshelloutput/<int:x>/<m>/<y>', methods=['GET', 'POST'])
 def hostShellOutput(x, m, y):
     """Display iShell output fields.
 
@@ -1217,7 +1208,7 @@ def hostShellOutput(x, m, y):
                            configError=configError)
 
 
-@app.route('/enterconfigmode/<x>', methods=['GET', 'POST'])
+@app.route('/enterconfigmode/<int:x>', methods=['GET', 'POST'])
 def enterConfigMode(x):
     """Enter device configuration mode.
 
@@ -1233,7 +1224,7 @@ def enterConfigMode(x):
     return ('', 204)
 
 
-@app.route('/exitconfigmode/<x>', methods=['GET', 'POST'])
+@app.route('/exitconfigmode/<int:x>', methods=['GET', 'POST'])
 def exitConfigMode(x):
     """Exit device configuration mode.
 
@@ -1255,7 +1246,7 @@ def exitConfigMode(x):
 #######################################
 
 
-@app.route('/confirm/confirmmultipleintenable/<x>/<y>', methods=['GET', 'POST'])
+@app.route('/confirm/confirmmultipleintenable/<int:x>/<y>', methods=['GET', 'POST'])
 def confirmMultiIntEnable(x, y):
     """Confirm enabling multiple device interfaces.
 
@@ -1268,7 +1259,7 @@ def confirmMultiIntEnable(x, y):
                            interfaces=y)
 
 
-@app.route('/confirm/confirmmultipleintdisable/<x>/<y>', methods=['GET', 'POST'])
+@app.route('/confirm/confirmmultipleintdisable/<int:x>/<y>', methods=['GET', 'POST'])
 def confirmMultiIntDisable(x, y):
     """Confirm disabling multiple device interfaces.
 
@@ -1281,7 +1272,7 @@ def confirmMultiIntDisable(x, y):
                            interfaces=y)
 
 
-@app.route('/confirm/confirmmultipleintedit/<x>/<y>', methods=['GET', 'POST'])
+@app.route('/confirm/confirmmultipleintedit/<int:x>/<y>', methods=['GET', 'POST'])
 def confirmMultiIntEdit(x, y):
     """Confirm editing multiple device interfaces.  WIP.
 
@@ -1294,7 +1285,7 @@ def confirmMultiIntEdit(x, y):
                            interfaces=y)
 
 
-@app.route('/results/resultsmultipleintenabled/<x>/<y>', methods=['GET', 'POST'])
+@app.route('/results/resultsmultipleintenabled/<int:x>/<y>', methods=['GET', 'POST'])
 def resultsMultiIntEnabled(x, y):
     """Display results from enabling multiple device interfaces.
 
@@ -1322,7 +1313,7 @@ def resultsMultiIntEnabled(x, y):
                            result=result)
 
 
-@app.route('/results/resultsmultipleintdisabled/<x>/<y>', methods=['GET', 'POST'])
+@app.route('/results/resultsmultipleintdisabled/<int:x>/<y>', methods=['GET', 'POST'])
 def resultsMultiIntDisabled(x, y):
     """Display results from disabling multiple device interfaces.
 
@@ -1349,7 +1340,7 @@ def resultsMultiIntDisabled(x, y):
                            result=result)
 
 
-@app.route('/results/resultsmultipleintedit/<x>/<y>', methods=['GET', 'POST'])
+@app.route('/results/resultsmultipleintedit/<int:x>/<y>', methods=['GET', 'POST'])
 def resultsMultiIntEdit(x, y):
     """Display results from editing multiple device interfaces.  WIP.
 
@@ -1395,5 +1386,6 @@ def editSettings():
             return render_template('/editsettings.html',
                                    title='Edit Netconfig settings',
                                    file=s.readlines())
-    except:
-        return render_template('errors/500.html', error="Unable to read Settings File"), 500
+    except (IOError, OSError):
+        return render_template('errors/500.html',
+                               error="Unable to read Settings File"), 500

@@ -7,9 +7,9 @@
 <div class="container-fluid">
 	<div class="row">
     	<div class="col-md-9">
-			<h2 class="text-primary">Add New Device to Database</h2>
-			<form action="{{ url_for('addHosts') }}" method="post">
-				{{ wtf.quick_form(form) }}
+			<h2 class="text-primary">Edit Host {{ host.hostname }}</h2>
+			<form action="{{ url_for('resultsHostEdit', x=host.id) }}" method="post">
+			   {{ wtf.quick_form(form) }}
 			</form>
 		</div>
 	</div>

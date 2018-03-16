@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms.fields import StringField, PasswordField, BooleanField
-from wtforms.fields import HiddenField, SelectField
+from wtforms.fields import HiddenField, SelectField, SubmitField
 from wtforms.widgets import TextArea
 from wtforms.validators import DataRequired, IPAddress
 
@@ -19,6 +19,7 @@ class LocalCredentialsForm(FlaskForm):
     user = StringField('Username', validators=[DataRequired()])
     pw = PasswordField('Login Password', validators=[DataRequired()])
     privpw = PasswordField('Privileged Password (if applicable)')
+    submit_button = SubmitField('Login')
 
 
 class AddHostForm(FlaskForm):
@@ -37,15 +38,14 @@ class AddHostForm(FlaskForm):
                         ('cisco_xe', 'IOS-XE')]
     ios_type = SelectField('IOS Type', choices=ios_type_choices, validators=[DataRequired()])
     local_creds = BooleanField('Use Local/Different Credentials', default=False)
-    # local_creds_choices = [('no', 'No'),
-    #                        ('yes', 'Yes')]
-    # local_creds = SelectField('Use Local/Different Credentials', choices=local_creds_choices)
+    submit_button = SubmitField('Submit')
 
 
 class ImportHostsForm(FlaskForm):
     """Import devices into local database using CSV format."""
 
-    csvimport = StringField('Devices to Import via CSV format', widget=TextArea())
+    csvimport = StringField('Devices to Import (CSV format)', widget=TextArea())
+    submit_button = SubmitField('Submit')
 
 
 class EditInterfaceForm(FlaskForm):
@@ -56,6 +56,7 @@ class EditInterfaceForm(FlaskForm):
     other = StringField('Other', widget=TextArea())
     host = HiddenField('Host')
     interface = HiddenField('Interface')
+    submit_button = SubmitField('Submit')
 
 
 class EditHostForm(FlaskForm):
@@ -79,6 +80,7 @@ class EditHostForm(FlaskForm):
                            ('False', 'No'),
                            ('True', 'Yes')]
     local_creds = SelectField('Use Local/Different Credentials', choices=local_creds_choices)
+    submit_button = SubmitField('Submit')
 
 
 class CustomCommandsForm(FlaskForm):
@@ -86,6 +88,8 @@ class CustomCommandsForm(FlaskForm):
 
     hostname = StringField('Hostname', validators=[DataRequired()])
     command = StringField('Commands', widget=TextArea())
+    submit_button = SubmitField('Submit')
+
 
 
 class CustomCfgCommandsForm(FlaskForm):
@@ -93,3 +97,4 @@ class CustomCfgCommandsForm(FlaskForm):
 
     hostname = StringField('Hostname', validators=[DataRequired()])
     command = StringField('Commands', widget=TextArea())
+    submit_button = SubmitField('Submit')

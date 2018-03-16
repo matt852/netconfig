@@ -1,5 +1,6 @@
 <!-- extend base layout -->
 {% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
 
 {% block content %}
 
@@ -8,23 +9,15 @@
     	<div class="col-md-9">
 			<h2 class="text-primary">Import New Devices to Database</h2>
 			<form action="{{ url_for('importHosts') }}" method="post" name="importhosts">
-			    {{ form.hidden_tag() }}
-			    <p>
-			        Enter new devices in CSV format using the following columns, separated by commas only (no spaces)<br>
-			        <br />
-			        Hostname - <small>The hostname of the device</small><br />
-			        IPv4_Address - <small>The IP address address of the device.  Must be accessible via SSH</small><br />
-			        Device_Type - <small>Valid Options: Switch, Router, or Firewall</small><br />
-			        IOS_Type - <small>Valid Options: IOS, IOS-XE, NX-OS, or ASA</small><br />
-			        Local_Creds - <small>Set True if the device uses local/different credentials than the ones of the currently logged in NetConfig user.  Valid Options: True, False.  Defaults to False if not set.</small><br />
-			        <br />
-			        {{ form.csvimport(rows=4, cols=60, autofocus="autofocus", required="required") }}
-			        {% for error in form.csvimport.errors %}
-			          <span style="color: red;">[{{error}}]</span>
-			        {% endfor %}<br>
-			    </p>
-			    <br />
-			    <p><input type="submit" value="Submit" class="btn btn-primary"></p>
+			    <b>CSV import parameters:</b>
+					<ul>
+			        <li>Hostname - <small>The hostname of the device</small></li>
+							<li>IPv4 Address - <small>The IPv4 address of the device</small></li>
+							<li>Device Type - <small>Valid Options: Switch, Router, or Firewall</small></li>
+							<li>OS Type - <small>Valid Options: IOS, IOS-XE, NX-OS, or ASA</small></li>
+							<li>Local Credentials - <small>Use different credentials than currently logged in NetConfig user. Valid Options: True, False (default)</small></li>
+					</ul>
+			   {{ wtf.quick_form(form) }}
 			</form>
 		</div>
 	</div>
