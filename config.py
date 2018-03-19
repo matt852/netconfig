@@ -43,5 +43,8 @@ BOOTSTRAP_SERVE_LOCAL = True
 # Global SSH new connection timeout
 SSH_TIMEOUT = 10
 
+# GitHub Master branch config file location
+GH_MASTER_BRANCH_URL = 'https://raw.githubusercontent.com/v1tal3/netconfig/master/config.py'
+
 # Current version
-VERSION = '1.3.4 (beta)'
+VERSION = '1.3.4a (beta)'
