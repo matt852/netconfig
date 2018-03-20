@@ -10,6 +10,7 @@ class LoginForm(FlaskForm):
 
     user = StringField('Username', validators=[DataRequired()])
     pw = PasswordField('Password', validators=[DataRequired()])
+    login_button = SubmitField('Login')
 
 
 class LocalCredentialsForm(FlaskForm):
@@ -19,7 +20,7 @@ class LocalCredentialsForm(FlaskForm):
     user = StringField('Username', validators=[DataRequired()])
     pw = PasswordField('Login Password', validators=[DataRequired()])
     privpw = PasswordField('Privileged Password (if applicable)')
-    submit_button = SubmitField('Login')
+    login_button = SubmitField('Login')
 
 
 class AddHostForm(FlaskForm):

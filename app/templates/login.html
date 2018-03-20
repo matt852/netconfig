@@ -1,31 +1,15 @@
 <!-- extend base layout -->
 {% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
 
 {% block content %}
 
 <div class="container-fluid">
     <div class="row">
-        <div class="col-md-9">
-            <h2 class="text-primary">Login Form</h2>
-
-            <form action="{{ url_for('index') }}" method="post" name="login">
-                <h4>Please enter your SSH credentials</h4>
-                <br />
-                <div class="form-group">
-                    {{ form.user.label }}<br />
-                    {{ form.user(size=20, autofocus="autofocus", required="required") }}
-                    {% for error in form.user.errors %}
-                      <span style="color: red;">[{{error}}]</span>
-                    {% endfor %}<br />
-                </div>
-                <div class="form-group">
-                    {{ form.pw.label }}<br />
-                    {{ form.pw(size=20, required="required") }}
-                    {% for error in form.pw.errors %}
-                      <span style="color: red;">[{{error}}]</span>
-                    {% endfor %}<br />
-                </div>
-                <input type="submit" value="Login" class="btn btn-primary" />
+      <div class="col-md-9">
+            <h2 class="text-primary">Login</h2>
+            <form action="{{ url_for('index') }}" method="post">
+                {{ wtf.quick_form(form) }}
             </form>
         </div>
     </div>

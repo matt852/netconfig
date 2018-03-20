@@ -49,18 +49,6 @@ class CiscoBaseDevice(BaseDevice):
 
         return self.run_ssh_config_commands(cmdList, activeSession)
 
-    def get_save_config_cmd(self):
-        """Return command for saving configuration settings on device."""
-        if self.ios_type == 'cisco_nxos':
-            return "copy running-config startup-config"
-        else:
-            return "write memory"
-
-    def save_config_on_device(self, activeSession):
-        """Return command for saving configuration settings on device."""
-        command = self.get_save_config_cmd()
-        return self.run_ssh_command(command, activeSession).splitlines()
-
     def run_edit_interface_cmd(self, interface, datavlan, voicevlan, other, activeSession):
         """Edit interface on device with specified parameters on existing SSH session."""
         cmdList = []

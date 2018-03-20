@@ -20,7 +20,6 @@
 {% for x in interfaces.split('&') %}{% if x %}{% set x = x|replace('_','/') %}&nbsp;interface {{ x }}
 &nbsp;&nbsp;{{ host.get_cmd_enable_interface() }}
 {% endif %}{% endfor %}&nbsp;&nbsp;end
-{{ host.get_save_config_cmd() }}
 </code></pre>
                             <br />
 

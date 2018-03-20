@@ -17,6 +17,10 @@ class BaseDevice(object):
         """Deletion function."""
         pass
 
+    def save_config_on_device(self, activeSession):
+        """Return results from saving configuration on device."""
+        return activeSession.save_config()
+
     def reset_session_mode(self, activeSession):
         """Check if existing SSH session is in config mode.
 
