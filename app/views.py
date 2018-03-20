@@ -733,8 +733,7 @@ def resultsHostEdit(x):
                                origIos_type=origIos_type,
                                origLocal_creds=origLocal_creds)
     else:
-        return redirect(url_for('confirmHostEdit',
-                                x=storedHost))
+        return redirect(url_for('viewHosts'))
 
 
 @app.route('/confirm/confirmcmdcustom/', methods=['GET', 'POST'])

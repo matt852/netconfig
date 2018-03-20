@@ -20,9 +20,7 @@
 	{% endblock %}
 	<div class="container-fluid">
 		<div class="row">
-			<div class="col-md-1">
-			</div>
-			<div class="col-md-11">
+			<div class="col-sm-12 col-sm-offset-1">
 				{% if session['USER'] or request.path == "/login" %}
 					{% block content %}{% endblock %}
 				{% else %}

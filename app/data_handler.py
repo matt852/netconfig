@@ -1,10 +1,9 @@
 #!/usr/bin/python
 import app
+import csv
 import requests
 from requests.exceptions import ConnectionError
-import csv
 from sqlalchemy.exc import IntegrityError, InvalidRequestError
-
 from netaddr import IPAddress, core
 from .device_classes import deviceType as dt
 
