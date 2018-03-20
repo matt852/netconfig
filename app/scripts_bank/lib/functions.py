@@ -1,5 +1,6 @@
 #!/usr/bin/python
 from flask import jsonify
+from datetime import datetime
 try:
     from urllib import urlopen  # Python 2
 except ImportError:
@@ -82,3 +83,13 @@ def checkForVersionUpdate(config):
                 return jsonify(status="False", masterVersion=masterVersion)
     # If VERSION can't be found, successfully compared, or is identical, just return True
     return jsonify(status="True")
+
+# Get current timestamp for when starting a script
+def getCurrentTime():
+	currentTime = datetime.now()
+	return currentTime
+
+# Returns time elapsed between current time and provided time in 'startTime'
+def getScriptRunTime(startTime):
+	endTime = getCurrentTime() - startTime
+	return endTime
