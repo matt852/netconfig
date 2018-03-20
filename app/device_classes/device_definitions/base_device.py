@@ -45,8 +45,6 @@ class BaseDevice(object):
 
     def run_ssh_command(self, command, activeSession):
         """Execute single command on device using existing SSH session."""
-        # Exit config mode if existing session is currently in config mode
-        #self.reset_session_mode(activeSession)
         # Run command
         result = activeSession.send_command(command)
         # Run check for invalid input detected, etc
