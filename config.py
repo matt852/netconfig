@@ -27,6 +27,11 @@ DB_HOST = 'localhost'
 DB_PORT = 6379
 DB_NO = 0
 
+# Celery setup
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_TASK_SERIALIZER = 'json'
+
 # Logging settings
 # LOGFILE is currently not used
 # SYSLOGFILE is the location where syslog type logs are stored,
