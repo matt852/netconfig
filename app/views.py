@@ -7,7 +7,7 @@ try:
 except ImportError:
     from urllib.parse import quote_plus, unquote_plus, urlopen  # Python 3
 
-from app import app, celery, datahandler, logger, sshhandler
+from app import app, datahandler, logger, sshhandler
 from flask import flash, g, jsonify, redirect, render_template
 from flask import request, session, url_for
 from redis import StrictRedis
@@ -20,9 +20,6 @@ from .scripts_bank.lib.netmiko_functions import sessionIsAlive
 from .forms import AddHostForm, CustomCfgCommandsForm, CustomCommandsForm
 from .forms import EditHostForm, EditInterfaceForm, ImportHostsForm, LoginForm
 from .forms import LocalCredentialsForm
-
-#from .tasks import addTask
-#from threading import Thread
 
 
 def initialChecks():
@@ -334,7 +331,7 @@ def resultsMultipleHostDelete(x):
                            overallResult=overallResult,
                            hostList=hostList)
 
-        
+
 # Shows all hosts in database
 @app.route('/db/viewhosts')
 def viewHosts():
@@ -403,7 +400,6 @@ def viewSpecificHost(x):
 
     if result:
         interfaces = host.count_interface_status(result)
-        
         return render_template("/db/viewspecifichost.html",
                                host=host,
                                interfaces=interfaces,
