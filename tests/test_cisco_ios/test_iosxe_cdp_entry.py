@@ -80,7 +80,6 @@ Unidirectional Mode: off
 
 '''
 
-
     def test_iosxe_cdp_neighbor_formatting(self):
         """Test IOS-XE CDP neighbor output formatting."""
         expected_output = [{'local_iface': 'Ten 1/2/3', 'port_id': 'Gig 1/2/3', 'platform': 'cisco WS-C2960X-48FPS-L', 'device_id': 'SWITCH-ABCD-123.DOMAIN.COM', 'remote_ip': '10.0.0.1'},

@@ -1,8 +1,6 @@
 import unittest
-import os
 from app import app, db
 from app.data_handler import DataHandler
-from app.models import Host
 
 
 class TestDataHandler(unittest.TestCase):
@@ -26,6 +24,7 @@ class TestDataHandler(unittest.TestCase):
         assert b is True
 
     def test_importHostsToDB(self):
+        """Test importing hosts to database."""
         csv_data = """
 10Test,10.0.1.1,Switch,IOS,True
 11Test,10.0.1.2,Router,IOS-XE,False
@@ -57,8 +56,8 @@ class TestDataHandler(unittest.TestCase):
                       {'hostname': '15Test', 'error': 'Invalid OS type'},
                       {'hostname': '16Test', 'error': 'Invalid number of fields in entry'},
                       {'hostname': '17Test', 'error': 'Invalid IP address'}]
-                      #{'hostname': '18Test', 'error': 'Duplicate hostname - already exists in database'} <---need to test
-                      #{'hostname': '18Test', 'error': 'Duplicate IP address - already exists in database'} <---need to test
+        # {'hostname': '18Test', 'error': 'Duplicate hostname - already exists in database'} <---need to test
+        # {'hostname': '18Test', 'error': 'Duplicate IP address - already exists in database'} <---need to test
 
         hosts_result, err_result = self.datahandler.importHostsToDB(csv_data)
         for x, y in zip(hosts_expect, hosts_result):

@@ -124,7 +124,7 @@ Interface GigabitEthernet0/2 "", is administratively down, line protocol is down
         """Test pull_interface_mac_addresses function."""
         expected_output = ''
         self.assertEqual(self.device.pull_interface_mac_addresses(None), expected_output)
-    
+
     def test_replace_double_spaces_commas(self):
         """Test function for replacing all double spaces in provided input with commas."""
         input_data = '      a   bc    d e ff ghij   k  l m   '

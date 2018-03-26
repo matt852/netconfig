@@ -26,12 +26,12 @@ class BaseDevice(object):
 
         If so, exits config mode.
         """
-        if activeSession.check_config_mode():
-            activeSession.exit_config_mode()
-            # Return True since session was originally in config mode
+        if activeSession.exit_config_mode():
+            # Return True if successful
             return True
-        # Return False if session is not in config mode
-        return False
+        else:
+            # Return False if session is not in config mode
+            return False
 
     def revert_session_mode(self, activeSession, originalState):
         """Revert SSH session to config mode if it was previously in config mode.
@@ -45,11 +45,24 @@ class BaseDevice(object):
 
     def run_ssh_command(self, command, activeSession):
         """Execute single command on device using existing SSH session."""
-        # Exit config mode if existing session is currently in config mode
-        self.reset_session_mode(activeSession)
+        # Run command
+        result = activeSession.send_command(command)
+        # Run check for invalid input detected, etc
+        if "Invalid input detected" in result:
+            # Command failed, possibly due to being in configuration mode.  Exit config mode
+            activeSession.exit_config_mode()
+            # Try to retrieve command results again
+            try:
+                result = self.run_ssh_command('show ip interface brief', activeSession)
+                # If command still failed, return nothing
+                if "Invalid input detected" in result:
+                    return self.cleanup_ios_output('', '')
+            except:
+                # If failure to access SSH channel or run command, return nothing
+                return self.cleanup_ios_output('', '')
 
-        # Run command and return command output
-        return activeSession.send_command(command)
+        # Return command output
+        return result
 
     def run_ssh_config_commands(self, cmdList, activeSession):
         """Execute configuration commands on device.

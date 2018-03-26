@@ -5,6 +5,8 @@ from flask_bootstrap import Bootstrap
 from flask_script import Manager
 from data_handler import DataHandler
 from log_handler import LogHandler
+from ssh_handler import SSHHandler
+from celery import Celery
 
 
 app = Flask(__name__, instance_relative_config=True)
@@ -19,6 +21,12 @@ except KeyError:
     datahandler = DataHandler('local')
 
 logger = LogHandler(app.config['SYSLOGFILE'])
+
+sshhandler = SSHHandler()
+
+# Celery
+celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'], backend=app.config['CELERY_RESULT_BACKEND'])
+celery.conf.update(app.config)
 
 from app import views, models
 

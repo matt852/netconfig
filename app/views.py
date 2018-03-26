@@ -1,28 +1,22 @@
 import socket
 from datetime import timedelta
-from operator import attrgetter
 
 try:
-    from urllib import quote_plus, unquote_plus, urlopen  # Python 2
+    from urllib import quote_plus, unquote_plus  # Python 2
 except ImportError:
-    from urllib.parse import quote_plus, unquote_plus, urlopen  # Python 3
+    from urllib.parse import quote_plus, unquote_plus  # Python 3
 
-from app import app, datahandler, logger
+from app import app, datahandler, logger, sshhandler
 from flask import flash, g, jsonify, redirect, render_template
 from flask import request, session, url_for
 from redis import StrictRedis
 from .scripts_bank.redis_logic import deleteUserInRedis, resetUserRedisExpireTimer, storeUserInRedis
-from .scripts_bank.lib.functions import checkForVersionUpdate, removeDictKey, setUserCredentials
+from .scripts_bank.lib.functions import checkForVersionUpdate
 from .scripts_bank.lib.flask_functions import checkUserLoggedInStatus
-from .scripts_bank.lib.netmiko_functions import disconnectFromSSH, getSSHSession
-from .scripts_bank.lib.netmiko_functions import sessionIsAlive
 
 from .forms import AddHostForm, CustomCfgCommandsForm, CustomCommandsForm
 from .forms import EditHostForm, EditInterfaceForm, ImportHostsForm, LoginForm
 from .forms import LocalCredentialsForm
-
-# Global Variables #
-ssh = {}
 
 
 def initialChecks():
@@ -36,176 +30,6 @@ def initialChecks():
                                title='Home')
 
 
-def getSSHKeyForHost(host):
-    """Return SSH key for looking up existing SSH sessions for a specific host.
-
-    # Store SSH Dict key as host.id followed by '-' followed by username and return.
-    """
-    try:
-        sshKey = str(host.id) + '--' + str(session['UUID'])
-        return sshKey
-    except KeyError:
-        return None
-
-
-def checkHostActiveSSHSession(host):
-    """Check if existing SSH session for host is currently active."""
-    global ssh
-
-    sshKey = getSSHKeyForHost(host)
-
-    # Return True is SSH session is active, False if not
-    try:
-        if sessionIsAlive(ssh[sshKey]):
-            return True
-        else:
-            return False
-    except KeyError:
-        # If try statement fails, return False as it's not alive
-        return False
-
-
-def checkHostExistingSSHSession(host):
-    """Check if host currenty has an existing SSH session saved."""
-    global ssh
-
-    # Retrieve SSH key for host
-    sshKey = getSSHKeyForHost(host)
-
-    # Return True if host in global SSH variable, False if not
-    if sshKey in ssh:
-        return True
-    else:
-        return False
-
-
-# def retrieveSSHSession(host, *args, **kwargs):
-def retrieveSSHSession(host):
-    """[Re]Connect to 'host' over SSH.  Store session for use later.
-
-    Return active SSH session for provided host if it exists.
-    Otherwise gets a session, stores it, and returns it.
-    """
-    global ssh
-
-    # Set privileged password initially to an empty string
-    privpw = ''
-
-    # If username and password variable are not passed to function, set it as the currently logged in user
-    # if ('username' not in kwargs and 'password' not in kwargs):
-    if host.local_creds:
-        # Set key to host id, --, and username of currently logged in user
-        key = str(host.id) + '--' + session['USER']
-        saved_id = str(g.db.hget('localusers', key))
-        username = str(g.db.hget(str(saved_id), 'user'))
-        password = str(g.db.hget(str(saved_id), 'pw'))
-        try:
-            privpw = str(g.db.hget(str(saved_id), 'privpw'))
-        except:
-            # If privpw not set for this device, simply leave it as a blank string
-            pass
-    else:
-        username = session['USER']
-        saved_id = str(g.db.hget('users', username))
-        password = str(g.db.hget(str(saved_id), 'pw'))
-
-    creds = setUserCredentials(username, password, privpw)
-
-    # Retrieve SSH key for host
-    sshKey = getSSHKeyForHost(host)
-
-    if not checkHostExistingSSHSession(host):
-        logger.write_log('initiated new SSH connection to %s' % (host.hostname))
-        # If no currently active SSH sessions, initiate a new one
-        ssh[sshKey] = getSSHSession(host, creds)
-
-    # Run test to verify if socket connection is still open or not
-    elif not checkHostActiveSSHSession(host):
-        # If session is closed, reestablish session and log event
-        logger.write_log('reestablished SSH connection to %s' % (host.hostname))
-        ssh[sshKey] = getSSHSession(host, creds)
-
-    # Clear all credential based variables from memory
-    password = None
-    privpw = None
-    creds = None
-
-    return ssh[sshKey]
-
-
-def disconnectSpecificSSHSession(host):
-    """Disconnect any SSH sessions for a specific host from all users."""
-    global ssh
-
-    for x in ssh:
-        # x is id-uuid
-        y = x.split('--')
-        # y[0] is host id
-        # y[1] is uuid
-        if int(y[0]) == int(host.id):
-            disconnectFromSSH(ssh[x])
-            ssh.pop(x)
-            logger.write_log('disconnected SSH session to provided host %s from user %s' % (host.hostname, session['USER']))
-
-
-def disconnectAllSSHSessions():
-    """Disconnect all remaining active SSH sessions tied to a user."""
-    global ssh
-
-    for x in ssh:
-        # x is id-uuid
-        y = x.split('--')
-        # y[0] is host id
-        # y[1] is uuid
-        if str(y[1]) == str(session['UUID']):
-            disconnectFromSSH(ssh[x])
-            host = datahandler.getHostByID(y[0])
-            ssh = removeDictKey(ssh, x)
-            logger.write_log('disconnected SSH session to device %s for user %s' % (host.hostname, session['USER']))
-
-    # Try statement needed as 500 error thrown if user is not currently logged in.
-    try:
-        logger.write_log('disconnected all SSH sessions for user %s' % (session['USER']))
-    except:
-        logger.write_log('disconnected all SSH sessions without an active user logged in')
-
-
-def countAllSSHSessions():
-    """Return number of active SSH sessions tied to user."""
-    global ssh
-
-    i = 0
-    for x in ssh:
-        # x is id-uuid
-        y = x.split('--')
-        # y[0] is host id
-        # y[1] is uuid
-        if str(y[1]) == str(session['UUID']):
-            # Increment counter
-            i += 1
-
-    return i
-
-
-def getNamesOfSSHSessionDevices():
-    """Return list of hostnames for all devices with an existing active connection."""
-    global ssh
-
-    hostList = []
-    for x in ssh:
-        # x is id-uuid
-        y = x.split('--')
-        # y[0] is host id
-        # y[1] is uuid
-        if str(y[1]) == str(session['UUID']):
-            # Get host by y[0] (host.id)
-            hostList.append(datahandler.getHostByID(y[0]))
-
-    # Reorder list in alphabetical order
-    hostList = sorted(hostList, key=attrgetter('hostname'))
-    return hostList
-
-
 @app.route('/ajaxcheckhostactivesshsession/<x>', methods=['GET', 'POST'])
 def ajaxCheckHostActiveSession(x):
     """Check if existing SSH session for host is currently active.
@@ -216,7 +40,7 @@ def ajaxCheckHostActiveSession(x):
     host = datahandler.getHostByID(x)
 
     if host:
-        if checkHostActiveSSHSession(host):
+        if sshhandler.checkHostActiveSSHSession(host):
             return 'True'
     return 'False'
 
@@ -324,7 +148,7 @@ def login():
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():
     """Disconnect all SSH sessions by user."""
-    disconnectAllSSHSessions()
+    sshhandler.disconnectAllSSHSessions()
     try:
         currentUser = session['USER']
         deleteUserInRedis()
@@ -345,7 +169,7 @@ def logout():
 @app.route('/disconnectAllSSH')
 def disconnectAllSSH():
     """Disconnect all SSH sessions for all users."""
-    disconnectAllSSHSessions()
+    sshhandler.disconnectAllSSHSessions()
     logger.write_log('disconnected all active SSH sessions')
     return redirect(url_for('index'))
 
@@ -357,7 +181,7 @@ def getSSHSessionsCount():
     x = host id
     """
     initialChecks()
-    count = countAllSSHSessions()
+    count = sshhandler.countAllSSHSessions()
     return jsonify(count=count)
 
 
@@ -374,7 +198,7 @@ def displayRecentDeviceNames():
     x = host id
     """
     initialChecks()
-    hosts = getNamesOfSSHSessionDevices()
+    hosts = sshhandler.getNamesOfSSHSessionDevices()
     return render_template("/recentsessionmenu.html",
                            hosts=hosts)
 
@@ -484,7 +308,7 @@ def resultsMultipleHostDelete(x):
             hostList.append(host)
             datahandler.deleteHostInDB(x)
             try:
-                disconnectSpecificSSHSession(host)
+                sshhandler.disconnectSpecificSSHSession(host)
                 logger.write_log('disconnected any remaining active sessions for host %s' % (host.hostname))
             except:
                 logger.write_log('unable to attempt to disconnect host %s active sessions' % (host.hostname))
@@ -508,6 +332,7 @@ def viewHosts():
     return render_template('/db/viewhosts.html',
                            hosts=hosts,
                            title='View hosts in database')
+
 
 @app.route('/hosts/view/<x>')
 def viewSpecificHost(x):
@@ -536,22 +361,20 @@ def viewSpecificHost(x):
         if storeUserInRedis(request.form['user'], request.form['pw'], privpw=request.form['privpw'], host=host):
             # Set to True if variables are set correctly from local credentials form
             varFormSet = True
-            activeSession = retrieveSSHSession(host)
             logger.write_log('local credentials saved to REDIS for accessing host %s' % (host.hostname))
 
     except:
         # If no form submitted (not using local credentials), get SSH session
         # Don't go in if form was used (local credentials) but SSH session failed in above 'try' statement
         if not varFormSet:
-            # Get any existing SSH sessions
-            activeSession = retrieveSSHSession(host)
             logger.write_log('credentials used of currently logged in user for accessing host %s' % (host.hostname))
 
+    # Get any existing SSH sessions
+    activeSession = sshhandler.retrieveSSHSession(host)
     result = host.pull_host_interfaces(activeSession)
 
     if result:
         interfaces = host.count_interface_status(result)
-
         return render_template("/db/viewspecifichost.html",
                                host=host,
                                interfaces=interfaces,
@@ -559,7 +382,7 @@ def viewSpecificHost(x):
     else:
         # If interfaces is x.x.x.x skipped - connection timeout,
         #  throw error page redirect
-        disconnectSpecificSSHSession(host)
+        sshhandler.disconnectSpecificSSHSession(host)
         return redirect(url_for('noHostConnectError',
                                 host=host))
 
@@ -572,7 +395,7 @@ def deviceUptime(x):
     """
     initialChecks()
     host = datahandler.getHostByID(x)
-    activeSession = retrieveSSHSession(host)
+    activeSession = sshhandler.retrieveSSHSession(host)
     logger.write_log('retrieved uptime on host %s' % (host.hostname))
     return jsonify(host.pull_device_uptime(activeSession))
 
@@ -586,7 +409,7 @@ def callDisconnectSpecificSSHSession(x):
     host = datahandler.getHostByID(x)
     # Disconnect device.
     try:
-        disconnectSpecificSSHSession(host)
+        sshhandler.disconnectSpecificSSHSession(host)
     except:
         # Log error if unable to disconnect specific SSH session
         logger.write_log('unable to disconnect SSH session to provided host %s from user %s' % (host.hostname, session['USER']))
@@ -707,7 +530,7 @@ def resultsHostEdit(x):
     # If exists, disconnect any existing SSH sessions
     #  and clear them from the SSH dict
     try:
-        disconnectSpecificSSHSession(storedHost)
+        sshhandler.disconnectSpecificSSHSession(storedHost)
         logger.write_log('disconnected and cleared saved SSH session information for edited host %s' % (storedHost.hostname))
     except (socket.error, EOFError):
         logger.write_log('no existing SSH sessions for edited host %s' % (storedHost.hostname))
@@ -774,7 +597,7 @@ def resultsIntEnabled(x, y):
 
     host = datahandler.getHostByID(x)
 
-    activeSession = retrieveSSHSession(host)
+    activeSession = sshhandler.retrieveSSHSession(host)
 
     # Removes dashes from interface in URL and enabel interface
     result = host.run_enable_interface_cmd(interfaceReplaceSlash(y), activeSession)
@@ -795,7 +618,7 @@ def resultsIntDisabled(x, y):
 
     host = datahandler.getHostByID(x)
 
-    activeSession = retrieveSSHSession(host)
+    activeSession = sshhandler.retrieveSSHSession(host)
 
     # Removes dashes from interface in URL and disable interface
     result = host.run_disable_interface_cmd(interfaceReplaceSlash(y), activeSession)
@@ -818,7 +641,7 @@ def resultsIntEdit(x, datavlan, voicevlan, other):
 
     host = datahandler.getHostByID(x)
 
-    activeSession = retrieveSSHSession(host)
+    activeSession = sshhandler.retrieveSSHSession(host)
 
     # Get interface from passed variabel in URL
     hostinterface = request.args.get('int', '')
@@ -852,7 +675,7 @@ def resultsHostDeleted(x):
         # Removes host from database
         result = datahandler.deleteHostInDB(host.id)
         if result:
-            disconnectSpecificSSHSession(host)
+            sshhandler.disconnectSpecificSSHSession(host)
             return render_template("results/resultshostdeleted.html",
                                    host=host, result=result)
         else:
@@ -868,7 +691,7 @@ def resultsCmdCustom():
 
     host = datahandler.getHostByID(session['HOSTID'])
 
-    activeSession = retrieveSSHSession(host)
+    activeSession = sshhandler.retrieveSSHSession(host)
 
     command = session['COMMAND']
 
@@ -892,7 +715,7 @@ def resultsCfgCmdCustom():
 
     host = datahandler.getHostByID(session['HOSTID'])
 
-    activeSession = retrieveSSHSession(host)
+    activeSession = sshhandler.retrieveSSHSession(host)
 
     command = session['COMMAND']
 
@@ -925,7 +748,7 @@ def modalSpecificInterfaceOnHost(x, y):
 
     host = datahandler.getHostByID(x)
 
-    activeSession = retrieveSSHSession(host)
+    activeSession = sshhandler.retrieveSSHSession(host)
 
     # Removes dashes from interface in URL, replacing '_' with '/'
     interface = interfaceReplaceSlash(y)
@@ -955,7 +778,7 @@ def modalEditInterfaceOnHost(x):
 
     host = datahandler.getHostByID(x)
 
-    activeSession = retrieveSSHSession(host)
+    activeSession = sshhandler.retrieveSSHSession(host)
 
     # Removes dashes from interface in URL
     # interface = interfaceReplaceSlash(y)
@@ -990,7 +813,7 @@ def modalLocalCredentials(x):
 
     host = datahandler.getHostByID(x)
 
-    if checkHostActiveSSHSession(host):
+    if sshhandler.checkHostActiveSSHSession(host):
         return redirect(url_for('viewHosts', x=host.id))
 
     form = LocalCredentialsForm()
@@ -1010,7 +833,7 @@ def modalCmdShowRunConfig(x):
     initialChecks()
 
     host = datahandler.getHostByID(x)
-    activeSession = retrieveSSHSession(host)
+    activeSession = sshhandler.retrieveSSHSession(host)
     hostConfig = host.pull_run_config(activeSession)
     logger.write_log('viewed running-config via button on host %s' % (host.hostname))
     return render_template("/cmdshowrunconfig.html",
@@ -1027,7 +850,7 @@ def modalCmdShowStartConfig(x):
     initialChecks()
 
     host = datahandler.getHostByID(x)
-    activeSession = retrieveSSHSession(host)
+    activeSession = sshhandler.retrieveSSHSession(host)
     hostConfig = host.pull_start_config(activeSession)
     logger.write_log('viewed startup-config via button on host %s' % (host.hostname))
     return render_template("/cmdshowstartconfig.html",
@@ -1044,7 +867,7 @@ def modalCmdShowCDPNeigh(x):
     initialChecks()
 
     host = datahandler.getHostByID(x)
-    activeSession = retrieveSSHSession(host)
+    activeSession = sshhandler.retrieveSSHSession(host)
     neigh = host.pull_cdp_neighbor(activeSession)
     logger.write_log('viewed CDP neighbors via button on host %s' % (host.hostname))
     return render_template("/cmdshowcdpneigh.html",
@@ -1061,7 +884,7 @@ def modalCmdShowInventory(x):
     initialChecks()
 
     host = datahandler.getHostByID(x)
-    activeSession = retrieveSSHSession(host)
+    activeSession = sshhandler.retrieveSSHSession(host)
     result = host.pull_inventory(activeSession)
 
     logger.write_log('viewed inventory info via button on host %s' % (host.hostname))
@@ -1079,7 +902,7 @@ def modalCmdShowVersion(x):
     initialChecks()
 
     host = datahandler.getHostByID(x)
-    activeSession = retrieveSSHSession(host)
+    activeSession = sshhandler.retrieveSSHSession(host)
     result = host.pull_version(activeSession)
 
     logger.write_log('viewed version info via button on host %s' % (host.hostname))
@@ -1133,7 +956,7 @@ def modalCmdSaveConfig(x):
     initialChecks()
 
     host = datahandler.getHostByID(x)
-    activeSession = retrieveSSHSession(host)
+    activeSession = sshhandler.retrieveSSHSession(host)
     host.save_config_on_device(activeSession)
 
     logger.write_log('saved config via button on host %s' % (host.hostname))
@@ -1172,7 +995,7 @@ def hostShellOutput(x, m, y):
     configError = False
 
     host = datahandler.getHostByID(x)
-    activeSession = retrieveSSHSession(host)
+    activeSession = sshhandler.retrieveSSHSession(host)
 
     # Replace '___' with '/'
     x = unquote_plus(y).decode('utf-8')
@@ -1222,7 +1045,7 @@ def enterConfigMode(x):
     initialChecks()
 
     host = datahandler.getHostByID(x)
-    activeSession = retrieveSSHSession(host)
+    activeSession = sshhandler.retrieveSSHSession(host)
     # Enter configuration mode on device using existing SSH session
     activeSession.config_mode()
     logger.write_log('entered config mode via iShell on host %s' % (host.hostname))
@@ -1238,7 +1061,7 @@ def exitConfigMode(x):
     initialChecks()
 
     host = datahandler.getHostByID(x)
-    activeSession = retrieveSSHSession(host)
+    activeSession = sshhandler.retrieveSSHSession(host)
     # Exit configuration mode on device using existing SSH session
     activeSession.exit_config_mode()
 
@@ -1300,7 +1123,7 @@ def resultsMultiIntEnabled(x, y):
     initialChecks()
 
     host = datahandler.getHostByID(x)
-    activeSession = retrieveSSHSession(host)
+    activeSession = sshhandler.retrieveSSHSession(host)
 
     result = []
     # Split by interfaces, separated by '&'
@@ -1328,7 +1151,7 @@ def resultsMultiIntDisabled(x, y):
     initialChecks()
 
     host = datahandler.getHostByID(x)
-    activeSession = retrieveSSHSession(host)
+    activeSession = sshhandler.retrieveSSHSession(host)
 
     result = []
     # Split by interfaces, separated by '&'
@@ -1355,7 +1178,7 @@ def resultsMultiIntEdit(x, y):
     initialChecks()
 
     host = datahandler.getHostByID(x)
-    activeSession = retrieveSSHSession(host)
+    activeSession = sshhandler.retrieveSSHSession(host)
 
     result = []
     # Split by interfaces, separated by '&'
