@@ -52,7 +52,7 @@ Fa1/0/3                        admin down     down     Connection to ABC Switch
 
         actual_output = self.device.count_interface_status(self.interface_expected_output)
         self.assertEqual(actual_output, count_interface_status_comparison)
-    
+
     def test_replace_double_spaces_commas(self):
         """Test function for replacing all double spaces in provided input with commas."""
         input_data = '      a   bc    d e ff ghij   k  l m   '

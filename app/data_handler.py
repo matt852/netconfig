@@ -6,7 +6,7 @@ import csv
 from sqlalchemy.exc import IntegrityError, InvalidRequestError
 
 from netaddr import IPAddress, core
-from .device_classes import deviceType as dt
+from .device_classes import deviceType
 
 
 class DataHandler(object):
@@ -44,7 +44,6 @@ class DataHandler(object):
         Returns True if successful
         Format: Hostname,IPAddress,DeviceType,IOSType
         """
-
         reader = csv.reader(csvImport.strip().splitlines())
         errors = []
         hosts = []
@@ -106,33 +105,29 @@ class DataHandler(object):
                 # Do this last, as we only want to add the host to var 'hosts' if it was fully successful
                 hosts.append({"id": host.id, "hostname": row[0],
                               "ipv4_addr": row[1]})
-            except (IntegrityError, InvalidRequestError) as e:
+            except (IntegrityError, InvalidRequestError):
                 app.db.session.rollback()
 
         # Only commit once for all hosts added
         try:
             app.db.session.commit()
-        except (IntegrityError, InvalidRequestError) as e:
+        except (IntegrityError, InvalidRequestError):
             app.db.session.rollback()
 
         return hosts, errors
 
     def getOSType(self, os):
-        """
-        Process OS Type
+        """Process OS Type.
 
         :i (input)
-
         returns os
         """
-
         # TO DO consider returning None instead of Error?
-
         if self.source == 'netbox':
             try:
                 r = requests.get(self.url + '/api/dcim/device-types/' + str(os))
             except ConnectionError:
-                log_handler.write_log("Connection error trying to connect to " + self.url)
+                app.logger.write_log("Connection error trying to connect to " + self.url)
                 return "error"
             if r.status_code == requests.codes.ok:
 
@@ -160,7 +155,6 @@ class DataHandler(object):
         Returns True if successful.
         x is the host ID
         """
-
         # IDEA change Netbox Netconfig field for "deleting"
 
         try:
@@ -176,7 +170,6 @@ class DataHandler(object):
 
     def getHosts(self):
         """Get certain number of devices in database."""
-
         data = []
 
         if self.source == 'local':
@@ -193,14 +186,13 @@ class DataHandler(object):
             try:
                 r = requests.get(self.url + '/api/dcim/devices/?limit=0')
             except ConnectionError:
-                log_handler.write_log("Connection error trying to connect to " + self.url)
+                app.logger.write_log("Connection error trying to connect to " + self.url)
                 return data
 
             if r.status_code == requests.codes.ok:
 
                 for d in r.json()['results']:
-                    if (d['custom_fields']['Netconfig'] and
-                    d['custom_fields']['Netconfig']['label'] == 'Yes'):
+                    if (d['custom_fields']['Netconfig'] and d['custom_fields']['Netconfig']['label'] == 'Yes'):
 
                         os_type = self.getOSType(d['device_type']['id'])
                         host = {"id": d['id'], "hostname": d['name'],
@@ -221,7 +213,6 @@ class DataHandler(object):
         Does not return SSH session.
         x = host id
         """
-
         # TO DO consider merging with getHosts
 
         if self.source == 'local':
@@ -236,7 +227,7 @@ class DataHandler(object):
             try:
                 r = requests.get(self.url + '/api/dcim/devices/' + str(x))
             except ConnectionError:
-                log_handler.write_log("Connection error trying to connect to " + self.url)
+                app.logger.write_log("Connection error trying to connect to " + self.url)
                 return None
 
             if r.status_code == requests.codes.ok:
@@ -252,18 +243,16 @@ class DataHandler(object):
                 return None
 
         # Get host class based on device type
-        return dt.DeviceHandler(id=host['id'], hostname=host['hostname'],
-                                ipv4_addr=host['ipv4_addr'], type=host['type'],
-                                ios_type=host['ios_type'],
-                                local_creds=host['local_creds'])
+        return deviceType.DeviceHandler(id=host['id'], hostname=host['hostname'],
+                                        ipv4_addr=host['ipv4_addr'], type=host['type'],
+                                        ios_type=host['ios_type'],
+                                        local_creds=host['local_creds'])
 
-    def editHostInDatabase(self, id, hostname, ipv4_addr, hosttype,
-                           ios_type, local_creds, local_creds_updated):
+    def editHostInDatabase(self, id, hostname, ipv4_addr, hosttype, ios_type, local_creds, local_creds_updated):
         """Edit device in database.
 
         This is only supported when using the local database.
         """
-
         # IDEA modify existing Netbox devices?
 
         if self.source == 'local':

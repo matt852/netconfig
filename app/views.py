@@ -1,21 +1,18 @@
 import socket
 from datetime import timedelta
-from operator import attrgetter
 
 try:
-    from urllib import quote_plus, unquote_plus, urlopen  # Python 2
+    from urllib import quote_plus, unquote_plus  # Python 2
 except ImportError:
-    from urllib.parse import quote_plus, unquote_plus, urlopen  # Python 3
+    from urllib.parse import quote_plus, unquote_plus  # Python 3
 
 from app import app, datahandler, logger, sshhandler
 from flask import flash, g, jsonify, redirect, render_template
 from flask import request, session, url_for
 from redis import StrictRedis
 from .scripts_bank.redis_logic import deleteUserInRedis, resetUserRedisExpireTimer, storeUserInRedis
-from .scripts_bank.lib.functions import checkForVersionUpdate, removeDictKey, setUserCredentials
+from .scripts_bank.lib.functions import checkForVersionUpdate
 from .scripts_bank.lib.flask_functions import checkUserLoggedInStatus
-from .scripts_bank.lib.netmiko_functions import disconnectFromSSH, getSSHSession
-from .scripts_bank.lib.netmiko_functions import sessionIsAlive
 
 from .forms import AddHostForm, CustomCfgCommandsForm, CustomCommandsForm
 from .forms import EditHostForm, EditInterfaceForm, ImportHostsForm, LoginForm

@@ -6,11 +6,12 @@ from app.ssh_handler import SSHHandler
 
 class TestSSHHandler(TestCase):
     """Unit testing for SSH handler class."""
+
     ssh = {}
 
     def setUp(self):
         """Initialize static class testing variables."""
-        self.ssh = {'1--ABCDUUID1':'NetmikoObject-1'}
+        self.ssh = {'1--ABCDUUID1': 'NetmikoObject-1'}
         self.mock = MagicMock()
         self.session = {'UUID': 'ABCUUID1'}
 
