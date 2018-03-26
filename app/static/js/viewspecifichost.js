@@ -1,6 +1,4 @@
 $(document).ready(function() {
-  $("#loadUptimeIcon").show();
-
   // Start Uptime section
   // Get ID of current device from URL, which are the numbers after the last '/'
   var loc = location.href.substr(location.href.lastIndexOf('/') + 1);
@@ -12,7 +10,7 @@ $(document).ready(function() {
       result = result.replace(/\"/g, "") // Remove double quotes from string
       var divuptime = document.getElementById('hostUptime'); // Get DIV element from HTML page
       divuptime.innerHTML = result; // Pass string to DIV on HTML page
-      $("#loadUptimeIcon").hide();
+      $("#loadUptimeIcon").addClass('hidden');
     }
   });
   // End Uptime section

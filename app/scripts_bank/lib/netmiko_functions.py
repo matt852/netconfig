@@ -3,6 +3,7 @@
 import socket
 import netmiko as nm
 import app
+from threading import Thread
 
 
 def sessionIsAlive(ssh):
@@ -51,12 +52,16 @@ def connectToSSH(host, creds):
 
 def disconnectFromSSH(ssh):
     """Disconnect from active SSH session."""
-    try:
-        if ssh:
+    # Daemonize work to run in background
+    def daemon():
+        try:
             # Disconnect from the host
             ssh.disconnect()
-    except:
-        pass
+        except:
+            pass
+    d = Thread(name='daemon', target=daemon)
+    d.setDaemon(True)
+    d.start()
 
 
 def runSSHCommandOnce(command, host, creds):

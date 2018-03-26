@@ -214,7 +214,7 @@ class DataHandler(object):
 
         return data
 
-    def retrieveHostByID(self, x):
+    def getHostByID(self, x):
         """Get device by ID, regardless of data store location.
 
         Support local database or Netbox inventory.
@@ -228,12 +228,11 @@ class DataHandler(object):
             # TO DO handle downstream to use a dictionary not a model
             host = app.models.Host.query.filter_by(id=x).first()
             try:
-                return host.__dict__
+                host = host.__dict__
             except AttributeError:
-                return {}
+                host = {}
 
         elif self.source == 'netbox':
-
             try:
                 r = requests.get(self.url + '/api/dcim/devices/' + str(x))
             except ConnectionError:
@@ -249,20 +248,8 @@ class DataHandler(object):
                         "type": d['device_type']['model'],
                         "ios_type": os_type,
                         "local_creds": False}
-
             else:
                 return None
-
-        return host
-
-    def getHostByID(self, x):
-        """Get device by ID along with active Netmiko SSH session.
-
-        x = host id
-        """
-        host = self.retrieveHostByID(x)
-
-        # TO DO see if I can get rid of this
 
         # Get host class based on device type
         return dt.DeviceHandler(id=host['id'], hostname=host['hostname'],
