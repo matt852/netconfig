@@ -109,7 +109,7 @@ class CiscoIOS(CiscoBaseDevice):
                     # Split line on commas
                     x = line.split(',')
                     # Remove empty fields from string, specifically if first field is empty (1-2 digit vlan causes this)
-                    x = filter(None, x)
+                    x = list(filter(None, x))
                     if x:
                         y = {}
                         y['vlan'] = x[0].strip()
