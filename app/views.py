@@ -92,18 +92,6 @@ def before_request():
 ########################
 
 
-@app.errorhandler(404)
-def not_found_error(error):
-    """Return 404 page on 404 error."""
-    return render_template('errors/404.html', error=error), 404
-
-
-@app.errorhandler(500)
-def handle_500(error):
-    """Return 500 page on 500 error."""
-    return render_template('errors/500.html', error=error), 500
-
-
 @app.route('/nohostconnect/<host>')
 @app.route('/errors/nohostconnect/<host>')
 def noHostConnectError(host):

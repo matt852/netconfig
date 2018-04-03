@@ -28,6 +28,10 @@ sshhandler = SSHHandler()
 celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'], backend=app.config['CELERY_RESULT_BACKEND'])
 celery.conf.update(app.config)
 
+# Blueprints
+from app.errors import bp as errors_bp
+app.register_blueprint(errors_bp)
+
 from app import views, models
 
 manager = Manager(app)
