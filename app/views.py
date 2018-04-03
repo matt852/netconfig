@@ -10,13 +10,12 @@ from app import app, datahandler, logger, sshhandler
 from flask import flash, g, jsonify, redirect, render_template
 from flask import request, session, url_for
 from redis import StrictRedis
-from .scripts_bank.redis_logic import deleteUserInRedis, resetUserRedisExpireTimer, storeUserInRedis
+from .scripts_bank.redis_logic import resetUserRedisExpireTimer, storeUserInRedis
 from .scripts_bank.lib.functions import checkForVersionUpdate
 from .scripts_bank.lib.flask_functions import checkUserLoggedInStatus
 
 from .forms import AddHostForm, CustomCfgCommandsForm, CustomCommandsForm
-from .forms import EditHostForm, EditInterfaceForm, ImportHostsForm, LoginForm
-from .forms import LocalCredentialsForm
+from .forms import EditHostForm, EditInterfaceForm, ImportHostsForm, LocalCredentialsForm
 
 
 def initialChecks():
@@ -104,54 +103,13 @@ def noHostConnectError(host):
 def index():
     """Return index page for user.
 
-    Requires user to be logged in to display index page.
-    Else attempts to retrieve user credentials from login form.
-    If successful, stores them in server-side Redis server, with timer set
-     to automatically clear information after a set time,
-     or clear when user logs out.
-    Else, redirect user to login form.
+    Requires user to be logged in to display home page displaying all devices.
+    Else, redirect user to index page.
     """
     if 'USER' in session:
         return redirect(url_for('viewHosts'))
     else:
-        try:
-            if storeUserInRedis(request.form['user'], request.form['pw']):
-                logger.write_log('logged in')
-                return redirect(url_for('viewHosts'))
-            else:
-                return render_template("index.html", title='Home')
-        except:
-            return render_template("index.html", title='Home')
-
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    """Login page for user to save credentials."""
-    form = LoginForm()
-    if form.validate_on_submit():
-        return redirect(url_for('index'))
-    return render_template('login.html', title='Login with SSH credentials', form=form)
-
-
-@app.route('/logout', methods=['GET', 'POST'])
-def logout():
-    """Disconnect all SSH sessions by user."""
-    sshhandler.disconnectAllSSHSessions()
-    try:
-        currentUser = session['USER']
-        deleteUserInRedis()
-        logger.write_log('deleted user %s data stored in Redis' % (currentUser))
-        session.pop('USER', None)
-        logger.write_log('deleted user %s as stored in session variable' % (currentUser), user=currentUser)
-        u = session['UUID']
-        session.pop('UUID', None)
-        logger.write_log('deleted UUID %s for user %s as stored in session variable' % (u, currentUser), user=currentUser)
-    except KeyError:
-        logger.write_log('Exception thrown on logout.')
-        return redirect(url_for('index'))
-    logger.write_log('logged out')
-
-    return redirect(url_for('index'))
+        return render_template("index.html", title='Home')
 
 
 @app.route('/disconnectAllSSH')

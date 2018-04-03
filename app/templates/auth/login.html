@@ -1,5 +1,6 @@
 <!-- extend base layout -->
 {% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
 
 {% block content %}
 
@@ -7,7 +8,14 @@
     <div class="row">
         <div class="col-md-9">
             <h2 class="text-primary">Login Form</h2>
-
+            <br />
+            <h4>Please enter your SSH credentials</h4>
+            <div class="row">
+                <div class="col-md-4">
+                    {{ wtf.quick_form(form) }}
+                </div>
+            </div>
+            <!--
             <form action="{{ url_for('index') }}" method="post" name="login">
                 <h4>Please enter your SSH credentials</h4>
                 <br />
@@ -27,6 +35,7 @@
                 </div>
                 <input type="submit" value="Login" class="btn btn-primary" />
             </form>
+            -->
         </div>
     </div>
 </div>
