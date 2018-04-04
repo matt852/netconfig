@@ -5,7 +5,6 @@ from app.auth.forms import LoginForm
 from app.scripts_bank.redis_logic import storeUserInRedis, deleteUserInRedis
 
 
-
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
     """Login page for user to save credentials."""
@@ -27,6 +26,7 @@ def login():
                     logger.write_log('failed to store user data in Redis when logging in')
     # Return login page if accessed via GET request
     return render_template('auth/login.html', title='Login with SSH credentials', form=form)
+
 
 @bp.route('/logout')
 def logout():
