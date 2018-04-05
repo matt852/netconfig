@@ -52,4 +52,4 @@ SSH_TIMEOUT = 10
 GH_MASTER_BRANCH_URL = 'https://raw.githubusercontent.com/v1tal3/netconfig/master/config.py'
 
 # Current version
-VERSION = '1.3.4a (beta)'
+VERSION = '1.3.5 (beta)'

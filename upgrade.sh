@@ -115,13 +115,25 @@ else
 fi
 
 
-### Step 11 - Restart supervisorctl process
+### Step 11 - Update settings file with any new additions from settings template (if necessary)
+if [[ $(awk 'FNR==NR{a[$1]=$0;next} !($1 in a)' instance/settings.py instance/settings_template.py) ]]; then
+    COMMAND="awk '{b=\$0;\$NF=\"\"}NR==FNR{a[\$0];print b;next}/^#/||!\$0{next}!(\$0 in a){print b}' instance/settings.py instance/settings_template.py > instance/settings.new"
+    eval $COMMAND
+    COMMAND="mv instance/settings.new instance/settings.py"
+    eval $COMMAND
+    printf "\n ${green} Settings file updated with new variables.  Consult instance/settings_template.py or documentation for descriptions on new variables. \n\n ${reset}"
+else
+    printf "\n ${magenta} Settings file does not need to be updated.  Skipping. \n\n ${reset}"
+fi
+
+
+### Step 12 - Restart supervisorctl process
 COMMAND="${PREFIX} supervisorctl restart netconfig"
 printf "\n ${cyan} Restarting supervisorctl NetConfig process... ${reset} \n\n"
 eval $COMMAND
 
 
-### Step 12 - Notify of successful upgrade
+### Step 13 - Notify of successful upgrade
 NEWVERSION=`cat config.py | grep VERSION | cut -d \' -f 2`
 
 if [ "$UPDATERESULT" == false ]

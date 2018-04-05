@@ -133,8 +133,21 @@ def getSSHSessionsCount():
 
 @app.route('/checkupdates')
 def checkUpdates():
-    """Check for NetConfig updates on GitHub."""
-    return checkForVersionUpdate(app.config)
+    """Check for NetConfig updates on GitHub.
+
+    Only check if configured to do so (default behaviour).
+    Skip if CHECK_FOR_UDPATES set to False.
+    """
+    try:
+        if app.config['CHECK_FOR_UDPATES']:
+            # If set to true, check for updates
+            return checkForVersionUpdate(app.config)
+        else:
+            # Otherwise skip checking for updates
+            return jsonify(status="True")
+    except KeyError:
+        # If settings variable doesn't exist, default to checking for updates
+        return checkForVersionUpdate(app.config)
 
 
 @app.route('/displayrecentdevicenames')
