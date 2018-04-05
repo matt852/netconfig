@@ -27,6 +27,11 @@ DB_HOST = 'localhost'
 DB_PORT = 6379
 DB_NO = 0
 
+# Celery setup
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_TASK_SERIALIZER = 'json'
+
 # Logging settings
 # LOGFILE is currently not used
 # SYSLOGFILE is the location where syslog type logs are stored,
@@ -40,5 +45,11 @@ SETTINGSFILE = os.path.join(basedir, 'instance/settings.py')
 # Bootstrap configuration
 BOOTSTRAP_SERVE_LOCAL = True
 
+# Global SSH new connection timeout
+SSH_TIMEOUT = 10
+
+# GitHub Master branch config file location
+GH_MASTER_BRANCH_URL = 'https://raw.githubusercontent.com/v1tal3/netconfig/master/config.py'
+
 # Current version
-VERSION = '1.3.4a (beta)'
+VERSION = '1.3.5 (beta)'

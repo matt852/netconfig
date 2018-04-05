@@ -65,8 +65,9 @@ class CiscoASA(CiscoBaseDevice):
 
     def pull_host_interfaces(self, activeSession):
         """Retrieve list of interfaces on device."""
-        result = self.run_ssh_command('show interface ip brief', activeSession)
-        return self.cleanup_ios_output(result)
+        # result = self.run_ssh_command('show interface ip brief', activeSession)
+        result = self.run_ssh_command('show interface detail', activeSession)
+        return self.cleanup_asa_output(result)
 
     def count_interface_status(self, interfaces):
         """Return count of interfaces.
@@ -79,7 +80,7 @@ class CiscoASA(CiscoBaseDevice):
         data['up'] = data['down'] = data['disabled'] = data['total'] = 0
 
         for x in interfaces:
-            if 'administratively' in x['status']:
+            if 'admin' in x['status']:
                 data['disabled'] += 1
             elif 'down' in x['protocol']:
                 data['down'] += 1
@@ -90,4 +91,58 @@ class CiscoASA(CiscoBaseDevice):
 
             data['total'] += 1
 
+        return data
+
+    def clean_interface_description(self, x):
+        """Create description if doesn't exist. Truncate as necessary."""
+        # If no description was configured, manually set it to an empty string
+        try:
+            x['description']
+        except KeyError:
+            # Set to '--' if empty
+            x['description'] = "--"
+        # Truncate description to 25 characters if longer then 25 characters
+        return (x['description'][:25] + '..') if len(x['description']) > 25 else x['description'].strip()
+
+    def cleanup_asa_output(self, asaOutput):
+        """Clean up returned ASA output from 'show ip interface brief'."""
+        data = []
+        # Used to set if we're on the first loop or not
+        notFirstLoop = False
+
+        for line in asaOutput.splitlines():
+            try:
+                # This is the first line of each new interface
+                if "line protocol is" in line:
+                    # If on first loop, skip
+                    if notFirstLoop:
+                        interface['description'] = self.clean_interface_description(interface)
+                        data.append(interface)
+                    else:
+                        # Set 'notFirstLoop' to True now
+                        notFirstLoop = True
+                    # Create new empty interface dict
+                    interface = {}
+                    # Split on commas
+                    x = line.split()
+                    interface['name'] = x[1]
+                    # If interface is administratively down
+                    if "admin" in x[4]:
+                        interface['status'] = "admin down"
+                    else:
+                        interface['status'] = x[4].strip(',')
+                    interface['protocol'] = x[-1]
+                elif "IP address" in line:
+                    x = line.split()
+                    interface['address'] = x[2].strip(',')
+                elif "Description" in line:
+                    # Remove the word "Description" from line, keep rest of string
+                    interface['description'] = line.replace('Description:', '').strip()
+            except IndexError:
+                continue
+
+        # If no description was configured, manually set it to an empty string
+        interface['description'] = self.clean_interface_description(interface)
+        # Needed for last interface in output
+        data.append(interface)
         return data

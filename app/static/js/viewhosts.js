@@ -71,7 +71,17 @@ $(document).ready(function() {
     window.location.href = url;
   });
 
-  // Display tblViewHosts buttons // WIP for select all button
-  //table.buttons().container()
-  //    .appendTo( $('.col-sm-6:eq(0)', table.table().container() ) );
+  // Check for NetConfig version updates on GitHub
+  $.ajax({
+    url: '/checkupdates',
+    success: function(data) {
+      // Show alert that an update for NetConfig is available
+      if (data.status == "False") {
+        $("#alertUpdate").removeClass('hidden');
+        var masterVersion = document.getElementById('masterVersion'); // Get DIV element from HTML page
+        masterVersion.innerHTML = data.masterVersion;
+      }
+    }
+  });
+
 });

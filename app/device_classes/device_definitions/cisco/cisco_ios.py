@@ -145,9 +145,10 @@ class CiscoIOS(CiscoBaseDevice):
 
     def pull_host_interfaces(self, activeSession):
         """Retrieve list of interfaces on device."""
-        result = self.run_ssh_command('show ip interface brief', activeSession)
+        resultA = self.run_ssh_command('show ip interface brief', activeSession)
+        resultB = self.run_ssh_command('show interface description', activeSession)
 
-        return self.cleanup_ios_output(result)
+        return self.cleanup_ios_output(resultA, resultB)
 
     def count_interface_status(self, interfaces):
         """Return count of interfaces.
@@ -160,7 +161,7 @@ class CiscoIOS(CiscoBaseDevice):
         data['up'] = data['down'] = data['disabled'] = data['total'] = 0
 
         for x in interfaces:
-            if 'administratively' in x['status']:
+            if 'admin' in x['status']:
                 data['disabled'] += 1
             elif 'down' in x['protocol']:
                 data['down'] += 1
@@ -170,5 +171,42 @@ class CiscoIOS(CiscoBaseDevice):
                 data['total'] -= 1
 
             data['total'] += 1
+
+        return data
+
+    def cleanup_ios_output(self, iosOutputA, iosOutputB):
+        """Clean up returned IOS output from 'show ip interface brief'."""
+        data = []
+
+        for a, b in zip(iosOutputA.splitlines(), iosOutputB.splitlines()):
+            try:
+                x = a.split()  # show ip interface brief output
+                y = b.split()  # show interface description output
+                if x[0] == "Interface":
+                    continue
+                else:
+                    interface = {}
+                    descLine = ''
+                    interface['name'] = x[0]
+                    interface['address'] = x[1]
+                    if 'admin' in y[1]:
+                        interface['status'] = y[1] + " " + y[2]
+                        interface['protocol'] = y[3]
+                        # Get all elements from 4th index onward, but combine into readable string
+                        for z in y[4:]:
+                            descLine = descLine + str(z) + " "
+                    else:
+                        interface['status'] = y[1]
+                        interface['protocol'] = y[2]
+                        # Get all elements from 3rd index onward, but combine into readable string
+                        for z in y[3:]:
+                            descLine = descLine + str(z) + " "
+                    # Truncate description to 25 characters if longer then 25 characters
+                    interface['description'] = (descLine[:25] + '..') if len(descLine) > 25 else descLine.strip()
+                    # Set to '--' if empty
+                    interface['description'] = interface['description'] or '--'
+                    data.append(interface)
+            except IndexError:
+                continue
 
         return data

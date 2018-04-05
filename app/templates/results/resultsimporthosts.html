@@ -6,14 +6,63 @@
 <div class="container-fluid">
 	<div class="row">
 		<div class="col-md-9">
-			<h2 class="text-primary">Import Devices - Result</h2>
-			<p>
-				{% if response %}
-					All devices successfully imported
-				{% else %}
-					Error with import - {{ message }}
-				{% endif %}
-			</p>
+			{% if errors %}
+				<div class="alert alert-danger fade in" role="alert">
+					<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+					Errors detected when importing new devices!
+				</div>
+			{% endif %}
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-9">
+			<h2 class="text-primary">Device Import Results</h2><br />
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-9">
+			{% if hosts %}
+				<h4 class="text-success">Successful Device Imports</h4>
+				<table class="table table-striped table-hover table-condensed display">
+					<thead>
+						<tr>
+							<th style="width: 50%">Hostname</th>
+							<th style="width: 50%">IP Address</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for host in hosts %}
+							<tr>
+								<td><a href="/db/viewhosts/{{ host['id'] }}">{{ host['hostname'] }}</a></td>
+								<td>{{ host['ipv4_addr'] }}</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			{% endif %}
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-9">
+			{% if errors %}
+				<h4 class="text-danger">Unsuccessful Device Imports</h4>
+				<table class="table table-striped table-hover table-condensed display">
+					<thead>
+						<tr>
+							<th style="width: 50%">Hostname</th>
+							<th style="width: 50%">Error Message</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for x in errors %}
+							<tr>
+								<td>{{ x['hostname'] }}</td>
+								<td>{{ x['error'] }}</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			{% endif %}
 		</div>
 	</div>
 	<div class="row">

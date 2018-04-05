@@ -25,14 +25,14 @@
 			    </p>
 			    <p>
 			        Please enter the device type:<br />
-			        {{ form.hosttype() }}
+			        {{ form.hosttype(required="required") }}
 			        {% for error in form.hosttype.errors %}
 			          <span style="color: red;">[{{error}}]</span>
 			        {% endfor %}<br />
 			    </p>
 			    <p>
 			        Please enter the device's IOS type:<br />
-			        {{ form.ios_type }}
+			        {{ form.ios_type(required="required") }}
 			        {% for error in form.ios_type.errors %}
 			          <span style="color: red;">[{{error}}]</span>
 			        {% endfor %}<br />

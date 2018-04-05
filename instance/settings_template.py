@@ -52,7 +52,12 @@ REDISKEYTIMEOUT = SESSIONTIMEOUT * 60
 # This should not need to be modified
 POSTS_PER_PAGE = 10000
 
-
 # Debug settings - only enable True for debugging issues (WIP)
 # Default = False
 DEBUG = False
+
+# Enable auto-checking if an update is available on GitHub
+# If set to True, but unable to access the internet, the default behaviour will not display anything
+# If set to False, no outbound internet checks will occur
+# Default = True
+CHECK_FOR_UDPATES = True

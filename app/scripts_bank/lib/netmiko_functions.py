@@ -2,6 +2,8 @@
 
 import socket
 import netmiko as nm
+import app
+from threading import Thread
 
 
 def sessionIsAlive(ssh):
@@ -34,11 +36,11 @@ def connectToSSH(host, creds):
     # Try to connect to the host
     try:
         if creds.priv:
-            ssh = nm.ConnectHandler(device_type=host.ios_type.strip(), ip=host.ipv4_addr.strip(), username=creds.un, password=creds.pw, secret=creds.priv)
+            ssh = nm.ConnectHandler(device_type=host.ios_type.strip(), ip=host.ipv4_addr.strip(), username=creds.un, password=creds.pw, secret=creds.priv, timeout=app.app.config['SSH_TIMEOUT'])
             # Enter into enable mode
             ssh.enable()
         else:
-            ssh = nm.ConnectHandler(device_type=host.ios_type.strip(), ip=host.ipv4_addr.strip(), username=creds.un, password=creds.pw)
+            ssh = nm.ConnectHandler(device_type=host.ios_type.strip(), ip=host.ipv4_addr.strip(), username=creds.un, password=creds.pw, timeout=app.app.config['SSH_TIMEOUT'])
 
     # except nm.AuthenticationException:
     #    return "%s skipped - authentication error\n" % (host)
@@ -50,12 +52,16 @@ def connectToSSH(host, creds):
 
 def disconnectFromSSH(ssh):
     """Disconnect from active SSH session."""
-    try:
-        if ssh:
+    # Daemonize work to run in background
+    def daemon():
+        try:
             # Disconnect from the host
             ssh.disconnect()
-    except:
-        pass
+        except:
+            pass
+    d = Thread(name='daemon', target=daemon)
+    d.setDaemon(True)
+    d.start()
 
 
 def runSSHCommandOnce(command, host, creds):

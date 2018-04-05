@@ -3,6 +3,7 @@
 *.pyc
 *.log
 *.db
+*.vscode
 app/log/
 log/*
 scripts_bank/logs/*

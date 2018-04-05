@@ -1,5 +1,10 @@
 #!/usr/bin/python
-
+from flask import jsonify
+from datetime import datetime
+try:
+    from urllib import urlopen  # Python 2
+except ImportError:
+    from urllib.parse import urlopen  # Python 3
 
 
 class UserCredentials(object):
@@ -54,3 +59,37 @@ def isInteger(x):
         return True
     except ValueError:
         return False
+
+
+def checkForVersionUpdate(config):
+    """Check for NetConfig updates on GitHub."""
+    try:
+        masterConfig = urlopen(config['GH_MASTER_BRANCH_URL'])
+    except IOError:
+        # Catch exception if unable to access URL, or access to internet is blocked/down. Default to True
+        return "True"
+    # Reverse lookup as the VERSION variable should be close to the bottom
+    for x in masterConfig:
+        if 'VERSION' in x:
+            x = x.split('=')
+            try:
+                # Strip whitespace and single quote mark
+                masterVersion = x[-1].strip().strip("'")
+            except IndexError:
+                continue
+            # Verify if current version matches most recent GitHub release
+            if masterVersion != config['VERSION']:
+                # Return False if the current version does not match the most recent version
+                return jsonify(status="False", masterVersion=masterVersion)
+    # If VERSION can't be found, successfully compared, or is identical, just return True
+    return jsonify(status="True")
+
+# Get current timestamp for when starting a script
+def getCurrentTime():
+	currentTime = datetime.now()
+	return currentTime
+
+# Returns time elapsed between current time and provided time in 'startTime'
+def getScriptRunTime(startTime):
+	endTime = getCurrentTime() - startTime
+	return endTime

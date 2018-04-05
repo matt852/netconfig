@@ -4,27 +4,18 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Installation Guide for Redhat Enterprise License (RHEL) Server 7 &#8212; NetConfig 1.0 documentation</title>
     <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '1.0',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" src="../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" /> 
-  </head>
-  <body>
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -46,7 +37,7 @@
 <div class="section" id="update-rhel">
 <h2>Update RHEL<a class="headerlink" href="#update-rhel" title="Permalink to this headline">¶</a></h2>
 <p>Update RHEL, install required system packages, and reboot</p>
-<div class="highlight-text"><div class="highlight"><pre><span></span>sudo yum upgrade
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>sudo yum upgrade
 sudo yum -y install gcc python python-devel python-pip nginx redis supervisor python-gunicorn git
 sudo reboot now
 </pre></div>
@@ -56,19 +47,19 @@ sudo reboot now
 <h2>Create new Netconfig user<a class="headerlink" href="#create-new-netconfig-user" title="Permalink to this headline">¶</a></h2>
 <p>Create a new netconfig user to install and run Netconfig under.
 Set any password you choose.</p>
-<div class="highlight-text"><div class="highlight"><pre><span></span>sudo adduser netconfig
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>sudo adduser netconfig
 sudo passwd netconfig
 </pre></div>
 </div>
 <p>Switch to the new Netconfig user</p>
-<div class="highlight-text"><div class="highlight"><pre><span></span>su - netconfig
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>su - netconfig
 </pre></div>
 </div>
 </div>
 <div class="section" id="download-netconfig">
 <h2>Download NetConfig<a class="headerlink" href="#download-netconfig" title="Permalink to this headline">¶</a></h2>
 <p>Download NetConfig and install required Python packages</p>
-<div class="highlight-text"><div class="highlight"><pre><span></span>cd ~/
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>cd ~/
 git clone -b master https://github.com/v1tal3/netconfig.git
 cd netconfig
 sudo pip install --upgrade pip
@@ -80,7 +71,7 @@ sudo pip install -r requirements.txt
 <h2>Configure NGINX<a class="headerlink" href="#configure-nginx" title="Permalink to this headline">¶</a></h2>
 <p>Create the following folders in NGINX to allow server blocks and create a new site for NetConfig.
 Replace “domain.com” with your actual domain name (lines highlighted)</p>
-<div class="highlight-text"><div class="highlight"><pre><span></span>sudo mkdir /etc/nginx/sites-available
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>sudo mkdir /etc/nginx/sites-available
 sudo mkdir /etc/nginx/sites-enabled
 sudo touch /etc/nginx/sites-available/netconfig
 sudo vi /etc/nginx/sites-available/netconfig
@@ -88,7 +79,7 @@ sudo vi /etc/nginx/sites-available/netconfig
 </div>
 <div class="section" id="contents-of-etc-nginx-sites-available-netconfig">
 <h3><em>Contents of /etc/nginx/sites-available/netconfig</em><a class="headerlink" href="#contents-of-etc-nginx-sites-available-netconfig" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-text"><div class="highlight"><pre><span></span>  server {
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>  server {
       listen            80;
 <span class="hll">      server_name       netconfig.domain.com;
 </span>      return            301 https://$host$request_uri;
@@ -118,20 +109,20 @@ sudo vi /etc/nginx/sites-available/netconfig
 <div class="section" id="create-symlink">
 <h2>Create symlink<a class="headerlink" href="#create-symlink" title="Permalink to this headline">¶</a></h2>
 <p>Create symlink for netconfig file into nginx/sites-enabled</p>
-<div class="highlight-text"><div class="highlight"><pre><span></span>sudo ln -s /etc/nginx/sites-available/netconfig /etc/nginx/sites-enabled
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>sudo ln -s /etc/nginx/sites-available/netconfig /etc/nginx/sites-enabled
 </pre></div>
 </div>
 </div>
 <div class="section" id="service">
 <h2>Service<a class="headerlink" href="#service" title="Permalink to this headline">¶</a></h2>
 <p>Create and fill out netconfig.service file</p>
-<div class="highlight-text"><div class="highlight"><pre><span></span>sudo touch /etc/systemd/system/netconfig.service
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>sudo touch /etc/systemd/system/netconfig.service
 sudo vi /etc/systemd/system/netconfig.service
 </pre></div>
 </div>
 <div class="section" id="contents-of-etc-systemd-system-netconfig-service">
 <h3><em>Contents of /etc/systemd/system/netconfig.service</em><a class="headerlink" href="#contents-of-etc-systemd-system-netconfig-service" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-text"><div class="highlight"><pre><span></span>[Unit]
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>[Unit]
 Description=uWSGI instance to serve NetConfig
 After=network.target
 
@@ -151,7 +142,7 @@ WantedBy=multi-user.target
 <div class="section" id="start-and-enable-netconfig-services">
 <h2>Start and Enable Netconfig services<a class="headerlink" href="#start-and-enable-netconfig-services" title="Permalink to this headline">¶</a></h2>
 <p>Start and enable services related to NetConfig running in the background</p>
-<div class="highlight-text"><div class="highlight"><pre><span></span>sudo systemctl daemon-reload
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>sudo systemctl daemon-reload
 sudo systemctl start netconfig
 sudo systemctl enable netconfig
 </pre></div>
@@ -161,12 +152,12 @@ sudo systemctl enable netconfig
 <h2>Supervisord Configuration<a class="headerlink" href="#supervisord-configuration" title="Permalink to this headline">¶</a></h2>
 <p>Add netconfig to supervisor configuration file for gUnicorn under the program section.
 In a default supervisor configuration, this starts at line 79. sudo vi /etc/supervisord.conf</p>
-<div class="highlight-text"><div class="highlight"><pre><span></span>sudo vi /etc/supervisord.conf
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>sudo vi /etc/supervisord.conf
 </pre></div>
 </div>
 <div class="section" id="contents-of-etc-supervisord-conf">
 <h3><em>Contents of /etc/supervisord.conf</em><a class="headerlink" href="#contents-of-etc-supervisord-conf" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-text"><div class="highlight"><pre><span></span>[program:netconfig]
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>[program:netconfig]
 command = gunicorn app:app -b localhost:8000
 directory = /home/netconfig/netconfig
 user = netconfig
@@ -176,7 +167,7 @@ user = netconfig
 </div>
 <div class="section" id="restart-services">
 <h2>Restart Services<a class="headerlink" href="#restart-services" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-text"><div class="highlight"><pre><span></span>sudo pkill gunicorn
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>sudo pkill gunicorn
 sudo systemctl restart nginx
 sudo systemctl restart supervisord
 sudo supervisorctl reread
@@ -189,14 +180,14 @@ sudo supervisorctl restart netconfig
 <h2>Configure Self-Signed SSL Cert<a class="headerlink" href="#configure-self-signed-ssl-cert" title="Permalink to this headline">¶</a></h2>
 <p>Run these commands to generate a self-signed SSL certificate</p>
 <p>Create a new directory for the certs and move into it</p>
-<div class="highlight-text"><div class="highlight"><pre><span></span>sudo mkdir /etc/nginx/ssl
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>sudo mkdir /etc/nginx/ssl
 cd /etc/nginx/ssl
 </pre></div>
 </div>
 <p>Generate the self-signed SSL certs.</p>
 <p>When prompted to create a key file password, anything will work (line 1).  This will be the same password used when prompted during certificate creation (lines 2 and 4)</p>
 <p>When generating the certificate, fill out the relevant details as requested (Country, State, etc.).  However when asked for the common name, set it to your domain name</p>
-<div class="highlight-text"><div class="highlight"><pre><span></span>sudo openssl genrsa -des3 -out server.key 2048
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>sudo openssl genrsa -des3 -out server.key 2048
 sudo openssl req -new -key server.key -out server.csr
 sudo cp server.key server.key.org
 sudo openssl rsa -in server.key.org -out server.key
@@ -204,19 +195,19 @@ sudo openssl x509 -req -days 365 -in server.csr -signkey server.key -out server.
 </pre></div>
 </div>
 <p>Restart NGINX services</p>
-<div class="highlight-text"><div class="highlight"><pre><span></span>sudo systemctl restart nginx
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>sudo systemctl restart nginx
 </pre></div>
 </div>
 </div>
 <div class="section" id="configure-netconfig-settings">
 <h2>Configure NetConfig Settings<a class="headerlink" href="#configure-netconfig-settings" title="Permalink to this headline">¶</a></h2>
 <p>Copy settings template file</p>
-<div class="highlight-text"><div class="highlight"><pre><span></span>cd ~/netconfig
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>cd ~/netconfig
 cp instance/settings_template.py instance/settings.py
 </pre></div>
 </div>
 <p>Modify the contents of the file:</p>
-<div class="highlight-text"><div class="highlight"><pre><span></span>vi instance/settings.py
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>vi instance/settings.py
 </pre></div>
 </div>
 <p>The only required settings that need to be changed in the file are as follows:</p>
@@ -231,14 +222,14 @@ cp instance/settings_template.py instance/settings.py
 <div class="section" id="create-local-database">
 <h2>Create local database<a class="headerlink" href="#create-local-database" title="Permalink to this headline">¶</a></h2>
 <p>If using local SQLAlchemy database, create the database (this step is not needed if using Netbox)</p>
-<div class="highlight-text"><div class="highlight"><pre><span></span>python db_create.py
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>python db_create.py
 </pre></div>
 </div>
 </div>
 <div class="section" id="restart-netconfig-service">
 <h2>Restart NetConfig Service<a class="headerlink" href="#restart-netconfig-service" title="Permalink to this headline">¶</a></h2>
 <p>Restart Netconfig service for all changes to take effect</p>
-<div class="highlight-text"><div class="highlight"><pre><span></span>sudo supervisorctl restart netconfig
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>sudo supervisorctl restart netconfig
 </pre></div>
 </div>
 </div>
@@ -260,12 +251,14 @@ cp instance/settings_template.py instance/settings.py
         <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -283,7 +276,7 @@ cp instance/settings_template.py instance/settings.py
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017, Matt Vitale.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.7.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.1.
     </div>
   </body>
 </html>
