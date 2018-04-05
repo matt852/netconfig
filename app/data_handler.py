@@ -68,7 +68,7 @@ class DataHandler(object):
                 errors.append(error)
                 continue
 
-            ios_type = self.getOSType(row[3].lower())
+            ios_type = self.getOSType(row[3])
             if ios_type.lower() == "error":
                 error = {'hostname': row[0], 'error': "Invalid OS type"}
                 errors.append(error)
@@ -138,6 +138,7 @@ class DataHandler(object):
             else:
                 return "error"
 
+        os = os.lower()
         if os == 'ios':
             return "cisco_ios"
         elif os == 'ios-xe':
