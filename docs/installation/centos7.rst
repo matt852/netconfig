@@ -62,6 +62,7 @@ Configure NGINX
 ^^^^^^^^^^^^^^^
 
 Edit the default nginx config file:
+
 .. code-block:: text
 
     sudo vi /etc/nginx/nginx.conf
@@ -71,13 +72,14 @@ sure that you get the correct braces when you delete and that the http section
 still closes at the end of file. 
 
 Now we add the config file for netconfig.
+
 .. code-block:: text
 
     sudo vi /etc/nginx/conf.d/netconfig.conf
 
 Replace “netconfig.domain.com” with your actual domain name.
+
 *Contents of /etc/nginx/conf.d/netconfig.conf*
-""""""""""""""""""""""""""""""""""""""""""""""""""
 
 .. code-block:: text
   :emphasize-lines: 3, 9
@@ -108,8 +110,8 @@ Replace “netconfig.domain.com” with your actual domain name.
 
 Save and exit the file.
 
-Service
-^^^^^^^
+Netconfig Service
+^^^^^^^^^^^^^^^^^
 
 Create and fill out netconfig.service file
 
@@ -118,7 +120,6 @@ Create and fill out netconfig.service file
     sudo vi /etc/systemd/system/netconfig.service
 
 *Contents of /etc/systemd/system/netconfig.service*
-"""""""""""""""""""""""""""""""""""""""""""""""""""
 
 .. code-block:: text
 
@@ -158,7 +159,6 @@ In a default supervisor configuration, this starts at line 79. sudo vi /etc/supe
     sudo vi /etc/supervisord.conf
 
 *Contents of /etc/supervisord.conf*
-"""""""""""""""""""""""""""""""""""
 
 .. code-block:: text
 
@@ -178,7 +178,7 @@ Configure Self-Signed SSL Cert
 
 Run these commands to generate a self-signed SSL certificate
 
-Create a new directory for the certs and move into it
+Create a new directory for the certs and move into it:
 
 .. code-block:: text
 
@@ -206,6 +206,8 @@ domain name of the server.
 
 Restart Services
 ^^^^^^^^^^^^^^^^
+
+Enable and restart services for the program:
 
 .. code-block:: text
     sudo systemctl enable nginx
@@ -268,7 +270,7 @@ Start and enable Redis:
 Final security changes
 ^^^^^^^^^^^^^^^^^^^^^^
 
-Open the proper port using firewall-cmd:
+Open the proper ports using firewall-cmd:
 
 .. code-block:: text
 
