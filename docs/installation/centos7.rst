@@ -77,13 +77,11 @@ Now we add the config file for netconfig.
 
     sudo vi /etc/nginx/conf.d/netconfig.conf
 
-Replace “netconfig.domain.com” with your actual domain name.
+Replace both “netconfig.domain.com” with your actual domain name.
 
 *Contents of /etc/nginx/conf.d/netconfig.conf*
 
 .. code-block:: text
-
-  :emphasize-lines: 3, 9
 
     server {
         listen            80;
