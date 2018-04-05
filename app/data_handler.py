@@ -138,13 +138,13 @@ class DataHandler(object):
             else:
                 return "error"
 
-        if os == 'ios':
+        if os == 'IOS':
             return "cisco_ios"
-        elif os == 'ios-xe':
+        elif os == 'IOS-XE':
             return "cisco_xe"
-        elif os == 'nx-os':
+        elif os == 'NX-OS':
             return "cisco_nxos"
-        elif os == 'asa':
+        elif os == 'ASA':
             return "cisco_asa"
         else:
             return "error"
