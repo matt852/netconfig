@@ -209,6 +209,7 @@ Restart Services
 Enable and restart services for the program:
 
 .. code-block:: text
+    
     sudo systemctl enable nginx
     sudo systemctl restart nginx
     sudo systemctl enable supervisord
