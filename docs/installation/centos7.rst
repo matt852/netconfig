@@ -18,7 +18,7 @@ Updates and requirements.
     # yum install -y gcc python python-devel python-pip nginx redis supervisor python-gunicorn openssl-devel git openldap-devel uwsgi policycoreutils-python
 
     Optional (but useful):
-    # yum install 
+    # yum install net-tools wget htop vim tmux open-vm-tools
     
     You likely got a kernel update. Reboot:
     # reboot
