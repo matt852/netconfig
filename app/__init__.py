@@ -1,5 +1,4 @@
 import os
-from celery import Celery
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
@@ -23,10 +22,6 @@ except KeyError:
 logger = LogHandler(app.config['SYSLOGFILE'])
 
 sshhandler = SSHHandler()
-
-# Celery
-celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'], backend=app.config['CELERY_RESULT_BACKEND'])
-celery.conf.update(app.config)
 
 # Errors blueprint
 from app.errors import bp as errors_bp
