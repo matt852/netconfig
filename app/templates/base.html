@@ -23,7 +23,7 @@
 			<div class="col-md-1">
 			</div>
 			<div class="col-md-11">
-				{% if session['USER'] or request.path == "/login" %}
+				{% if session['USER'] or request.path == "/auth/login" %}
 					{% block content %}{% endblock %}
 				{% else %}
 					{% include "/errors/notloggedin.html" %}
