@@ -11,7 +11,7 @@ from flask import flash, g, jsonify, redirect, render_template
 from flask import request, session, url_for
 from redis import StrictRedis
 from .scripts_bank.redis_logic import resetUserRedisExpireTimer, storeUserInRedis
-from .scripts_bank.lib.functions import checkForVersionUpdate
+from .scripts_bank.lib.functions import checkForVersionUpdate, interfaceReplaceSlash
 from .scripts_bank.lib.flask_functions import checkUserLoggedInStatus
 
 from .forms import AddHostForm, CustomCfgCommandsForm, CustomCommandsForm
@@ -44,17 +44,6 @@ def ajaxCheckHostActiveSession(x):
     return 'False'
 
 
-def interfaceReplaceSlash(x):
-    """Replace all forward slashes in string 'x' with an underscore."""
-    x = x.replace('_', '/')
-    return x
-
-
-###############################
-# Login Creds Timeout - Begin #
-###############################
-
-
 def init_db():
     """Initialize local Redis database."""
     db = StrictRedis(
@@ -62,16 +51,6 @@ def init_db():
         port=app.config['DB_PORT'],
         db=app.config['DB_NO'])
     return db
-
-
-#############################
-# Login Creds Timeout - End #
-#############################
-
-
-##########################
-# Flask Handlers - Begin #
-##########################
 
 
 @app.before_request
@@ -85,10 +64,6 @@ def before_request():
     session.permanent = True
     app.permanent_session_lifetime = timedelta(minutes=app.config['SESSIONTIMEOUT'])
     session.modified = True
-
-########################
-# Flask Handlers - End #
-########################
 
 
 @app.route('/nohostconnect/<host>')
