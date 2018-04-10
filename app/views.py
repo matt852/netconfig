@@ -29,21 +29,6 @@ def initialChecks():
                                title='Home')
 
 
-@app.route('/ajaxcheckhostactivesshsession/<x>', methods=['GET', 'POST'])
-def ajaxCheckHostActiveSession(x):
-    """Check if existing SSH session for host is currently active.
-
-    Used for AJAX call only, on main viewhosts.html page.
-    x = host id
-    """
-    host = datahandler.getHostByID(x)
-
-    if host:
-        if sshhandler.checkHostActiveSSHSession(host):
-            return 'True'
-    return 'False'
-
-
 def init_db():
     """Initialize local Redis database."""
     db = StrictRedis(
@@ -64,6 +49,21 @@ def before_request():
     session.permanent = True
     app.permanent_session_lifetime = timedelta(minutes=app.config['SESSIONTIMEOUT'])
     session.modified = True
+
+
+@app.route('/ajaxcheckhostactivesshsession/<x>', methods=['GET', 'POST'])
+def ajaxCheckHostActiveSession(x):
+    """Check if existing SSH session for host is currently active.
+
+    Used for AJAX call only, on main viewhosts.html page.
+    x = host id
+    """
+    host = datahandler.getHostByID(x)
+
+    if host:
+        if sshhandler.checkHostActiveSSHSession(host):
+            return 'True'
+    return 'False'
 
 
 @app.route('/nohostconnect/<host>')

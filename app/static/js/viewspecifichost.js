@@ -1,3 +1,18 @@
+/* Formatting function for row details - modify as you need */
+function format ( d ) {
+    // `d` is the original data object for the row
+    return '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+
+        '<tr>'+
+            '<td>POE Status:</td>'+
+            '<td>Status1</td>'+
+        '</tr>'+
+        '<tr>'+
+            '<td>Test number:</td>'+
+            '<td>Number2</td>'+
+        '</tr>'+
+    '</table>';
+}
+
 $(document).ready(function() {
   // Start Uptime section
   // Get ID of current device from URL, which are the numbers after the last '/'
@@ -26,6 +41,11 @@ $(document).ready(function() {
       orderable: false,
       className: 'select-checkbox',
       targets: 0
+    },
+    {
+      orderable: false,
+      className: 'details-control',
+      targets: 7
     }],
     select: {
       style: 'multi',
@@ -37,6 +57,23 @@ $(document).ready(function() {
   $('#tblViewSpecificHost tbody').on('click', 'td:first-child', function() {
     $(this).toggleClass('selected');
   });
+     
+  // Add event listener for opening and closing details
+  $('#tblViewSpecificHost tbody').on('click', 'td.details-control', function () {
+      var tr = $(this).closest('tr');
+      var row = table.row( tr );
+
+      if ( row.child.isShown() ) {
+          // This row is already open - close it
+          row.child.hide();
+          tr.removeClass('shown');
+      }
+      else {
+          // Open this row
+          row.child( format(row.data()) ).show();
+          tr.addClass('shown');
+      }
+  } );
 
   $('#btnEnableInterfaces').click(function(e) {
     // Get current table Length
