@@ -16,12 +16,26 @@ class TestDataHandler(unittest.TestCase):
         db.drop_all()
         db.create_all()
 
-    def test_addHostToDB(self):
+    def tearDown(self):
+        """Cleanup once test completes."""
+        del self.datahandler
+
+    def test_addAndDeleteHostInDB(self):
         """Test adding a host to the database is successful."""
-        b, h_id, err = self.datahandler.addHostToDB("test", "192.168.1.5",
-                                                    "switch", "cisco_ios",
-                                                    False)
-        assert b is True
+        resultAdd, h_id, err = self.datahandler.addHostToDB("test", "192.168.1.5",
+                                                            "switch", "cisco_ios",
+                                                            False)
+
+        # Delete host from db if above adding was successful
+        if resultAdd:
+            resultDelete = self.datahandler.deleteHostInDB(h_id)
+        else:
+            # Force test failure
+            assert True is False
+
+        # Verify adding host worked
+        assert resultAdd is True
+        assert resultDelete is True
 
     def test_importHostsToDB(self):
         """Test importing hosts to database."""
