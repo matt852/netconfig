@@ -1,3 +1,4 @@
+import json
 import socket
 from datetime import timedelta
 
@@ -288,6 +289,19 @@ def deviceUptime(x):
     activeSession = sshhandler.retrieveSSHSession(host)
     logger.write_log('retrieved uptime on host %s' % (host.hostname))
     return jsonify(host.pull_device_uptime(activeSession))
+
+
+@app.route('/devicepoestatus/<x>')
+def devicePoeStatus(x):
+    """Get PoE status of all interfaces on device.
+
+    x = host id.
+    """
+    initialChecks()
+    host = datahandler.getHostByID(x)
+    activeSession = sshhandler.retrieveSSHSession(host)
+    logger.write_log('retrieved PoE status for interfaces on host %s' % (host.hostname))
+    return json.dumps(host.pull_device_poe_status(activeSession))
 
 
 @app.route('/db/viewhosts/<x>', methods=['GET', 'POST'])

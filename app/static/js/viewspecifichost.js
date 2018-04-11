@@ -1,23 +1,40 @@
-/* Formatting function for row details - modify as you need */
-function format ( d ) {
-    // `d` is the original data object for the row
-    return '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+
-        '<tr>'+
-            '<td>POE Status:</td>'+
-            '<td>Status1</td>'+
-        '</tr>'+
-        '<tr>'+
-            '<td>Test number:</td>'+
-            '<td>Number2</td>'+
-        '</tr>'+
-    '</table>';
-}
-
 $(document).ready(function() {
-  // Start Uptime section
   // Get ID of current device from URL, which are the numbers after the last '/'
   var loc = location.href.substr(location.href.lastIndexOf('/') + 1);
 
+  // Start POE status section
+  $.ajax({
+    url: '/devicepoestatus/' + loc,
+    success: function(data) {
+      // Get current table Length
+      var tableLength = table.page.len();
+      // Briefly redraw table with all pages, as the below function can only detect selected rows on visible pages
+      table.page.len(-1).draw();
+      var result = JSON.parse(data); // Parse jsonify'd data from python
+      for (var key in result) {
+        var value = result[key];
+        if (value == "on") { // If PoE is operationally on, apply corresponding class
+          var iconClass1 = 'glyphicon-ok';
+          var iconClass2 = 'icon-poe-on';
+        }
+        else { // If PoE is operationally off, apply corresponding class
+          var iconClass1 = 'glyphicon-remove';
+          var iconClass2 = 'icon-poe-off';
+        }
+        $("*[id='"+key+"-poe-loading']").addClass('hidden'); // Show status icon
+        $("*[id='"+key+"-poe-status']").removeClass('hidden'); // Show status icon
+        $("*[id='"+key+"-poe-icon']").addClass(iconClass1); // Apply class icon to <i> tag
+        $("*[id='"+key+"-poe-icon']").addClass(iconClass2); // Apply class icon to <i> tag
+      }
+      // Redraw table with original item count table length
+      table.page.len(tableLength).draw();
+      // Hide loading spinner for PoE status column
+      $("#poe-loading").addClass('hidden'); // Hide loading animation icon for PoE column
+    }
+  });
+  // End POE status section
+
+  // Start Uptime section
   $.ajax({
     url: '/deviceuptime/' + loc,
     success: function(data) {
@@ -41,11 +58,6 @@ $(document).ready(function() {
       orderable: false,
       className: 'select-checkbox',
       targets: 0
-    },
-    {
-      orderable: false,
-      className: 'details-control',
-      targets: 7
     }],
     select: {
       style: 'multi',
@@ -57,23 +69,6 @@ $(document).ready(function() {
   $('#tblViewSpecificHost tbody').on('click', 'td:first-child', function() {
     $(this).toggleClass('selected');
   });
-     
-  // Add event listener for opening and closing details
-  $('#tblViewSpecificHost tbody').on('click', 'td.details-control', function () {
-      var tr = $(this).closest('tr');
-      var row = table.row( tr );
-
-      if ( row.child.isShown() ) {
-          // This row is already open - close it
-          row.child.hide();
-          tr.removeClass('shown');
-      }
-      else {
-          // Open this row
-          row.child( format(row.data()) ).show();
-          tr.addClass('shown');
-      }
-  } );
 
   $('#btnEnableInterfaces').click(function(e) {
     // Get current table Length
@@ -179,14 +174,14 @@ $('#modalConfigInterface').on('shown.bs.modal', function(event) {
 
   var modal = $(this)
 
-  // Replace all '/' with '-'
+  // Replace all '/' with '_'
   interfaceDash = interface.replace(/\//g, '_')
-  // Replace all '.' with '_'
+  // Replace all '.' with '='
   interfaceDash = interfaceDash.replace(/\./g, '=')
 
-  // Replace all '-' with '/'
+  // Replace all '_' with '/'
   interfaceTitle = interface.replace(/_/g, '/')
-  // Replace all '?_ with '.'
+  // Replace all '=' with '.'
   interfaceTitle = interfaceTitle.replace(/=/g, '.')
 
   modal.find('.modal-title').text('Interface ' + interfaceTitle)
