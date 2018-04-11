@@ -1,5 +1,9 @@
 import unittest
 from app.device_classes.device_definitions.cisco.cisco_ios import CiscoIOS
+try:
+    import mock
+except ImportError:
+    from unittest import mock
 
 
 class TestCiscoIOS(unittest.TestCase):
@@ -37,6 +41,13 @@ Fa1/0/3                        admin down     down     Connection to ABC Switch
                                            'address': 'unassigned', 'protocol': 'down',
                                            'description': 'Connection to ABC Switch'}]
 
+    def tearDown(self):
+        """Tear down values in memory once completed."""
+        self.device = None
+        self.interface_input_dataA = None
+        self.interface_input_dataB = None
+        self.interface_expected_output = None
+
     def test_cleanup_ios_output(self):
         """Test IOS interface output cleanup function."""
         actual_output = self.device.cleanup_ios_output(self.interface_input_dataA, self.interface_input_dataB)
@@ -67,6 +78,32 @@ Fa1/0/3                        admin down     down     Connection to ABC Switch
         self.assertEqual(self.device.renameCDPInterfaces('FastEthernet'), 'Fas ')
         self.assertEqual(self.device.renameCDPInterfaces('Ethernet'), 'Eth ')
         self.assertEqual(self.device.renameCDPInterfaces('Test123'), 'Test123')
+
+    @mock.patch.object(CiscoIOS, 'run_ssh_command')
+    def test_pull_device_poe_status(self, mocked_method):
+        """Test MAC address table formatting."""
+        self.device.ios_type = 'cisco_ios'
+        mocked_method.return_value = '''
+Interface Admin  Oper       Power   Device              Class Max
+                            (Watts)
+--------- ------ ---------- ------- ------------------- ----- ----
+Gi1/0/1   auto   off        0.0     n/a                 n/a   30.0
+Gi1/0/2   auto   on         3.9     Polycom SoundPoint  2     30.0
+Gi1/0/3   auto   off        0.0     n/a                 n/a   30.0
+Interface Admin  Oper       Power   Device              Class Max
+                            (Watts)
+--------- ------ ---------- ------- ------------------- ----- ----
+Gi2/0/1   auto   off        0.0     n/a                 n/a   30.0
+Gi2/0/2   auto   on         6.0     IP Phone 6789       1     30.0
+'''
+
+        ios_expected_output = {'GigabitEthernet1/0/1': 'off',
+                               'GigabitEthernet2/0/2': 'on',
+                               'GigabitEthernet1/0/3': 'off',
+                               'GigabitEthernet1/0/2': 'on',
+                               'GigabitEthernet2/0/1': 'off'}
+
+        self.assertEqual(self.device.pull_device_poe_status(None), ios_expected_output)
 
 if __name__ == '__main__':
     unittest.main()

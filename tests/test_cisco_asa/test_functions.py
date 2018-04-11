@@ -1,5 +1,9 @@
 import unittest
 from app.device_classes.device_definitions.cisco.cisco_asa import CiscoASA
+try:
+    import mock
+except ImportError:
+    from unittest import mock
 
 
 class TestCiscoASA(unittest.TestCase):
@@ -148,6 +152,18 @@ Interface GigabitEthernet0/2 "", is administratively down, line protocol is down
                 expected_output = ''
             actual_output = self.device.clean_interface_description(input_data)
             self.assertEqual(actual_output, expected_output)
+
+    @mock.patch.object(CiscoASA, 'run_ssh_command')
+    def test_pull_device_poe_status(self, mocked_method):
+        """Test MAC address table formatting."""
+        mocked_method.return_value = '''
+                         ^
+ERROR: % Invalid input detected at '^' marker.
+'''
+
+        asa_expected_output = {}
+
+        self.assertEqual(self.device.pull_device_poe_status(None), asa_expected_output)
 
 if __name__ == '__main__':
     unittest.main()
