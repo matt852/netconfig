@@ -153,8 +153,8 @@ class CiscoIOS(CiscoBaseDevice):
         # If output returned from command execution, parse output
         if result:
             for x in result:
-                # If any string from checkStrings in line, skip to next loop iteration
-                if any(y in x for y in checkStrings):
+                # If any string from checkStrings in line, or line is blank, skip to next loop iteration
+                if any(y in x for y in checkStrings) or not x:
                     continue
                 line = x.split()
 

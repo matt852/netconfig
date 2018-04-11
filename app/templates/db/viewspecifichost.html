@@ -78,9 +78,9 @@
 									<td> {{ x.description }} </td>
 									<td> {{ x.status }} </td>
 									<td> {{ x.protocol }} </td>
-									<td> 
+									<td id="{{ x.name }}-poe-status"> 
 										<span id="{{ x.name }}-poe-loading">--</span>
-										<span id="{{ x.name }}-poe-status" class="btn btn-xs hidden"><i id="{{ x.name }}-poe-icon" class="glyphicon fa-lg"></i></span> </td>
+									</td>
 									<td class="text-center">
 										<a href="/confirm/confirmintenable/{{ host.id }}?int={{ x.name }}" class="btn btn-xs btn-success" title="Enable Interface"><i class="glyphicon glyphicon-arrow-up" aria-hidden="true"></i></a>
 										<a href="modalEditInterface" data-toggle="modal" data-target="#modalEditInterface" class="btn btn-xs btn-warning" data-interface="{{ x.name }}" data-hostid="{{ host.id }}" title="Edit Interface"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>

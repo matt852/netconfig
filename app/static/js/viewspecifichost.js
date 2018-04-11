@@ -13,18 +13,19 @@ $(document).ready(function() {
       var result = JSON.parse(data); // Parse jsonify'd data from python
       for (var key in result) {
         var value = result[key];
-        if (value == "on") { // If PoE is operationally on, apply corresponding class
-          var iconClass1 = 'glyphicon-ok';
-          var iconClass2 = 'icon-poe-on';
-        }
-        else { // If PoE is operationally off, apply corresponding class
-          var iconClass1 = 'glyphicon-remove';
-          var iconClass2 = 'icon-poe-off';
-        }
+        // if (value == "on") { // If PoE is operationally on, apply corresponding class
+        //   var iconClass1 = 'glyphicon-ok';
+        //   var iconClass2 = 'icon-poe-on';
+        // }
+        // else { // If PoE is operationally off, apply corresponding class
+        //   var iconClass1 = 'glyphicon-remove';
+        //   var iconClass2 = 'icon-poe-off';
+        // }
         $("*[id='"+key+"-poe-loading']").addClass('hidden'); // Show status icon
         $("*[id='"+key+"-poe-status']").removeClass('hidden'); // Show status icon
-        $("*[id='"+key+"-poe-icon']").addClass(iconClass1); // Apply class icon to <i> tag
-        $("*[id='"+key+"-poe-icon']").addClass(iconClass2); // Apply class icon to <i> tag
+        $("*[id='"+key+"-poe-status']").text(value); // Show status icon
+        // $("*[id='"+key+"-poe-icon']").addClass(iconClass1); // Apply class icon to <i> tag
+        // $("*[id='"+key+"-poe-icon']").addClass(iconClass2); // Apply class icon to <i> tag
       }
       // Redraw table with original item count table length
       table.page.len(tableLength).draw();
