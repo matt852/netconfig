@@ -6,7 +6,7 @@ before_install:
 install:
   - pip install -r requirements.txt
 script:
-  python -m unittest discover
+  nosetests --with-coverage --cover-package=app
 after_success:
   - coveralls
 notifications:
