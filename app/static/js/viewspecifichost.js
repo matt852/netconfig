@@ -51,14 +51,39 @@ $(document).ready(function() {
   var events = $('#events');
   var table = $('#tblViewSpecificHost').DataTable({
     "pageLength": 10,
+    "order": [],
     "lengthMenu": [
       [10, 25, 50, 100, -1],
       [10, 25, 50, 100, "All"]
     ],
-    columnDefs: [{
+    columnDefs: [
+    { title: '',
       orderable: false,
       className: 'select-checkbox',
       targets: 0
+    },
+    { title: 'Interface',
+      targets: 1
+    },
+    { title: 'Address',
+      targets: 2
+    },
+    { title: 'Description',
+      targets: 3
+    },
+    { title: 'Status',
+      targets: 4
+    },
+    { title: 'Protocol',
+      targets: 5
+    },
+    { title: 'PoE',
+      targets: 6,
+      orderable: false
+    },
+    { title: 'Options',
+      targets: 7,
+      orderable: false
     }],
     select: {
       style: 'multi',
