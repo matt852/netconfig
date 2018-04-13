@@ -1,5 +1,6 @@
 celery==4.1.0
 ciscoconfparse==1.2.55
+coverage==4.5.1
 Flask==0.12.2
 Flask-Bootstrap==3.3.7.1
 Flask-Script==2.0.6
