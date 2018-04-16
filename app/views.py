@@ -35,7 +35,9 @@ def init_db():
     db = StrictRedis(
         host=app.config['DB_HOST'],
         port=app.config['DB_PORT'],
-        db=app.config['DB_NO'])
+        db=app.config['DB_NO'],
+        charset="utf-8",
+        decode_responses=True)
     return db
 
 
