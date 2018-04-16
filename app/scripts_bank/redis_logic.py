@@ -10,8 +10,8 @@ def generateSessionUUID():
 
 def deleteUserInRedis():
     """Delete logged in user in Redis."""
-    saved_id = str(g.db.hget('users', session['USER']))
-    g.db.delete(str(saved_id))
+    saved_id = g.db.hget('users', session['USER'])
+    g.db.delete(saved_id)
 
     # Delete any locally saved credentials tied to user
     pattern = '*--' + str(session['USER'])
@@ -28,7 +28,7 @@ def resetUserRedisExpireTimer():
     x is Redis key to reset timer on.
     """
     try:
-        saved_id = str(g.db.hget('users', session['USER']))
+        saved_id = g.db.hget('users', session['USER'])
         g.db.expire(saved_id, app.config['REDISKEYTIMEOUT'])
     except:
         pass
@@ -45,11 +45,11 @@ def storeUserInRedis(user, pw, privpw='', host=''):
             # If user id doesn't exist, create new one with next available UUID
             # Else reuse existing key,
             #  to prevent incrementing id each time the same user logs in
-            if str(g.db.hget('users', user)) == 'None':
-                # Create new user id, incrementing by 10
-                user_id = str(g.db.incrby('next_user_id', 10))
+            if g.db.hget('users', user):
+                user_id = g.db.hget('users', user)
             else:
-                user_id = str(g.db.hget('users', user))
+                # Create new user id, incrementing by 10
+                user_id = g.db.incrby('next_user_id', 10)
             g.db.hmset(user_id, dict(user=user, pw=pw))
             g.db.hset('users', user, user_id)
             # Set user info timer to auto expire and clear data

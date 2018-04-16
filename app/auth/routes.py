@@ -41,6 +41,7 @@ def logout():
         u = session['UUID']
         session.pop('UUID', None)
         logger.write_log('deleted UUID %s for user %s as stored in session variable' % (u, currentUser), user=currentUser)
+        u = None
     except KeyError:
         logger.write_log('Exception thrown on logout.')
         return redirect(url_for('index'))
