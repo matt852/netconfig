@@ -1,3 +1,4 @@
+import json
 import socket
 from datetime import timedelta
 
@@ -11,7 +12,7 @@ from flask import flash, g, jsonify, redirect, render_template
 from flask import request, session, url_for
 from redis import StrictRedis
 from .scripts_bank.redis_logic import resetUserRedisExpireTimer, storeUserInRedis
-from .scripts_bank.lib.functions import checkForVersionUpdate
+from .scripts_bank.lib.functions import checkForVersionUpdate, interfaceReplaceSlash
 from .scripts_bank.lib.flask_functions import checkUserLoggedInStatus
 
 from .forms import AddHostForm, CustomCfgCommandsForm, CustomCommandsForm
@@ -29,49 +30,15 @@ def initialChecks():
                                title='Home')
 
 
-@app.route('/ajaxcheckhostactivesshsession/<x>', methods=['GET', 'POST'])
-def ajaxCheckHostActiveSession(x):
-    """Check if existing SSH session for host is currently active.
-
-    Used for AJAX call only, on main viewhosts.html page.
-    x = host id
-    """
-    host = datahandler.getHostByID(x)
-
-    if host:
-        if sshhandler.checkHostActiveSSHSession(host):
-            return 'True'
-    return 'False'
-
-
-def interfaceReplaceSlash(x):
-    """Replace all forward slashes in string 'x' with an underscore."""
-    x = x.replace('_', '/')
-    return x
-
-
-###############################
-# Login Creds Timeout - Begin #
-###############################
-
-
 def init_db():
     """Initialize local Redis database."""
     db = StrictRedis(
         host=app.config['DB_HOST'],
         port=app.config['DB_PORT'],
-        db=app.config['DB_NO'])
+        db=app.config['DB_NO'],
+        charset="utf-8",
+        decode_responses=True)
     return db
-
-
-#############################
-# Login Creds Timeout - End #
-#############################
-
-
-##########################
-# Flask Handlers - Begin #
-##########################
 
 
 @app.before_request
@@ -86,9 +53,20 @@ def before_request():
     app.permanent_session_lifetime = timedelta(minutes=app.config['SESSIONTIMEOUT'])
     session.modified = True
 
-########################
-# Flask Handlers - End #
-########################
+
+@app.route('/ajaxcheckhostactivesshsession/<x>', methods=['GET', 'POST'])
+def ajaxCheckHostActiveSession(x):
+    """Check if existing SSH session for host is currently active.
+
+    Used for AJAX call only, on main viewhosts.html page.
+    x = host id
+    """
+    host = datahandler.getHostByID(x)
+
+    if host:
+        if sshhandler.checkHostActiveSSHSession(host):
+            return 'True'
+    return 'False'
 
 
 @app.route('/nohostconnect/<host>')
@@ -313,6 +291,19 @@ def deviceUptime(x):
     activeSession = sshhandler.retrieveSSHSession(host)
     logger.write_log('retrieved uptime on host %s' % (host.hostname))
     return jsonify(host.pull_device_uptime(activeSession))
+
+
+@app.route('/devicepoestatus/<x>')
+def devicePoeStatus(x):
+    """Get PoE status of all interfaces on device.
+
+    x = host id.
+    """
+    initialChecks()
+    host = datahandler.getHostByID(x)
+    activeSession = sshhandler.retrieveSSHSession(host)
+    logger.write_log('retrieved PoE status for interfaces on host %s' % (host.hostname))
+    return json.dumps(host.pull_device_poe_status(activeSession))
 
 
 @app.route('/db/viewhosts/<x>', methods=['GET', 'POST'])

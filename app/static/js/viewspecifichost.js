@@ -1,8 +1,41 @@
 $(document).ready(function() {
-  // Start Uptime section
   // Get ID of current device from URL, which are the numbers after the last '/'
   var loc = location.href.substr(location.href.lastIndexOf('/') + 1);
 
+  // Start POE status section
+  $.ajax({
+    url: '/devicepoestatus/' + loc,
+    success: function(data) {
+      // Get current table Length
+      var tableLength = table.page.len();
+      // Briefly redraw table with all pages, as the below function can only detect selected rows on visible pages
+      table.page.len(-1).draw();
+      var result = JSON.parse(data); // Parse jsonify'd data from python
+      for (var key in result) {
+        var value = result[key];
+        // if (value == "on") { // If PoE is operationally on, apply corresponding class
+        //   var iconClass1 = 'glyphicon-ok';
+        //   var iconClass2 = 'icon-poe-on';
+        // }
+        // else { // If PoE is operationally off, apply corresponding class
+        //   var iconClass1 = 'glyphicon-remove';
+        //   var iconClass2 = 'icon-poe-off';
+        // }
+        $("*[id='"+key+"-poe-loading']").addClass('hidden'); // Show status icon
+        $("*[id='"+key+"-poe-status']").removeClass('hidden'); // Show status icon
+        $("*[id='"+key+"-poe-status']").text(value); // Show status icon
+        // $("*[id='"+key+"-poe-icon']").addClass(iconClass1); // Apply class icon to <i> tag
+        // $("*[id='"+key+"-poe-icon']").addClass(iconClass2); // Apply class icon to <i> tag
+      }
+      // Redraw table with original item count table length
+      table.page.len(tableLength).draw();
+      // Hide loading spinner for PoE status column
+      $("#poe-loading").addClass('hidden'); // Hide loading animation icon for PoE column
+    }
+  });
+  // End POE status section
+
+  // Start Uptime section
   $.ajax({
     url: '/deviceuptime/' + loc,
     success: function(data) {
@@ -18,14 +51,39 @@ $(document).ready(function() {
   var events = $('#events');
   var table = $('#tblViewSpecificHost').DataTable({
     "pageLength": 10,
+    "order": [],
     "lengthMenu": [
       [10, 25, 50, 100, -1],
       [10, 25, 50, 100, "All"]
     ],
-    columnDefs: [{
+    columnDefs: [
+    { title: '',
       orderable: false,
       className: 'select-checkbox',
       targets: 0
+    },
+    { title: 'Interface',
+      targets: 1
+    },
+    { title: 'Address',
+      targets: 2
+    },
+    { title: 'Description',
+      targets: 3
+    },
+    { title: 'Status',
+      targets: 4
+    },
+    { title: 'Protocol',
+      targets: 5
+    },
+    { title: 'PoE',
+      targets: 6,
+      orderable: false
+    },
+    { title: 'Options',
+      targets: 7,
+      orderable: false
     }],
     select: {
       style: 'multi',
@@ -142,14 +200,14 @@ $('#modalConfigInterface').on('shown.bs.modal', function(event) {
 
   var modal = $(this)
 
-  // Replace all '/' with '-'
+  // Replace all '/' with '_'
   interfaceDash = interface.replace(/\//g, '_')
-  // Replace all '.' with '_'
+  // Replace all '.' with '='
   interfaceDash = interfaceDash.replace(/\./g, '=')
 
-  // Replace all '-' with '/'
+  // Replace all '_' with '/'
   interfaceTitle = interface.replace(/_/g, '/')
-  // Replace all '?_ with '.'
+  // Replace all '=' with '.'
   interfaceTitle = interfaceTitle.replace(/=/g, '.')
 
   modal.find('.modal-title').text('Interface ' + interfaceTitle)

@@ -1,5 +1,9 @@
 import unittest
 from app.device_classes.device_definitions.cisco.cisco_nxos import CiscoNXOS
+try:
+    import mock
+except ImportError:
+    from unittest import mock
 
 
 class TestCiscoNXOS(unittest.TestCase):
@@ -55,6 +59,17 @@ port-channel10,--,--,noOperMembers,Auto,
         actual_output = self.device.replace_double_spaces_commas(input_data)
         self.assertEqual(actual_output, expected_output)
 
+    @mock.patch.object(CiscoNXOS, 'run_ssh_command')
+    def test_pull_device_poe_status(self, mocked_method):
+        """Test MAC address table formatting."""
+        mocked_method.return_value = '''
+                   ^
+% Invalid command at '^' marker.
+'''
+
+        nxos_expected_output = {}
+
+        self.assertEqual(self.device.pull_device_poe_status(None), nxos_expected_output)
 
 if __name__ == '__main__':
     unittest.main()

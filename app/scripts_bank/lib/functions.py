@@ -107,3 +107,9 @@ def getScriptRunTime(startTime):
     """Calculate time elapsed since startTime was first measured."""
     endTime = getCurrentTime() - startTime
     return endTime
+
+
+def interfaceReplaceSlash(x):
+    """Replace all forward slashes in string 'x' with an underscore."""
+    x = x.replace('_', '/')
+    return x

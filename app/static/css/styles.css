@@ -7,6 +7,12 @@ code {
     font-family: monospace;
     color: black;
 }
+.icon-poe-on {
+    color: green;
+}
+.icon-poe-off {
+    color: red;
+}
 .pre-scrollable {  /* Overrides bootstrap settings for pre-scrollable */
     max-height: 100vh;
 }
@@ -16,7 +22,7 @@ code {
     text-overflow: ellipsis;
     white-space: nowrap;
     padding-top: 6px;
-    padding-right:10px;
+    padding-right: 10px;
     padding-left: 10px;
 }
 .inlineSSHLine:focus, .inlineSSHLine:hover {
