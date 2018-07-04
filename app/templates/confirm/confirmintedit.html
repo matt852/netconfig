@@ -18,7 +18,7 @@
 &nbsp;interface {{ hostinterface }}<br />
 {% if datavlan == '' %}{% set datavlan = 0 %}{% else %}&nbsp;&nbsp;switchport access vlan {{ datavlan }}<br />{% endif %}
 {% if voicevlan == '' %}{% set voicevlan = 0 %}{% else %}&nbsp;&nbsp;switchport voice vlan {{ voicevlan }}<br />{% endif %}
-{% if other == '' %}{% set other = 0 %}{% else %}{% set otherDisplay = other|replace('\n','<br />&nbsp;&nbsp;') %}&nbsp;&nbsp;{{ otherDisplay | safe }}<br />
+{% if other == '' %}{% set otherURL = 0 %}{% else %}{% set otherDisplay = other|replace('\n','<br />&nbsp;&nbsp;') %}&nbsp;&nbsp;{{ otherDisplay | safe }}<br />
 {% endif %}&nbsp;&nbsp;{{ host.get_cmd_exit_configuration_mode() }}<br />
 </code>
 

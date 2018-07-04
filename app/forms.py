@@ -5,13 +5,6 @@ from wtforms.widgets import TextArea
 from wtforms.validators import DataRequired, IPAddress
 
 
-class LoginForm(FlaskForm):
-    """User login form."""
-
-    user = StringField('Username', validators=[DataRequired()])
-    pw = PasswordField('Password', validators=[DataRequired()])
-
-
 class LocalCredentialsForm(FlaskForm):
     """Local credentials form, on a per device basis."""
 

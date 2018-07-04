@@ -1,3 +1,4 @@
+import json
 import socket
 from datetime import timedelta
 
@@ -10,13 +11,12 @@ from app import app, datahandler, logger, sshhandler
 from flask import flash, g, jsonify, redirect, render_template
 from flask import request, session, url_for
 from redis import StrictRedis
-from .scripts_bank.redis_logic import deleteUserInRedis, resetUserRedisExpireTimer, storeUserInRedis
-from .scripts_bank.lib.functions import checkForVersionUpdate
+from .scripts_bank.redis_logic import resetUserRedisExpireTimer, storeUserInRedis
+from .scripts_bank.lib.functions import checkForVersionUpdate, interfaceReplaceSlash
 from .scripts_bank.lib.flask_functions import checkUserLoggedInStatus
 
 from .forms import AddHostForm, CustomCfgCommandsForm, CustomCommandsForm
-from .forms import EditHostForm, EditInterfaceForm, ImportHostsForm, LoginForm
-from .forms import LocalCredentialsForm
+from .forms import EditHostForm, EditInterfaceForm, ImportHostsForm, LocalCredentialsForm
 
 
 def initialChecks():
@@ -28,6 +28,30 @@ def initialChecks():
     if not checkUserLoggedInStatus():
         return render_template("index.html",
                                title='Home')
+
+
+def init_db():
+    """Initialize local Redis database."""
+    db = StrictRedis(
+        host=app.config['DB_HOST'],
+        port=app.config['DB_PORT'],
+        db=app.config['DB_NO'],
+        charset="utf-8",
+        decode_responses=True)
+    return db
+
+
+@app.before_request
+def before_request():
+    """Set auto logout timer for logged in users.
+
+    Automatically logs user out of session after x minutes.
+    This is set in settings.py via SESSIONTIMEOUT.
+    """
+    g.db = init_db()
+    session.permanent = True
+    app.permanent_session_lifetime = timedelta(minutes=app.config['SESSIONTIMEOUT'])
+    session.modified = True
 
 
 @app.route('/ajaxcheckhostactivesshsession/<x>', methods=['GET', 'POST'])
@@ -45,65 +69,6 @@ def ajaxCheckHostActiveSession(x):
     return 'False'
 
 
-def interfaceReplaceSlash(x):
-    """Replace all forward slashes in string 'x' with an underscore."""
-    x = x.replace('_', '/')
-    return x
-
-
-###############################
-# Login Creds Timeout - Begin #
-###############################
-
-
-def init_db():
-    """Initialize local Redis database."""
-    db = StrictRedis(
-        host=app.config['DB_HOST'],
-        port=app.config['DB_PORT'],
-        db=app.config['DB_NO'])
-    return db
-
-
-#############################
-# Login Creds Timeout - End #
-#############################
-
-
-##########################
-# Flask Handlers - Begin #
-##########################
-
-
-@app.before_request
-def before_request():
-    """Set auto logout timer for logged in users.
-
-    Automatically logs user out of session after x minutes.
-    This is set in settings.py via SESSIONTIMEOUT.
-    """
-    g.db = init_db()
-    session.permanent = True
-    app.permanent_session_lifetime = timedelta(minutes=app.config['SESSIONTIMEOUT'])
-    session.modified = True
-
-########################
-# Flask Handlers - End #
-########################
-
-
-@app.errorhandler(404)
-def not_found_error(error):
-    """Return 404 page on 404 error."""
-    return render_template('errors/404.html', error=error), 404
-
-
-@app.errorhandler(500)
-def handle_500(error):
-    """Return 500 page on 500 error."""
-    return render_template('errors/500.html', error=error), 500
-
-
 @app.route('/nohostconnect/<host>')
 @app.route('/errors/nohostconnect/<host>')
 def noHostConnectError(host):
@@ -116,54 +81,13 @@ def noHostConnectError(host):
 def index():
     """Return index page for user.
 
-    Requires user to be logged in to display index page.
-    Else attempts to retrieve user credentials from login form.
-    If successful, stores them in server-side Redis server, with timer set
-     to automatically clear information after a set time,
-     or clear when user logs out.
-    Else, redirect user to login form.
+    Requires user to be logged in to display home page displaying all devices.
+    Else, redirect user to index page.
     """
     if 'USER' in session:
         return redirect(url_for('viewHosts'))
     else:
-        try:
-            if storeUserInRedis(request.form['user'], request.form['pw']):
-                logger.write_log('logged in')
-                return redirect(url_for('viewHosts'))
-            else:
-                return render_template("index.html", title='Home')
-        except:
-            return render_template("index.html", title='Home')
-
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    """Login page for user to save credentials."""
-    form = LoginForm()
-    if form.validate_on_submit():
-        return redirect(url_for('index'))
-    return render_template('login.html', title='Login with SSH credentials', form=form)
-
-
-@app.route('/logout', methods=['GET', 'POST'])
-def logout():
-    """Disconnect all SSH sessions by user."""
-    sshhandler.disconnectAllSSHSessions()
-    try:
-        currentUser = session['USER']
-        deleteUserInRedis()
-        logger.write_log('deleted user %s data stored in Redis' % (currentUser))
-        session.pop('USER', None)
-        logger.write_log('deleted user %s as stored in session variable' % (currentUser), user=currentUser)
-        u = session['UUID']
-        session.pop('UUID', None)
-        logger.write_log('deleted UUID %s for user %s as stored in session variable' % (u, currentUser), user=currentUser)
-    except KeyError:
-        logger.write_log('Exception thrown on logout.')
-        return redirect(url_for('index'))
-    logger.write_log('logged out')
-
-    return redirect(url_for('index'))
+        return render_template("index.html", title='Home')
 
 
 @app.route('/disconnectAllSSH')
@@ -367,6 +291,19 @@ def deviceUptime(x):
     activeSession = sshhandler.retrieveSSHSession(host)
     logger.write_log('retrieved uptime on host %s' % (host.hostname))
     return jsonify(host.pull_device_uptime(activeSession))
+
+
+@app.route('/devicepoestatus/<x>')
+def devicePoeStatus(x):
+    """Get PoE status of all interfaces on device.
+
+    x = host id.
+    """
+    initialChecks()
+    host = datahandler.getHostByID(x)
+    activeSession = sshhandler.retrieveSSHSession(host)
+    logger.write_log('retrieved PoE status for interfaces on host %s' % (host.hostname))
+    return json.dumps(host.pull_device_poe_status(activeSession))
 
 
 @app.route('/db/viewhosts/<x>', methods=['GET', 'POST'])
@@ -667,7 +604,7 @@ def resultsIntEdit(x, datavlan, voicevlan, other):
 
     activeSession = sshhandler.retrieveSSHSession(host)
 
-    # Get interface from passed variabel in URL
+    # Get interface from passed variable in URL
     hostinterface = request.args.get('int', '')
 
     # Decode 'other' string

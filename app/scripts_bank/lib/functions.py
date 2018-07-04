@@ -4,7 +4,7 @@ from datetime import datetime
 try:
     from urllib import urlopen  # Python 2
 except ImportError:
-    from urllib.parse import urlopen  # Python 3
+    from urllib.request import urlopen  # Python 3
 
 
 class UserCredentials(object):
@@ -64,32 +64,52 @@ def isInteger(x):
 def checkForVersionUpdate(config):
     """Check for NetConfig updates on GitHub."""
     try:
+        # with urlopen(config['GH_MASTER_BRANCH_URL']) as a:
+        # masterConfig = a.read().decode('utf-8')
         masterConfig = urlopen(config['GH_MASTER_BRANCH_URL'])
-    except IOError:
+        masterConfig = masterConfig.read().decode('utf-8')
+        # Reverse lookup as the VERSION variable should be close to the bottom
+        if masterConfig:
+            for x in masterConfig.splitlines():
+                if 'VERSION' in x:
+                    x = x.split('=')
+                    try:
+                        # Strip whitespace and single quote mark
+                        masterVersion = x[-1].strip().strip("'")
+                    except IndexError:
+                        continue
+                    # Verify if current version matches most recent GitHub release
+                    if masterVersion != config['VERSION']:
+                        # Return False if the current version does not match the most recent version
+                        return jsonify(status="False", masterVersion=masterVersion)
+            # If VERSION can't be found, successfully compared, or is identical, just return True
+            return jsonify(status="True")
+        else:
+            # Error when accessing URL. Default to True
+            return "True"
+    except IOError as e:
         # Catch exception if unable to access URL, or access to internet is blocked/down. Default to True
         return "True"
-    # Reverse lookup as the VERSION variable should be close to the bottom
-    for x in masterConfig:
-        if 'VERSION' in x:
-            x = x.split('=')
-            try:
-                # Strip whitespace and single quote mark
-                masterVersion = x[-1].strip().strip("'")
-            except IndexError:
-                continue
-            # Verify if current version matches most recent GitHub release
-            if masterVersion != config['VERSION']:
-                # Return False if the current version does not match the most recent version
-                return jsonify(status="False", masterVersion=masterVersion)
-    # If VERSION can't be found, successfully compared, or is identical, just return True
-    return jsonify(status="True")
+    except Exception as e:
+        # Return True for all other exceptions
+        return "True"
+
 
 # Get current timestamp for when starting a script
 def getCurrentTime():
-	currentTime = datetime.now()
-	return currentTime
+    """Get current timestamp."""
+    currentTime = datetime.now()
+    return currentTime
+
 
 # Returns time elapsed between current time and provided time in 'startTime'
 def getScriptRunTime(startTime):
-	endTime = getCurrentTime() - startTime
-	return endTime
+    """Calculate time elapsed since startTime was first measured."""
+    endTime = getCurrentTime() - startTime
+    return endTime
+
+
+def interfaceReplaceSlash(x):
+    """Replace all forward slashes in string 'x' with an underscore."""
+    x = x.replace('_', '/')
+    return x

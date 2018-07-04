@@ -72,18 +72,18 @@ class SSHHandler(object):
         if host.local_creds:
             # Set key to host id, --, and username of currently logged in user
             key = str(host.id) + '--' + session['USER']
-            saved_id = str(g.db.hget('localusers', key))
-            username = str(g.db.hget(str(saved_id), 'user'))
-            password = str(g.db.hget(str(saved_id), 'pw'))
+            saved_id = g.db.hget('localusers', key)
+            username = g.db.hget(saved_id, 'user')
+            password = g.db.hget(saved_id, 'pw')
             try:
-                privpw = str(g.db.hget(str(saved_id), 'privpw'))
+                privpw = g.db.hget(saved_id, 'privpw')
             except:
                 # If privpw not set for this device, simply leave it as a blank string
                 pass
         else:
             username = session['USER']
-            saved_id = str(g.db.hget('users', username))
-            password = str(g.db.hget(str(saved_id), 'pw'))
+            saved_id = g.db.hget('users', username)
+            password = g.db.hget(saved_id, 'pw')
 
         creds = setUserCredentials(username, password, privpw)
 

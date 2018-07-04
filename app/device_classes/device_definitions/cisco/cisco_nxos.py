@@ -120,6 +120,11 @@ class CiscoNXOS(CiscoBaseDevice):
             output = x.split(' ', 3)[-1]
         return output
 
+    def pull_device_poe_status(self, activeSession):  # TODO - WRITE TEST FOR
+        """Retrieve PoE status for all interfaces."""
+        # Return empty result - unsupported on NX-OS
+        return {}
+
     def pull_host_interfaces(self, activeSession):
         """Retrieve list of interfaces on device."""
         outputResult = ''

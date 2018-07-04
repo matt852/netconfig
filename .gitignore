@@ -5,6 +5,7 @@
 *.log
 *.db
 *.vscode
+*.idea
 app/log/
 log/*
 scripts_bank/logs/*

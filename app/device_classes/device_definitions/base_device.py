@@ -53,13 +53,13 @@ class BaseDevice(object):
             activeSession.exit_config_mode()
             # Try to retrieve command results again
             try:
-                result = self.run_ssh_command('show ip interface brief', activeSession)
+                result = self.run_ssh_command(command, activeSession)
                 # If command still failed, return nothing
                 if "Invalid input detected" in result:
-                    return self.cleanup_ios_output('', '')
+                    return ''
             except:
                 # If failure to access SSH channel or run command, return nothing
-                return self.cleanup_ios_output('', '')
+                return ''
 
         # Return command output
         return result

@@ -109,7 +109,7 @@ class CiscoIOS(CiscoBaseDevice):
                     # Split line on commas
                     x = line.split(',')
                     # Remove empty fields from string, specifically if first field is empty (1-2 digit vlan causes this)
-                    x = filter(None, x)
+                    x = list(filter(None, x))
                     if x:
                         y = {}
                         y['vlan'] = x[0].strip()
@@ -142,6 +142,39 @@ class CiscoIOS(CiscoBaseDevice):
         for x in uptime:
             output = x.split(' ', 3)[-1]
         return output
+
+    def pull_device_poe_status(self, activeSession):  # TODO - WRITE TEST FOR
+        """Retrieve PoE status for all interfaces."""
+        status = {}
+        command = 'show power inline | begin Interface'
+        result = self.get_cmd_output(command, activeSession)
+        checkStrings = ['Interface', 'Watts', '---']
+
+        # If output returned from command execution, parse output
+        if result:
+            for x in result:
+                # If any string from checkStrings in line, or line is blank, skip to next loop iteration
+                if any(y in x for y in checkStrings) or not x:
+                    continue
+                line = x.split()
+
+                # Convert interface short abbreviation to long name
+                regExp = re.compile(r'[A-Z][a-z][0-9]\/')
+                if regExp.search(line[0]):
+                    if line[0][0] == 'G':
+                        line[0] = line[0].replace('Gi', 'GigabitEthernet')
+                    elif line[0][0] == 'F':
+                        line[0] = line[0].replace('Fa', 'FastEthernet')
+                    elif line[0][0] == 'T':
+                        line[0] = line[0].replace('Te', 'TenGigabitEthernet')
+                    elif line[0][0] == 'E':
+                        line[0] = line[0].replace('Eth', 'Ethernet')
+
+                # Line[0] is interface name
+                # Line[2] is operational status
+                status[line[0]] = line[2]
+        # Return dictionary with results
+        return status
 
     def pull_host_interfaces(self, activeSession):
         """Retrieve list of interfaces on device."""

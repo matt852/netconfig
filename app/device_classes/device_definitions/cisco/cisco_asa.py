@@ -63,6 +63,11 @@ class CiscoASA(CiscoBaseDevice):
                 uptime = x.split(' ', 2)[2]
         return uptime
 
+    def pull_device_poe_status(self, activeSession):
+        """Retrieve PoE status for all interfaces."""
+        # Return empty result - unsupported on ASA
+        return {}
+
     def pull_host_interfaces(self, activeSession):
         """Retrieve list of interfaces on device."""
         # result = self.run_ssh_command('show interface ip brief', activeSession)
@@ -107,6 +112,7 @@ class CiscoASA(CiscoBaseDevice):
     def cleanup_asa_output(self, asaOutput):
         """Clean up returned ASA output from 'show ip interface brief'."""
         data = []
+        interface = {}
         # Used to set if we're on the first loop or not
         notFirstLoop = False
 
