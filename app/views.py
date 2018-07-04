@@ -604,7 +604,7 @@ def resultsIntEdit(x, datavlan, voicevlan, other):
 
     activeSession = sshhandler.retrieveSSHSession(host)
 
-    # Get interface from passed variabel in URL
+    # Get interface from passed variable in URL
     hostinterface = request.args.get('int', '')
 
     # Decode 'other' string
