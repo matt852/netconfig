@@ -19,7 +19,7 @@ try:
 except KeyError:
     datahandler = DataHandler('local')
 
-logger = LogHandler(app.config['SYSLOGFILE'])
+logger = LogHandler(filename=app.config['SYSLOGFILE'])
 
 sshhandler = SSHHandler()
 

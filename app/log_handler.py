@@ -1,7 +1,7 @@
-import logging
+from logging import FileHandler, Formatter, getLogger
+from logging import INFO, DEBUG, ERROR, WARNING
 from flask import session
 
-# TODO remove this class and handler logging in the main app
 # This enables us to use different log levels
 
 
@@ -10,13 +10,18 @@ class LogHandler(object):
 
     def __init__(self, filename="netconfig.log", level="INFO"):
         """Initialize class."""
-        self.logger = logging.getLogger(__name__)
         self.filename = filename
         self.level = level.upper()
-
+        self.logger = getLogger(__name__)
         self.logger.setLevel(self.level)
-        logging.basicConfig(filename=self.filename,
-                            format='%(asctime)s %(levelname)s: %(message)s')
+        # Create a file handler
+        self.handler = FileHandler(filename)
+        self.handler.setLevel(INFO)
+        # Create a logging format
+        self.formatter = Formatter('%(asctime)s - %(levelname)s - %(message)s', '%Y-%m-%d %H:%M:%S')
+        self.handler.setFormatter(formatter)
+        # Add the handlers to the logger
+        self.logger.addHandler(self.handler)
 
     def write_log(self, msg, user=None):
         """Write formatted 'msg' to logger."""
