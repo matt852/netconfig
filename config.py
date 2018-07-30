@@ -10,41 +10,43 @@
 
 import os
 
-basedir = os.path.abspath(os.path.dirname(__file__))
 
-SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')
-SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
-SQLALCHEMY_TRACK_MODIFICATIONS = False
+class Config(object):
+    basedir = os.path.abspath(os.path.dirname(__file__))
 
-WTF_CSRF_ENABLED = True
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')
+    SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-# Redis setup
-# Redis is used for temporarily storing hashed user credentials
-#  locally on the server.  These do not need to be changed
-#  unless you want to access a remote Redis server
-# -Using a remote Redis server is not tested nor currently supported
-DB_HOST = 'localhost'
-DB_PORT = 6379
-DB_NO = 0
+    WTF_CSRF_ENABLED = True
 
-# Logging settings
-# LOGFILE is currently not used
-# SYSLOGFILE is the location where syslog type logs are stored,
-#  for tracking and troubleshooting purposes
-LOGFILE = os.path.join(basedir, 'app/log/access.log')
-SYSLOGFILE = os.path.join(basedir, 'app/log/syslog.log')
+    # Redis setup
+    # Redis is used for temporarily storing hashed user credentials
+    #  locally on the server.  These do not need to be changed
+    #  unless you want to access a remote Redis server
+    # -Using a remote Redis server is not tested nor currently supported
+    DB_HOST = 'localhost'
+    DB_PORT = 6379
+    DB_NO = 0
 
-# Settings file location
-SETTINGSFILE = os.path.join(basedir, 'instance/settings.py')
+    # Logging settings
+    # LOGFILE is currently not used
+    # SYSLOGFILE is the location where syslog type logs are stored,
+    #  for tracking and troubleshooting purposes
+    LOGFILE = os.path.join(basedir, 'app/log/access.log')
+    SYSLOGFILE = os.path.join(basedir, 'app/log/syslog.log')
 
-# Bootstrap configuration
-BOOTSTRAP_SERVE_LOCAL = True
+    # Settings file location
+    SETTINGSFILE = os.path.join(basedir, 'instance/settings.py')
 
-# Global SSH new connection timeout
-SSH_TIMEOUT = 10
+    # Bootstrap configuration
+    BOOTSTRAP_SERVE_LOCAL = True
 
-# GitHub Master branch config file location
-GH_MASTER_BRANCH_URL = 'https://raw.githubusercontent.com/v1tal3/netconfig/master/config.py'
+    # Global SSH new connection timeout
+    SSH_TIMEOUT = 10
 
-# Current version
-VERSION = '1.3.6 (beta)'
+    # GitHub Master branch config file location
+    GH_MASTER_BRANCH_URL = 'https://raw.githubusercontent.com/v1tal3/netconfig/master/config.py'
+
+    # Current version
+    VERSION = '1.3.6 (beta)'
