@@ -2,6 +2,7 @@ import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
+from flask_migrate import Migrate
 from flask_script import Manager
 from config import Config
 from .data_handler import DataHandler
@@ -13,6 +14,7 @@ app = Flask(__name__, instance_relative_config=True)
 app.config.from_object(Config)
 app.config.from_pyfile('settings.py', silent=True)
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 Bootstrap(app)
 try:
     datahandler = DataHandler(app.config['DATALOCATION'],

@@ -1,0 +1,25 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+	<div class="row">
+    	<div class="col-md-9">
+			<h2 class="text-primary">Proxy Settings</h2>
+			<div class="table-responsive">
+				<table id="tblSettings" class="table table-striped table-hover table-condensed display">
+			    <tbody>
+                    <p>
+                        {{ form.proxy_settings.label }}
+                        {{ form.proxy_settings(required="required") }}
+                        {% for error in form.proxy_settings.errors %}
+                          <span style="color: red;">[{{error}}]</span>
+                        {% endfor %}<br />
+                    </p>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+{% endblock %}

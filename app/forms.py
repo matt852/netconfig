@@ -30,9 +30,6 @@ class AddHostForm(FlaskForm):
                         ('cisco_xe', 'IOS-XE')]
     ios_type = SelectField('IOS Type', choices=ios_type_choices, validators=[DataRequired()])
     local_creds = BooleanField('Use Local/Different Credentials', default=False)
-    # local_creds_choices = [('no', 'No'),
-    #                        ('yes', 'Yes')]
-    # local_creds = SelectField('Use Local/Different Credentials', choices=local_creds_choices)
 
 
 class ImportHostsForm(FlaskForm):
@@ -86,3 +83,11 @@ class CustomCfgCommandsForm(FlaskForm):
 
     hostname = StringField('Hostname', validators=[DataRequired()])
     command = StringField('Commands', widget=TextArea())
+
+
+class ProxySettingsForm(FlaskForm):
+    """Proxy settings page form."""
+
+    proxy_settings_choices = [('', ''),
+                              ('test', 'TEST')]
+    proxy_settings = SelectField('Edit proxy settings', choices=proxy_settings_choices)

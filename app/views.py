@@ -16,7 +16,7 @@ from .scripts_bank.lib.functions import checkForVersionUpdate, interfaceReplaceS
 from .scripts_bank.lib.flask_functions import checkUserLoggedInStatus
 
 from .forms import AddHostForm, CustomCfgCommandsForm, CustomCommandsForm
-from .forms import EditHostForm, EditInterfaceForm, ImportHostsForm, LocalCredentialsForm
+from .forms import EditHostForm, EditInterfaceForm, ImportHostsForm, LocalCredentialsForm, ProxySettingsForm
 
 
 def initialChecks():
@@ -1184,3 +1184,13 @@ def editSettings():
                                    file=s.readlines())
     except:
         return render_template('errors/500.html', error="Unable to read Settings File"), 500
+
+@app.route('/proxysettings', methods=['GET'])
+def proxySettings():
+    """Modify proxy settings."""
+    initialChecks()
+
+    form = ProxySettingsForm()
+    return render_template('/proxysettings.html',
+                           title='Edit Proxy Settings',
+                           form=form)
