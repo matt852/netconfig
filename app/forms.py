@@ -88,6 +88,8 @@ class CustomCfgCommandsForm(FlaskForm):
 class ProxySettingsForm(FlaskForm):
     """Proxy settings page form."""
 
-    proxy_settings_choices = [('', ''),
+    proxy_settings_choices = [('', '(create new)'),
                               ('test', 'TEST')]
     proxy_settings = SelectField('Edit proxy settings', choices=proxy_settings_choices)
+    proxy_name = StringField('Name', validators=[DataRequired()])
+    proxy_edit = StringField('Settings', widget=TextArea())

@@ -38,6 +38,25 @@ class DataHandler(object):
         except Exception as e:
             return False, 0, e
 
+    def addProxyToDB(self, proxy_name, proxy_settings):
+        """Add proxy settings to DB"""
+        try:
+            proxy = app.models.ProxySettings(proxy_name=proxy_name,
+                                             proxy_settings=proxy_settings)
+            app.db.session.add(proxy)
+            # This enables pulling ID for newly inserted host
+            app.db.session.flush()
+            app.db.session.commit()
+        except (IntegrityError, InvalidRequestError) as e:
+            app.db.session.rollback()
+            return False, 0, e
+
+        try:
+            app.logger.write_log("Updated proxy settings %s in database" % proxy.proxy_name)
+            return True, proxy.id, None
+        except Exception as e:
+            return False, 0, e
+
     def importHostsToDB(self, csvImport):
         """Import hosts to database.
 

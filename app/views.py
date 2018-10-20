@@ -1194,3 +1194,23 @@ def proxySettings():
     return render_template('/proxysettings.html',
                            title='Edit Proxy Settings',
                            form=form)
+
+@app.route('/results/resultseditproxy', methods=['GET', 'POST'])
+def resultsEditProxy():
+    """Save proxy details to database."""
+    # Need to make results page and datahandler.addProxyToDB function
+    initialChecks()
+    proxy_name = request.form['proxy_name']
+    proxy_settings = request.form['proxy_settings']
+
+    response, hostid, e = datahandler.addProxyToDB(proxy_name, proxy_settings)
+    if response:
+        return render_template("/results/resultseditproxy.html",
+                               title='Edit proxy settings result',
+                               proxy_name=proxy_name,
+                               proxy_settings=proxy_settings,
+                               hostid=hostid)
+    else:
+        logger.write_log('exception thrown when adding/editing proxy settings to database: %s' % e)
+        # TO-DO Add popup error message here
+        return redirect(url_for('proxySettings'))

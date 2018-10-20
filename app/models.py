@@ -12,7 +12,7 @@ class User(db.Model):
 
     def __repr__(self):
         """Not used."""
-        return '<User %r>' % (self.nickname)
+        return '<User %r>' % self.nickname
 
 
 class Devicetype(db.Model):
@@ -26,7 +26,7 @@ class Devicetype(db.Model):
 
     def __repr__(self):
         """Device type."""
-        return '<Devicetype %r>' % (self.model)
+        return '<Devicetype %r>' % self.model
 
 
 class Host(db.Model):
@@ -42,4 +42,16 @@ class Host(db.Model):
 
     def __repr__(self):
         """Devices."""
-        return '<Host %r>' % (self.hostname)
+        return '<Host %r>' % self.hostname
+
+
+class ProxySettings(db.Model):
+    """Store proxy settings in database."""
+
+    id = db.Column(db.Integer, primary_key=True)
+    proxy_name = db.Column(db.String(25), index=True, unique=True)
+    proxy_settings = db.Column(db.String(255), index=True, unique=True)
+
+    def __repr__(self):
+        """Proxy settings."""
+        return '<Proxy setting %r>' % self.proxy_name

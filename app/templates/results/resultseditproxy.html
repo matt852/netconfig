@@ -1,0 +1,26 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-md-9">
+			<h2 class="text-primary">Edit Proxy Settings - Success</h2>
+			<p>
+				<ul>
+					<li>Proxy Settings Name: {{ proxy_name }}</li>
+					<li>Proxy Settings: {{ proxy_settings }}</li>
+				</ul>
+			</p>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-9">
+			<div class="text-right">
+				<a href="/proxysettings" class="btn btn-primary">View proxy settings</a>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
