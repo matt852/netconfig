@@ -110,10 +110,10 @@ def check_updates():
     """Check for NetConfig updates on GitHub.
 
     Only check if configured to do so (default behaviour).
-    Skip if CHECK_FOR_UDPATES set to False.
+    Skip if CHECK_FOR_UPDATES set to False.
     """
     try:
-        if app.config['CHECK_FOR_UDPATES']:
+        if app.config['CHECK_FOR_UPDATES']:
             # If set to true, check for updates
             return check_for_version_update(app.config)
         else:

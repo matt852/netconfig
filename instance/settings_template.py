@@ -61,4 +61,4 @@ DEBUG = False
 # If set to True, but unable to access the internet, the default behaviour will not display anything
 # If set to False, no outbound internet checks will occur
 # Default = True
-CHECK_FOR_UDPATES = True
+CHECK_FOR_UPDATES = True
