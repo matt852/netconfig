@@ -2,7 +2,6 @@
 
 import logging
 import os
-from flask import session
 
 
 class LogHandler(object):
@@ -10,7 +9,7 @@ class LogHandler(object):
 
     def __init__(self, filename='log/syslog.log', level=None):
         """Initialize class."""
-        self.user = session.get('USER') or 'Unknown'
+        self.default_user = 'Unknown User'
         self._create_log_directory()
         self.logger = logging.getLogger(__name__)
         self.filename = filename
@@ -34,7 +33,7 @@ class LogHandler(object):
     def critical(self, msg, user=None, e=None, exc_info=False):
         """Write formatted 'msg' to logger."""
         # If a specific user is specific, log that user name
-        user = user or self.user
+        user = user or self.default_user
         self.logger.critical(user + ' - ' + msg, exc_info=exc_info)
         # If exception error message provided, log as well
         if e:
@@ -43,7 +42,7 @@ class LogHandler(object):
     def error(self, msg, user=None, e=None, exc_info=False):
         """Write formatted 'msg' to logger."""
         # If a specific user is specific, log that user name
-        user = user or self.user
+        user = user or self.default_user
         self.logger.error(user + ' - ' + msg, exc_info=exc_info)
         # If exception error message provided, log as well
         if e:
@@ -52,7 +51,7 @@ class LogHandler(object):
     def warning(self, msg, user=None, e=None, exc_info=False):
         """Write formatted 'msg' to logger."""
         # If a specific user is specific, log that user name
-        user = user or self.user
+        user = user or self.default_user
         self.logger.warning(user + ' - ' + msg, exc_info=exc_info)
         # If exception error message provided, log as well
         if e:
@@ -61,7 +60,7 @@ class LogHandler(object):
     def info(self, msg, user=None, e=None, exc_info=False):
         """Write formatted 'msg' to logger."""
         # If a specific user is specific, log that user name
-        user = user or self.user
+        user = user or self.default_user
         self.logger.info(user + ' - ' + msg, exc_info=exc_info)
         # If exception error message provided, log as well
         if e:
@@ -70,7 +69,7 @@ class LogHandler(object):
     def debug(self, msg, user=None, e=None, exc_info=False):
         """Write formatted 'msg' to logger."""
         # If a specific user is specific, log that user name
-        user = user or self.user
+        user = user or self.default_user
         self.logger.debug(user + ' - ' + msg, exc_info=exc_info)
         # If exception error message provided, log as well
         if e:
