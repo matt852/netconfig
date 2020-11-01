@@ -15,7 +15,7 @@ class User(db.Model):
         return '<User %r>' % self.nickname
 
 
-class Devicetype(db.Model):
+class DeviceType(db.Model):
     """Device type stored in database."""
 
     id = db.Column(db.Integer, primary_key=True)

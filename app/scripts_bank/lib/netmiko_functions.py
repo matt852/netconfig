@@ -6,7 +6,7 @@ import app
 from threading import Thread
 
 
-def sessionIsAlive(ssh):
+def session_is_alive(ssh):
     """Determine if stored Netmiko SSH session is established and active."""
     null = chr(0)
     try:
@@ -19,7 +19,7 @@ def sessionIsAlive(ssh):
     return False
 
 
-def sshSkipCheck(x):
+def ssh_skip_check(x):
     """Determine if SSH connection attempt was skipped from Netmiko.
 
     Returns True if SSH session contains "skipped" (was unsuccessful).
@@ -31,7 +31,7 @@ def sshSkipCheck(x):
         return False
 
 
-def connectToSSH(host, creds):
+def connect_to_ssh(host, creds):
     """Connect to host via SSH with provided username and password, and type of device specified."""
     # Try to connect to the host
     try:
@@ -50,7 +50,7 @@ def connectToSSH(host, creds):
     return ssh
 
 
-def disconnectFromSSH(ssh):
+def disconnect_from_ssh(ssh):
     """Disconnect from active SSH session."""
     # Daemonize work to run in background
     def daemon():
@@ -64,38 +64,38 @@ def disconnectFromSSH(ssh):
     d.start()
 
 
-def runSSHCommandOnce(command, host, creds):
+def run_ssh_command_once(command, host, creds):
     """Run command on host via SSH and returns output."""
-    ssh = connectToSSH(host, creds)
+    ssh = connect_to_ssh(host, creds)
     # Verify ssh connection established and didn't return an error
-    if sshSkipCheck(ssh):
+    if ssh_skip_check(ssh):
         return False
     # Get command output from device
     result = ssh.send_command(command)
     # Disconnect from SSH session
-    disconnectFromSSH(ssh)
+    disconnect_from_ssh(ssh)
     # Return output of command
     return result
 
 
-def runMultipleSSHCommandsWithCmdHead(cmdList, host, creds):
+def run_multiple_ssh_commands_with_cmd_head(cmdList, host, creds):
     """Run multiple commands on host via SSH and returns output."""
     result = []
-    ssh = connectToSSH(host, creds)
+    ssh = connect_to_ssh(host, creds)
     # Verify ssh connection established and didn't return an error
-    if sshSkipCheck(ssh):
+    if ssh_skip_check(ssh):
         return False
     for x in cmdList:
         result.append("Command: %s" % x)
         # Get command output from multiple commands configured on device
         result.append(ssh.send_command(x))
     # Disconnect from SSH session
-    disconnectFromSSH(ssh)
+    disconnect_from_ssh(ssh)
     # Return output of command
     return result
 
 
-def runMultipleSSHCommandsInSession(cmdList, ssh):
+def run_multiple_ssh_commands_in_session(cmdList, ssh):
     """Run multiple commands in list on host via SSH and returns all output from applying the config."""
     result = []
     for x in cmdList:
@@ -106,11 +106,11 @@ def runMultipleSSHCommandsInSession(cmdList, ssh):
     return result
 
 
-def getSSHSession(host, creds):
+def get_ssh_session(host, creds):
     """Create an SSH session, verifies it worked, then returns the session itself."""
-    ssh = connectToSSH(host, creds)
+    ssh = connect_to_ssh(host, creds)
     # Verify ssh connection established and didn't return an error
-    if sshSkipCheck(ssh):
-        return "ERROR: In function nfn.getSSHSession, sshSkipCheck failed using host %s\n" % (host.hostname)
+    if ssh_skip_check(ssh):
+        return "ERROR: In function nfn.get_ssh_session, ssh_skip_check failed using host %s\n" % (host.hostname)
     # Return output of command
     return ssh

@@ -3,7 +3,7 @@
 from flask import session
 
 
-def checkUserLoggedInStatus():
+def check_user_logged_in_status():
     """Check if user is currently logged in.
 
     Return True if they are logged in.
@@ -19,7 +19,7 @@ def checkUserLoggedInStatus():
         return False
 
 
-def checkSSHSessionMatchesID(sshid, hostid):
+def check_ssh_session_matches_id(sshid, hostid):
     """Check if there's any existing SSH connections.
 
     Return True if there are.

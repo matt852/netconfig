@@ -71,5 +71,6 @@ port-channel10,--,--,noOperMembers,Auto,
 
         self.assertEqual(self.device.pull_device_poe_status(None), nxos_expected_output)
 
+
 if __name__ == '__main__':
     unittest.main()

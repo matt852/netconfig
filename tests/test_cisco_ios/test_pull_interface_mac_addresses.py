@@ -61,5 +61,6 @@ Multicast Entries
 
         self.assertEqual(self.device.pull_interface_mac_addresses(None), iosxe_expected_output)
 
+
 if __name__ == '__main__':
     unittest.main()

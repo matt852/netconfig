@@ -96,5 +96,6 @@ Unidirectional Mode: off
             self.assertEqual(x['device_id'], y['device_id'])
             self.assertEqual(x['remote_ip'], y['remote_ip'])
 
+
 if __name__ == '__main__':
     unittest.main()

@@ -1,4 +1,4 @@
-from app.scripts_bank.lib.netmiko_functions import runMultipleSSHCommandsInSession
+from app.scripts_bank.lib.netmiko_functions import run_multiple_ssh_commands_in_session
 
 
 class BaseDevice(object):
@@ -17,43 +17,43 @@ class BaseDevice(object):
         """Deletion function."""
         pass
 
-    def save_config_on_device(self, activeSession):
+    def save_config_on_device(self, active_session):
         """Return results from saving configuration on device."""
-        return activeSession.save_config()
+        return active_session.save_config()
 
-    def reset_session_mode(self, activeSession):
+    def reset_session_mode(self, active_session):
         """Check if existing SSH session is in config mode.
 
         If so, exits config mode.
         """
-        if activeSession.exit_config_mode():
+        if active_session.exit_config_mode():
             # Return True if successful
             return True
         else:
             # Return False if session is not in config mode
             return False
 
-    def revert_session_mode(self, activeSession, originalState):
+    def revert_session_mode(self, active_session, originalState):
         """Revert SSH session to config mode if it was previously in config mode.
 
         Not currently used.
         """
-        if originalState and not activeSession.check_config_mode():
-            activeSession.enter_config_mode()
-        elif activeSession.check_config_mode() and not originalState:
-            activeSession.exit_config_mode()
+        if originalState and not active_session.check_config_mode():
+            active_session.enter_config_mode()
+        elif active_session.check_config_mode() and not originalState:
+            active_session.exit_config_mode()
 
-    def run_ssh_command(self, command, activeSession):
+    def run_ssh_command(self, command, active_session):
         """Execute single command on device using existing SSH session."""
         # Run command
-        result = activeSession.send_command(command)
+        result = active_session.send_command(command)
         # Run check for invalid input detected, etc
         if "Invalid input detected" in result:
             # Command failed, possibly due to being in configuration mode.  Exit config mode
-            activeSession.exit_config_mode()
+            active_session.exit_config_mode()
             # Try to retrieve command results again
             try:
-                result = self.run_ssh_command(command, activeSession)
+                result = self.run_ssh_command(command, active_session)
                 # If command still failed, return nothing
                 if "Invalid input detected" in result:
                     return ''
@@ -64,23 +64,23 @@ class BaseDevice(object):
         # Return command output
         return result
 
-    def run_ssh_config_commands(self, cmdList, activeSession):
+    def run_ssh_config_commands(self, cmdList, active_session):
         """Execute configuration commands on device.
 
         Execute one or more configuration commands on device.
         Commands provided via array, with each command on it's own array row.
         Uses existing SSH session.
         """
-        return activeSession.send_config_set(cmdList).splitlines()
+        return active_session.send_config_set(cmdList).splitlines()
 
-    def run_multiple_commands(self, command, activeSession):
+    def run_multiple_commands(self, command, active_session):
         """Execute multiple commands on device using existing SSH session."""
         newCmd = []
         for x in command.splitlines():
             newCmd.append(x)
-        runMultipleSSHCommandsInSession(newCmd, activeSession)
+        run_multiple_ssh_commands_in_session(newCmd, active_session)
 
-    def run_multiple_config_commands(self, command, activeSession):
+    def run_multiple_config_commands(self, command, active_session):
         """Execute multiple configuration commands on device.
 
         Execute multiple configuration commands on device.
@@ -92,22 +92,22 @@ class BaseDevice(object):
         for x in command.splitlines():
             newCmd.append(x)
         # Get command output from network device
-        result = self.run_ssh_config_commands(newCmd, activeSession)
-        saveResult = self.save_config_on_device(activeSession)
+        result = self.run_ssh_config_commands(newCmd, active_session)
+        saveResult = self.save_config_on_device(active_session)
         for x in saveResult:
             result.append(x)
         return result
 
-    def get_cmd_output(self, command, activeSession):
+    def get_cmd_output(self, command, active_session):
         """Get SSH command output and returns it as an array.
 
         Executes command on device using existing SSH session.
         Stores and returns output in an array.
         Each array row is separated by newline.
         """
-        return self.run_ssh_command(command, activeSession).splitlines()
+        return self.run_ssh_command(command, active_session).splitlines()
 
-    def get_cmd_output_with_commas(self, command, activeSession):
+    def get_cmd_output_with_commas(self, command, active_session):
         """Execute command on device and replaces spaces with commas.
 
         Executes command on device using existing SSH session.
@@ -115,12 +115,12 @@ class BaseDevice(object):
         Replaces all spaces in returned output with commas.
         Each array row is separated by newline.
         """
-        result = self.run_ssh_command(command, activeSession)
+        result = self.run_ssh_command(command, active_session)
         return result.replace("  ", ",").splitlines()
 
-    def find_prompt_in_session(self, activeSession):
+    def find_prompt_in_session(self, active_session):
         """Return device prompt from existing SSH session."""
-        return activeSession.find_prompt()
+        return active_session.find_prompt()
 
     def replace_double_spaces_commas(self, x):
         """Replace all double spaces in provided string with a single comma."""

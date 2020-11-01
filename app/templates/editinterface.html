@@ -14,7 +14,7 @@
 				{% endfor %}
 			</p>
 			<hr />
-			<form action="{{ url_for('confirmIntEdit') }}" method="post" name="intEdit">
+			<form action="{{ url_for('confirm_int_edit') }}" method="post" name="intEdit">
 			    {{ form.hidden_tag() }}
 
  				 <input type="hidden" name="hostid" value="{{ hostid }}" />

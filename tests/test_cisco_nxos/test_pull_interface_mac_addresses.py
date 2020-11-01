@@ -100,5 +100,6 @@ class TestCiscoNXOS(unittest.TestCase):
 
         self.assertEqual(device.pull_interface_mac_addresses(None), expected_output)
 
+
 if __name__ == '__main__':
     unittest.main()

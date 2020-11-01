@@ -25,7 +25,7 @@
 			<div class="text-right">
 				<a href="/db/viewhosts" class="btn btn-primary">View host list</a>
 				{% if local_creds %}
-					<a href="modalLocalCredentials" data-toggle="modal" data-target="#modalLocalCredentials" data-hostid="{{ hostid }}" data-hostname="{{ hostname }}"></a>
+					<a href="modal_local_credentials" data-toggle="modal" data-target="#modal_local_credentials" data-hostid="{{ hostid }}" data-hostname="{{ hostname }}"></a>
 				{% else %}
 					<a href="/db/viewhosts/{{ hostid }}" class="btn btn-info">Go to {{ hostname }}</a>
 				{% endif %}

@@ -1,7 +1,7 @@
 <div class="container-fluid">
 	<div class="row">
     	<div class="col-md-6">
-			<form action="{{ url_for('confirmCmdCustom') }}" method="post" name="cmdCustom">
+			<form action="{{ url_for('confirm_cmd_custom') }}" method="post" name="cmdCustom">
 			    {{ form.hidden_tag() }}
 
  				 <input type="hidden" name="hostname" value={{ host.hostname }}>

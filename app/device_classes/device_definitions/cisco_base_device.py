@@ -3,6 +3,10 @@ from .base_device import BaseDevice
 
 class CiscoBaseDevice(BaseDevice):
     """Base class for network device vendor Cisco."""
+    
+    def __init__(self):
+        # TODO: Add Super here and rework classes
+        pass
 
     def check_invalid_input_detected(self, x):
         """Check for invalid input when executing command on device."""
@@ -31,44 +35,44 @@ class CiscoBaseDevice(BaseDevice):
         command = "shutdown"
         return command
 
-    def run_enable_interface_cmd(self, interface, activeSession):
+    def run_enable_interface_cmd(self, interface, active_session):
         """Enable interface on device using existing SSH session."""
-        cmdList = []
-        cmdList.append("interface %s" % interface)
-        cmdList.append("%s" % (self.get_cmd_enable_interface()))
-        cmdList.append("end")
+        cmd_list = []
+        cmd_list.append("interface %s" % interface)
+        cmd_list.append("%s" % (self.get_cmd_enable_interface()))
+        cmd_list.append("end")
 
-        return self.run_ssh_config_commands(cmdList, activeSession)
+        return self.run_ssh_config_commands(cmd_list, active_session)
 
-    def run_disable_interface_cmd(self, interface, activeSession):
+    def run_disable_interface_cmd(self, interface, active_session):
         """Disable interface on device using existing SSH session."""
-        cmdList = []
-        cmdList.append("interface %s" % interface)
-        cmdList.append("%s" % (self.get_cmd_disable_interface()))
-        cmdList.append("end")
+        cmd_list = []
+        cmd_list.append("interface %s" % interface)
+        cmd_list.append("%s" % (self.get_cmd_disable_interface()))
+        cmd_list.append("end")
 
-        return self.run_ssh_config_commands(cmdList, activeSession)
+        return self.run_ssh_config_commands(cmd_list, active_session)
 
-    def run_edit_interface_cmd(self, interface, datavlan, voicevlan, other, activeSession):
+    def run_edit_interface_cmd(self, interface, datavlan, voicevlan, other, active_session):
         """Edit interface on device with specified parameters on existing SSH session."""
-        cmdList = []
-        cmdList.append("interface %s" % interface)
+        cmd_list = []
+        cmd_list.append("interface %s" % interface)
 
         if datavlan != '0':
-            cmdList.append("switchport access vlan %s" % datavlan)
+            cmd_list.append("switchport access vlan %s" % datavlan)
         if voicevlan != '0':
-            cmdList.append("switchport voice vlan %s" % voicevlan)
+            cmd_list.append("switchport voice vlan %s" % voicevlan)
         if other != '0':
             # + is used to represent spaces
             other = other.replace('+', ' ')
 
             # & is used to represent new lines
             for x in other.split('&'):
-                cmdList.append(x)
+                cmd_list.append(x)
 
-        cmdList.append("end")
+        cmd_list.append("end")
 
-        return self.run_ssh_config_commands(cmdList, activeSession)
+        return self.run_ssh_config_commands(cmd_list, active_session)
 
     def cmd_show_inventory(self):
         """Return command to display device inventory."""
@@ -80,25 +84,25 @@ class CiscoBaseDevice(BaseDevice):
         command = 'show version'
         return command
 
-    def pull_inventory(self, activeSession):
+    def pull_inventory(self, active_session):
         """Pull device inventory.
 
         Pulls device inventory.
         Returns output as array with each new line on a separate row.
         """
         command = self.cmd_show_inventory()
-        return self.run_ssh_command(command, activeSession).splitlines()
+        return self.run_ssh_command(command, active_session).splitlines()
 
-    def pull_version(self, activeSession):
+    def pull_version(self, active_session):
         """Pull device version.
 
         Pulls device version.
         Returns output as array with each new line on a separate row.
         """
         command = self.cmd_show_version()
-        return self.run_ssh_command(command, activeSession).splitlines()
+        return self.run_ssh_command(command, active_session).splitlines()
 
-    def renameCDPInterfaces(self, x):
+    def rename_cdp_interfaces(self, x):
         """Cleanup interface wording."""
         x = x.replace('TenGigabitEthernet', 'Ten ')
         x = x.replace('GigabitEthernet', 'Gig ')
@@ -106,26 +110,26 @@ class CiscoBaseDevice(BaseDevice):
         x = x.replace('Ethernet', 'Eth ')
         return x
 
-    def cleanup_cdp_neighbor_output(self, inputData):
+    def cleanup_cdp_neighbor_output(self, input_data):
         """Clean up returned 'show cdp entry *' output."""
-        loopStart = ipAddrStart = True
+        loop_start = ip_addr_start = True
         data = []
         output = {}
-        for line in inputData:
-            if "----" in line and loopStart:
+        for line in input_data:
+            if "----" in line and loop_start:
                 # First loop iteration, skip this
-                loopStart = False
+                loop_start = False
             elif "Device ID" in line:
                 # Get device hostname
                 x = line.split(':')
                 output['device_id'] = str(x[1].strip())
-            elif "IP" in line and "ddress" in line and ipAddrStart:
+            elif "IP" in line and "ddress" in line and ip_addr_start:
                 # IOS/IOS-XE is 'IP address'.  NX-OS is 'IPv4 Address'.
                 # Need to skip 2nd iteration (mgmt) of IP
                 x = line.split(':')
                 output['remote_ip'] = str(x[1].strip())
                 # Set to skip mgmt IP (if present) for device. Only use first IP address if multiple listed
-                ipAddrStart = False
+                ip_addr_start = False
             elif "Platform" in line:
                 # Get platform.  In same line as capabilities, so split line by comma
                 x = line.split(',')
@@ -142,18 +146,18 @@ class CiscoBaseDevice(BaseDevice):
                     y = y.split(':')
                     if i:
                         # First iteration
-                        output['local_iface'] = self.renameCDPInterfaces(y[1].strip())
+                        output['local_iface'] = self.rename_cdp_interfaces(y[1].strip())
                         i = False
                     else:
                         # Second iteration
-                        output['port_id'] = self.renameCDPInterfaces(y[1].strip())
+                        output['port_id'] = self.rename_cdp_interfaces(y[1].strip())
             elif "----" in line:
                 # End of the device section. Save all output to 'data[]'
                 data.append(output)
                 # Reset output variable
                 output = {}
                 # Reset IP address counter
-                ipAddrStart = True
+                ip_addr_start = True
 
         # There is no "----" at end of cmd output.  End of all output section. Save last device output to 'data[]'
         data.append(output)

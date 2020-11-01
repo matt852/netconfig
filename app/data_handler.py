@@ -1,23 +1,23 @@
 #!/usr/bin/python
+
 import app
 import requests
 from requests.exceptions import ConnectionError
 import csv
 from sqlalchemy.exc import IntegrityError, InvalidRequestError
-
 from netaddr import IPAddress, core
-from .device_classes import deviceType
+from .device_classes import device_type
 
 
 class DataHandler(object):
     """Handler object for data sources."""
 
-    def __init__(self, source, netboxURL=None):
+    def __init__(self, source, netbox_url=None):
         """Data handler initialization function."""
         self.source = source
-        self.url = netboxURL
+        self.url = netbox_url
 
-    def addHostToDB(self, hostname, ipv4_addr, type, ios_type, local_creds):
+    def add_host_to_db(self, hostname, ipv4_addr, type, ios_type, local_creds):
         """Add host to database.  Returns True if successful."""
         try:
             host = app.models.Host(hostname=hostname, ipv4_addr=ipv4_addr,
@@ -38,7 +38,7 @@ class DataHandler(object):
         except Exception as e:
             return False, 0, e
 
-    def addProxyToDB(self, proxy_name, proxy_settings):
+    def add_proxy_to_db(self, proxy_name, proxy_settings):
         """Add proxy settings to DB"""
         try:
             proxy = app.models.ProxySettings(proxy_name=proxy_name,
@@ -57,13 +57,13 @@ class DataHandler(object):
         except Exception as e:
             return False, 0, e
 
-    def importHostsToDB(self, csvImport):
+    def import_hosts_to_db(self, csv_import):
         """Import hosts to database.
 
         Returns True if successful
         Format: Hostname,IPAddress,DeviceType,IOSType
         """
-        reader = csv.reader(csvImport.strip().splitlines())
+        reader = csv.reader(csv_import.strip().splitlines())
         errors = []
         hosts = []
         for row in reader:
@@ -82,12 +82,13 @@ class DataHandler(object):
                 errors.append(error)
                 continue
 
+            # TODO: Move list to imported file
             if row[2].lower().strip() not in ("switch", "router", "firewall"):
                 error = {'hostname': row[0], 'error': "Invalid device type"}
                 errors.append(error)
                 continue
 
-            ios_type = self.getOSType(row[3])
+            ios_type = self.get_os_type(row[3])
             if ios_type.lower() == "error":
                 error = {'hostname': row[0], 'error': "Invalid OS type"}
                 errors.append(error)
@@ -113,7 +114,7 @@ class DataHandler(object):
                 local_creds = False
 
             try:
-                # TODO could probably use self.addHostToDB
+                # TODO could probably use self.add_host_to_db
                 host = app.models.Host(hostname=row[0].strip(),
                                        ipv4_addr=row[1],
                                        type=row[2].capitalize(),
@@ -135,7 +136,7 @@ class DataHandler(object):
 
         return hosts, errors
 
-    def getOSType(self, os):
+    def get_os_type(self, os):
         """Process OS Type.
 
         :i (input)
@@ -157,6 +158,7 @@ class DataHandler(object):
             else:
                 return "error"
 
+        # TODO: Move list elsewhere and import
         os = os.lower()
         if os == 'ios':
             return "cisco_ios"
@@ -169,7 +171,7 @@ class DataHandler(object):
         else:
             return "error"
 
-    def deleteHostInDB(self, x):
+    def delete_host_in_db(self, x):
         """Remove host from database.
 
         Returns True if successful.
@@ -188,7 +190,7 @@ class DataHandler(object):
             app.logger.write_log(err)
             return False
 
-    def getHosts(self):
+    def get_hosts(self):
         """Get certain number of devices in database."""
         data = []
 
@@ -214,7 +216,7 @@ class DataHandler(object):
                 for d in r.json()['results']:
                     if (d['custom_fields']['Netconfig'] and d['custom_fields']['Netconfig']['label'] == 'Yes'):
 
-                        os_type = self.getOSType(d['device_type']['id'])
+                        os_type = self.get_os_type(d['device_type']['id'])
                         host = {"id": d['id'], "hostname": d['name'],
                                 "ipv4_addr": d['primary_ip']['address'].split('/')[0],
                                 "type": d['device_type']['model'],
@@ -226,14 +228,14 @@ class DataHandler(object):
 
         return data
 
-    def getHostByID(self, x):
+    def get_host_by_id(self, x):
         """Get device by ID, regardless of data store location.
 
         Support local database or Netbox inventory.
         Does not return SSH session.
         x = host id
         """
-        # TO DO consider merging with getHosts
+        # TO DO consider merging with get_hosts
 
         if self.source == 'local':
             # TO DO handle downstream to use a dictionary not a model
@@ -253,7 +255,7 @@ class DataHandler(object):
             if r.status_code == requests.codes.ok:
                 d = r.json()
 
-                os_type = self.getOSType(d['device_type']['id'])
+                os_type = self.get_os_type(d['device_type']['id'])
                 host = {"id": d['id'], "hostname": d['name'],
                         "ipv4_addr": d['primary_ip']['address'].split('/')[0],
                         "type": d['device_type']['model'],
@@ -263,12 +265,12 @@ class DataHandler(object):
                 return None
 
         # Get host class based on device type
-        return deviceType.DeviceHandler(id=host['id'], hostname=host['hostname'],
-                                        ipv4_addr=host['ipv4_addr'], type=host['type'],
-                                        ios_type=host['ios_type'],
-                                        local_creds=host['local_creds'])
+        return device_type.device_handler(id=host['id'], hostname=host['hostname'],
+                                          ipv4_addr=host['ipv4_addr'], type=host['type'],
+                                          ios_type=host['ios_type'],
+                                          local_creds=host['local_creds'])
 
-    def editHostInDatabase(self, id, hostname, ipv4_addr, hosttype, ios_type, local_creds, local_creds_updated):
+    def edit_host_in_database(self, id, hostname, ipv4_addr, hosttype, ios_type, local_creds, local_creds_updated):
         """Edit device in database.
 
         This is only supported when using the local database.

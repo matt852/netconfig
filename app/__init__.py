@@ -18,7 +18,7 @@ migrate = Migrate(app, db)
 Bootstrap(app)
 try:
     datahandler = DataHandler(app.config['DATALOCATION'],
-                              netboxURL=app.config['NETBOXSERVER'])
+                              netbox_url=app.config['NETBOXSERVER'])
 except KeyError:
     datahandler = DataHandler('local')
 

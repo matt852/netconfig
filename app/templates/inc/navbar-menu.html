@@ -65,7 +65,7 @@
                         {% if session['USER'] %}
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" title="{{ session['USER'] }}" role="button" aria-haspopup="true" aria-expanded="false">{{ session['USER'] }} <b class="caret"></b></a>
                             <ul class="dropdown-menu">
-                                <li><a href="/disconnectAllSSH">Close Active SSH Sessions (<span id="activeSSHSessionCount"></span>)</a></li>
+                                <li><a href="/disconnect_all_ssh">Close Active SSH Sessions (<span id="activeSSHSessionCount"></span>)</a></li>
                                 <li><a href="/auth/logout">Logout</a></li>
                             </ul>
                         {% else %}

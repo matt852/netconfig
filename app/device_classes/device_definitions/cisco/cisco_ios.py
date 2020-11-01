@@ -20,34 +20,34 @@ class CiscoIOS(CiscoBaseDevice):
         command = "show cdp entry *"
         return command
 
-    def pull_run_config(self, activeSession):
+    def pull_run_config(self, active_session):
         """Retrieve running configuration on device."""
         command = self.cmd_run_config()
-        return self.get_cmd_output(command, activeSession)
+        return self.get_cmd_output(command, active_session)
 
-    def pull_start_config(self, activeSession):
+    def pull_start_config(self, active_session):
         """Retrieve startup configuration on device."""
         command = self.cmd_start_config()
-        return self.get_cmd_output(command, activeSession)
+        return self.get_cmd_output(command, active_session)
 
-    def pull_cdp_neighbor(self, activeSession):
+    def pull_cdp_neighbor(self, active_session):
         """Retrieve CDP/LLDP neighbor information from device."""
         command = self.cmd_cdp_neighbor()
-        result = self.get_cmd_output(command, activeSession)
+        result = self.get_cmd_output(command, active_session)
         return self.cleanup_cdp_neighbor_output(result)
 
-    def pull_interface_config(self, activeSession):
+    def pull_interface_config(self, active_session):
         """Retrieve configuration for interface on device."""
         command = "show run interface %s | exclude configuration|!" % (self.interface)
-        return self.get_cmd_output(command, activeSession)
+        return self.get_cmd_output(command, active_session)
 
-    def pull_interface_mac_addresses(self, activeSession):
+    def pull_interface_mac_addresses(self, active_session):
         """Retrieve MAC address table for interface on device."""
         # TODO: This entire function needs to be better optimized
         #  Possibly split into two functions: one each for IOS and IOS-XE
         command = "show mac address-table interface %s" % (self.interface)
         for a in range(2):
-            result = self.run_ssh_command(command, activeSession)
+            result = self.run_ssh_command(command, active_session)
             if self.check_invalid_input_detected(result):
                 command = "show mac-address-table interface %s" % (self.interface)
                 continue
@@ -57,7 +57,7 @@ class CiscoIOS(CiscoBaseDevice):
             return '', ''
         else:
             # Stores table body data as array
-            tableBody = []
+            table_body = []
             data = []
 
             # Remove any asterisks
@@ -87,23 +87,23 @@ class CiscoIOS(CiscoBaseDevice):
                     # Regexp to search for any substring in line that contains an underscore.
                     # Then replaces the whitespace around it with commas.
                     # This is for IOS-XE devices with multiple protocols that interface with HTML formatting.
-                    regExp = re.compile(r'\s[a-zA-Z0-9]*_[a-zA-Z0-9_]*\s')
-                    if regExp.search(line):
+                    reg_exp = re.compile(r'\s[a-zA-Z0-9]*_[a-zA-Z0-9_]*\s')
+                    if reg_exp.search(line):
                         # Save matched string to variable
-                        regexMatchList = regExp.findall(line)
+                        regex_match_list = reg_exp.findall(line)
                         # Strip first and last character (whitespace) of string
-                        regexMatchStr = regexMatchList[0][1:-1]
+                        regex_match_str = regex_match_list[0][1:-1]
                         # Add commas back in to beginning and end of line
-                        regexMatchStr = ',' + regexMatchStr + ','
+                        regex_match_str = ',' + regex_match_str + ','
                         # Insert modified substring back into line
-                        line = re.sub(regExp, regexMatchStr, line)
+                        line = re.sub(reg_exp, regex_match_str, line)
 
                     # Remove any single spaces in front of commas
                     line = line.replace(' ,', ',')
-                    tableBody.append(line)
+                    table_body.append(line)
 
             # Different output for IOS vs IOS-XE.  Need to cleanup
-            for line in tableBody:
+            for line in table_body:
                 # Skip IOS-XE header
                 if 'protocols' not in line:
                     # Split line on commas
@@ -122,45 +122,45 @@ class CiscoIOS(CiscoBaseDevice):
                         data.append(y)
             return data
 
-    def pull_interface_statistics(self, activeSession):
+    def pull_interface_statistics(self, active_session):
         """Retrieve statistics for interface on device."""
         command = "show interface %s" % (self.interface)
-        return self.get_cmd_output(command, activeSession)
+        return self.get_cmd_output(command, active_session)
 
-    def pull_interface_info(self, activeSession):
+    def pull_interface_info(self, active_session):
         """Retrieve various informational command output for interface on device."""
-        intConfig = self.pull_interface_config(activeSession)
-        intMacAddr = self.pull_interface_mac_addresses(activeSession)
-        intStats = self.pull_interface_statistics(activeSession)
+        int_config = self.pull_interface_config(active_session)
+        int_mac_addr = self.pull_interface_mac_addresses(active_session)
+        int_stats = self.pull_interface_statistics(active_session)
 
-        return intConfig, intMacAddr, intStats
+        return int_config, int_mac_addr, int_stats
 
-    def pull_device_uptime(self, activeSession):
+    def pull_device_uptime(self, active_session):
         """Retrieve device uptime."""
         command = 'show version | include uptime'
-        uptime = self.get_cmd_output(command, activeSession)
+        uptime = self.get_cmd_output(command, active_session)
         for x in uptime:
             output = x.split(' ', 3)[-1]
         return output
 
-    def pull_device_poe_status(self, activeSession):  # TODO - WRITE TEST FOR
+    def pull_device_poe_status(self, active_session):  # TODO - WRITE TEST FOR
         """Retrieve PoE status for all interfaces."""
         status = {}
         command = 'show power inline | begin Interface'
-        result = self.get_cmd_output(command, activeSession)
-        checkStrings = ['Interface', 'Watts', '---']
+        result = self.get_cmd_output(command, active_session)
+        check_strings = ['Interface', 'Watts', '---']
 
         # If output returned from command execution, parse output
         if result:
             for x in result:
-                # If any string from checkStrings in line, or line is blank, skip to next loop iteration
-                if any(y in x for y in checkStrings) or not x:
+                # If any string from check_strings in line, or line is blank, skip to next loop iteration
+                if any(y in x for y in check_strings) or not x:
                     continue
                 line = x.split()
 
                 # Convert interface short abbreviation to long name
-                regExp = re.compile(r'[A-Z][a-z][0-9]\/')
-                if regExp.search(line[0]):
+                reg_exp = re.compile(r'[A-Z][a-z][0-9]\/')
+                if reg_exp.search(line[0]):
                     if line[0][0] == 'G':
                         line[0] = line[0].replace('Gi', 'GigabitEthernet')
                     elif line[0][0] == 'F':
@@ -176,12 +176,12 @@ class CiscoIOS(CiscoBaseDevice):
         # Return dictionary with results
         return status
 
-    def pull_host_interfaces(self, activeSession):
+    def pull_host_interfaces(self, active_session):
         """Retrieve list of interfaces on device."""
-        resultA = self.run_ssh_command('show ip interface brief', activeSession)
-        resultB = self.run_ssh_command('show interface description', activeSession)
+        result_a = self.run_ssh_command('show ip interface brief', active_session)
+        result_b = self.run_ssh_command('show interface description', active_session)
 
-        return self.cleanup_ios_output(resultA, resultB)
+        return self.cleanup_ios_output(result_a, result_b)
 
     def count_interface_status(self, interfaces):
         """Return count of interfaces.
@@ -207,11 +207,11 @@ class CiscoIOS(CiscoBaseDevice):
 
         return data
 
-    def cleanup_ios_output(self, iosOutputA, iosOutputB):
+    def cleanup_ios_output(self, ios_output_a, ios_output_b):
         """Clean up returned IOS output from 'show ip interface brief'."""
         data = []
 
-        for a, b in zip(iosOutputA.splitlines(), iosOutputB.splitlines()):
+        for a, b in zip(ios_output_a.splitlines(), ios_output_b.splitlines()):
             try:
                 x = a.split()  # show ip interface brief output
                 y = b.split()  # show interface description output
@@ -219,7 +219,7 @@ class CiscoIOS(CiscoBaseDevice):
                     continue
                 else:
                     interface = {}
-                    descLine = ''
+                    desc_line = ''
                     interface['name'] = x[0]
                     interface['address'] = x[1]
                     if 'admin' in y[1]:
@@ -227,15 +227,15 @@ class CiscoIOS(CiscoBaseDevice):
                         interface['protocol'] = y[3]
                         # Get all elements from 4th index onward, but combine into readable string
                         for z in y[4:]:
-                            descLine = descLine + str(z) + " "
+                            desc_line = desc_line + str(z) + " "
                     else:
                         interface['status'] = y[1]
                         interface['protocol'] = y[2]
                         # Get all elements from 3rd index onward, but combine into readable string
                         for z in y[3:]:
-                            descLine = descLine + str(z) + " "
+                            desc_line = desc_line + str(z) + " "
                     # Truncate description to 25 characters if longer then 25 characters
-                    interface['description'] = (descLine[:25] + '..') if len(descLine) > 25 else descLine.strip()
+                    interface['description'] = (desc_line[:25] + '..') if len(desc_line) > 25 else desc_line.strip()
                     # Set to '--' if empty
                     interface['description'] = interface['description'] or '--'
                     data.append(interface)

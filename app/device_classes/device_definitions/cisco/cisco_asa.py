@@ -14,46 +14,46 @@ class CiscoASA(CiscoBaseDevice):
         command = 'show startup-config'
         return command
 
-    def pull_run_config(self, activeSession):
+    def pull_run_config(self, active_session):
         """Retrieve running configuration on device."""
         command = self.cmd_run_config()
-        return self.get_cmd_output(command, activeSession)
+        return self.get_cmd_output(command, active_session)
 
-    def pull_start_config(self, activeSession):
+    def pull_start_config(self, active_session):
         """Retrieve startup configuration on device."""
         command = self.cmd_start_config()
-        return self.get_cmd_output(command, activeSession)
+        return self.get_cmd_output(command, active_session)
 
-    def pull_cdp_neighbor(self, activeSession):
+    def pull_cdp_neighbor(self, active_session):
         """Not supported on ASA's, so intentionally returns blank string."""
         return ''
 
-    def pull_interface_config(self, activeSession):
+    def pull_interface_config(self, active_session):
         """Retrieve configuration for interface on device."""
         command = "show run interface %s | exclude configuration|!" % (self.interface)
-        return self.get_cmd_output(command, activeSession)
+        return self.get_cmd_output(command, active_session)
 
-    def pull_interface_mac_addresses(self, activeSession):
+    def pull_interface_mac_addresses(self, active_session):
         """Not supported on ASA's, so intentionally returns blank string."""
         return ''
 
-    def pull_interface_statistics(self, activeSession):
+    def pull_interface_statistics(self, active_session):
         """Retrieve statistics for interface on device."""
         command = "show interface %s" % (self.interface)
-        return self.get_cmd_output(command, activeSession)
+        return self.get_cmd_output(command, active_session)
 
-    def pull_interface_info(self, activeSession):
+    def pull_interface_info(self, active_session):
         """Retrieve various informational command output for interface on device."""
-        intConfig = self.pull_interface_config(activeSession)
-        intMacAddr = self.pull_interface_mac_addresses(activeSession)
-        intStats = self.pull_interface_statistics(activeSession)
+        int_config = self.pull_interface_config(active_session)
+        int_mac_addr = self.pull_interface_mac_addresses(active_session)
+        int_stats = self.pull_interface_statistics(active_session)
 
-        return intConfig, intMacAddr, intStats
+        return int_config, int_mac_addr, int_stats
 
-    def pull_device_uptime(self, activeSession):
+    def pull_device_uptime(self, active_session):
         """Retrieve device uptime."""
         command = 'show version | include up'
-        output = self.get_cmd_output(command, activeSession)
+        output = self.get_cmd_output(command, active_session)
         for x in output:
             if 'failover' in x:
                 break
@@ -63,15 +63,15 @@ class CiscoASA(CiscoBaseDevice):
                 uptime = x.split(' ', 2)[2]
         return uptime
 
-    def pull_device_poe_status(self, activeSession):
+    def pull_device_poe_status(self, active_session):
         """Retrieve PoE status for all interfaces."""
         # Return empty result - unsupported on ASA
         return {}
 
-    def pull_host_interfaces(self, activeSession):
+    def pull_host_interfaces(self, active_session):
         """Retrieve list of interfaces on device."""
-        # result = self.run_ssh_command('show interface ip brief', activeSession)
-        result = self.run_ssh_command('show interface detail', activeSession)
+        # result = self.run_ssh_command('show interface ip brief', active_session)
+        result = self.run_ssh_command('show interface detail', active_session)
         return self.cleanup_asa_output(result)
 
     def count_interface_status(self, interfaces):
@@ -109,24 +109,24 @@ class CiscoASA(CiscoBaseDevice):
         # Truncate description to 25 characters if longer then 25 characters
         return (x['description'][:25] + '..') if len(x['description']) > 25 else x['description'].strip()
 
-    def cleanup_asa_output(self, asaOutput):
+    def cleanup_asa_output(self, asa_output):
         """Clean up returned ASA output from 'show ip interface brief'."""
         data = []
         interface = {}
         # Used to set if we're on the first loop or not
-        notFirstLoop = False
+        not_first_loop = False
 
-        for line in asaOutput.splitlines():
+        for line in asa_output.splitlines():
             try:
                 # This is the first line of each new interface
                 if "line protocol is" in line:
                     # If on first loop, skip
-                    if notFirstLoop:
+                    if not_first_loop:
                         interface['description'] = self.clean_interface_description(interface)
                         data.append(interface)
                     else:
-                        # Set 'notFirstLoop' to True now
-                        notFirstLoop = True
+                        # Set 'not_first_loop' to True now
+                        not_first_loop = True
                     # Create new empty interface dict
                     interface = {}
                     # Split on commas

@@ -73,11 +73,11 @@ Fa1/0/3                        admin down     down     Connection to ABC Switch
 
     def test_rename_cdp_interfaces(self):
         """Test function to cleanup interface wording."""
-        self.assertEqual(self.device.renameCDPInterfaces('TenGigabitEthernet'), 'Ten ')
-        self.assertEqual(self.device.renameCDPInterfaces('GigabitEthernet'), 'Gig ')
-        self.assertEqual(self.device.renameCDPInterfaces('FastEthernet'), 'Fas ')
-        self.assertEqual(self.device.renameCDPInterfaces('Ethernet'), 'Eth ')
-        self.assertEqual(self.device.renameCDPInterfaces('Test123'), 'Test123')
+        self.assertEqual(self.device.rename_cdp_interfaces('TenGigabitEthernet'), 'Ten ')
+        self.assertEqual(self.device.rename_cdp_interfaces('GigabitEthernet'), 'Gig ')
+        self.assertEqual(self.device.rename_cdp_interfaces('FastEthernet'), 'Fas ')
+        self.assertEqual(self.device.rename_cdp_interfaces('Ethernet'), 'Eth ')
+        self.assertEqual(self.device.rename_cdp_interfaces('Test123'), 'Test123')
 
     @mock.patch.object(CiscoIOS, 'run_ssh_command')
     def test_pull_device_poe_status(self, mocked_method):
@@ -104,6 +104,7 @@ Gi2/0/2   auto   on         6.0     IP Phone 6789       1     30.0
                                'GigabitEthernet2/0/1': 'off'}
 
         self.assertEqual(self.device.pull_device_poe_status(None), ios_expected_output)
+
 
 if __name__ == '__main__':
     unittest.main()

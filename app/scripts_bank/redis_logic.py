@@ -3,12 +3,12 @@ from flask import g, session
 from uuid import uuid4
 
 
-def generateSessionUUID():
+def generate_session_uuid():
     """Generate UUID for current user session, store in session variable."""
     session['UUID'] = uuid4()
 
 
-def deleteUserInRedis():
+def delete_user_in_redis():
     """Delete logged in user in Redis."""
     saved_id = g.db.hget('users', session['USER'])
     g.db.delete(saved_id)
@@ -21,7 +21,7 @@ def deleteUserInRedis():
         g.db.delete(saved_id)
 
 
-def resetUserRedisExpireTimer():
+def reset_user_redis_expire_timer():
     """Reset automatic logout timer in Redis for logged in user.
 
     Reset Redis user key exipiration, as we only want to to expire after inactivity, not from initial login.
@@ -34,7 +34,7 @@ def resetUserRedisExpireTimer():
         pass
 
 
-def storeUserInRedis(user, pw, privpw='', host=''):
+def store_user_in_redis(user, pw, privpw='', host=''):
     """Save user credentials in Redis.
 
     If host is blank, then store as a general user.
@@ -58,9 +58,9 @@ def storeUserInRedis(user, pw, privpw='', host=''):
             # Generate UUID for user, tie to each individual SSH session later
             try:
                 if not session['UUID']:
-                    generateSessionUUID()
+                    generate_session_uuid()
             except:
-                generateSessionUUID()
+                generate_session_uuid()
 
         else:
             # Key to save variable is host id, --, and username of logged in

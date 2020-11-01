@@ -1,10 +1,8 @@
 #!/usr/bin/python
-from flask import jsonify
+
 from datetime import datetime
-try:
-    from urllib import urlopen  # Python 2
-except ImportError:
-    from urllib.request import urlopen  # Python 3
+from flask import jsonify
+from urllib.request import urlopen
 
 
 class UserCredentials(object):
@@ -22,7 +20,7 @@ class UserCredentials(object):
 creds = UserCredentials('', '', '')
 
 
-def setUserCredentials(username, password, privPassword=''):
+def set_user_credentials(username, password, privPassword=''):
     """Return creds class with username and password in it."""
     creds.un = username
     creds.pw = password
@@ -30,7 +28,7 @@ def setUserCredentials(username, password, privPassword=''):
     return creds
 
 
-def containsSkipped(x):
+def contains_skipped(x):
     """Return if the word 'skipped' is in the provided string.
 
     Returns True if string contains the word "skipped".
@@ -45,14 +43,14 @@ def containsSkipped(x):
         return False
 
 
-def removeDictKey(d, key):
+def remove_dict_key(d, key):
     """Remove key from dictionary."""
     r = dict(d)
     del r[key]
     return r
 
 
-def isInteger(x):
+def is_integer(x):
     """Test if provided value is an integer or not."""
     try:
         int(x)
@@ -61,27 +59,27 @@ def isInteger(x):
         return False
 
 
-def checkForVersionUpdate(config):
+def check_for_version_update(config):
     """Check for NetConfig updates on GitHub."""
     try:
         # with urlopen(config['GH_MASTER_BRANCH_URL']) as a:
-        # masterConfig = a.read().decode('utf-8')
-        masterConfig = urlopen(config['GH_MASTER_BRANCH_URL'])
-        masterConfig = masterConfig.read().decode('utf-8')
+        # master_config = a.read().decode('utf-8')
+        master_config = urlopen(config['GH_MASTER_BRANCH_URL'])
+        master_config = master_config.read().decode('utf-8')
         # Reverse lookup as the VERSION variable should be close to the bottom
-        if masterConfig:
-            for x in masterConfig.splitlines():
+        if master_config:
+            for x in master_config.splitlines():
                 if 'VERSION' in x:
                     x = x.split('=')
                     try:
                         # Strip whitespace and single quote mark
-                        masterVersion = x[-1].strip().strip("'")
+                        master_version = x[-1].strip().strip("'")
                     except IndexError:
                         continue
                     # Verify if current version matches most recent GitHub release
-                    if masterVersion != config['VERSION']:
+                    if master_version != config['VERSION']:
                         # Return False if the current version does not match the most recent version
-                        return jsonify(status="False", masterVersion=masterVersion)
+                        return jsonify(status="False", masterVersion=master_version)
             # If VERSION can't be found, successfully compared, or is identical, just return True
             return jsonify(status="True")
         else:
@@ -96,20 +94,20 @@ def checkForVersionUpdate(config):
 
 
 # Get current timestamp for when starting a script
-def getCurrentTime():
+def get_current_time():
     """Get current timestamp."""
-    currentTime = datetime.now()
-    return currentTime
+    current_time = datetime.now()
+    return current_time
 
 
-# Returns time elapsed between current time and provided time in 'startTime'
-def getScriptRunTime(startTime):
-    """Calculate time elapsed since startTime was first measured."""
-    endTime = getCurrentTime() - startTime
-    return endTime
+# Returns time elapsed between current time and provided time in 'start_time'
+def get_script_run_time(start_time):
+    """Calculate time elapsed since start_time was first measured."""
+    end_time = get_current_time() - start_time
+    return end_time
 
 
-def interfaceReplaceSlash(x):
+def interface_replace_slash(x):
     """Replace all forward slashes in string 'x' with an underscore."""
     x = x.replace('_', '/')
     return x

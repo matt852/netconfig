@@ -165,5 +165,6 @@ ERROR: % Invalid input detected at '^' marker.
 
         self.assertEqual(self.device.pull_device_poe_status(None), asa_expected_output)
 
+
 if __name__ == '__main__':
     unittest.main()

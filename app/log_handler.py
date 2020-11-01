@@ -4,7 +4,7 @@ from flask import session
 
 # This enables us to use different log levels
 
-
+# TODO: Completely rewrite this
 class LogHandler(object):
     """Global log handler class."""
 

@@ -20,24 +20,24 @@ class TestDataHandler(unittest.TestCase):
         """Cleanup once test completes."""
         del self.datahandler
 
-    def test_addAndDeleteHostInDB(self):
+    def test_add_and_delete_host_in_db(self):
         """Test adding a host to the database is successful."""
-        resultAdd, h_id, err = self.datahandler.addHostToDB("test", "192.168.1.5",
+        result_add, h_id, err = self.datahandler.add_host_to_db("test", "192.168.1.5",
                                                             "switch", "cisco_ios",
-                                                            False)
+                                                               False)
 
         # Delete host from db if above adding was successful
-        if resultAdd:
-            resultDelete = self.datahandler.deleteHostInDB(h_id)
+        if result_add:
+            result_delete = self.datahandler.delete_host_in_db(h_id)
         else:
             # Force test failure
             assert True is False
 
         # Verify adding host worked
-        assert resultAdd is True
-        assert resultDelete is True
+        assert result_add is True
+        assert result_delete is True
 
-    def test_importHostsToDB(self):
+    def test_import_hosts_to_db(self):
         """Test importing hosts to database."""
         csv_data = """
 10Test,10.0.1.1,Switch,IOS,True
@@ -73,7 +73,7 @@ class TestDataHandler(unittest.TestCase):
         # {'hostname': '18Test', 'error': 'Duplicate hostname - already exists in database'} <---need to test
         # {'hostname': '18Test', 'error': 'Duplicate IP address - already exists in database'} <---need to test
 
-        hosts_result, err_result = self.datahandler.importHostsToDB(csv_data)
+        hosts_result, err_result = self.datahandler.import_hosts_to_db(csv_data)
         for x, y in zip(hosts_expect, hosts_result):
             self.assertEqual(x['hostname'], y['hostname'])
             self.assertEqual(x['ipv4_addr'], y['ipv4_addr'])
