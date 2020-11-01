@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 
 # Generate a Secret Key to be used with NetConfig.
@@ -10,18 +10,19 @@ SECRET_KEY = ''
 # Netconfig has the option of tracking device inventory in 2 locations:
 #  1) In a local SQLAlchemy database, with devices
 #      manually added, updated, and deleted
-#  2) In an existing Netbox installation
+#  2) (DISABLED) In an existing Netbox installation
 #      pulled via Netbox's database via API call
 #
 # Here you can specify whether to use a local SQLAlchemy database
 #  or pull from Netbox via API
-# Valid options: 'local', 'netbox'
+# Valid options: 'local', # (currently unsupported) 'netbox'
 # Default = local
 DATALOCATION = 'local'
 
 # If using a Netbox server - URL for accessing Netbox.
 # Example: 'http://netbox.domain.com' or 'http://10.0.0.1' if not using DNS
-NETBOXSERVER = ''
+# DISABLED: Currently unsupported
+# NETBOXSERVER = ''
 
 
 # Set system hostname by replacing 'localhost' with system hostname

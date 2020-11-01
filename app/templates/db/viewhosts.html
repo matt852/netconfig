@@ -44,14 +44,14 @@
 											<td class="text-center"><i class="glyphicon glyphicon-ok" aria-hidden="true" style="color:green"></i></td>
 
 										<td class="text-center">
-											{% if host['source'] == "local" %}
-												<a href="/edithost/{{ host['id'] }}" class="btn btn-xs btn-warning" title="Edit Device"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
+{#											{% if host['source'] == "local" %}#}
+                                            <a href="/edithost/{{ host['id'] }}" class="btn btn-xs btn-warning" title="Edit Device"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
 											<a href="/confirm/confirmhostdelete/{{ host['id'] }}" class="btn btn-xs btn-danger" title="Delete Device"><i class="glyphicon glyphicon-ban-circle" aria-hidden="true"></i></a>
-											{% elif host['source'] == "netbox" %}
-												<a href="{{ config.NETBOXSERVER }}/dcim/devices/{{ host['id'] }}" class="btn btn-xs btn-info" title="Open Device in Netbox" target="_blank"><i class="glyphicon glyphicon-search" aria-hidden="true"></i></a>
-												<a href="{{ config.NETBOXSERVER }}/dcim/devices/{{ host['id'] }}/edit" class="btn btn-xs btn-warning" title="Edit Device in Netbox" target="_blank"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
-												<a href="{{ config.NETBOXSERVER }}/dcim/devices/{{ host['id'] }}/delete" class="btn btn-xs btn-danger" title="Delete Device in Netbox" target="_blank"><i class="glyphicon glyphicon-ban-circle" aria-hidden="true"></i></a>
-											{% endif %}
+{#											{% elif host['source'] == "netbox" %}#}
+{#												<a href="{{ config.NETBOXSERVER }}/dcim/devices/{{ host['id'] }}" class="btn btn-xs btn-info" title="Open Device in Netbox" target="_blank"><i class="glyphicon glyphicon-search" aria-hidden="true"></i></a>#}
+{#												<a href="{{ config.NETBOXSERVER }}/dcim/devices/{{ host['id'] }}/edit" class="btn btn-xs btn-warning" title="Edit Device in Netbox" target="_blank"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>#}
+{#												<a href="{{ config.NETBOXSERVER }}/dcim/devices/{{ host['id'] }}/delete" class="btn btn-xs btn-danger" title="Delete Device in Netbox" target="_blank"><i class="glyphicon glyphicon-ban-circle" aria-hidden="true"></i></a>#}
+{#											{% endif %}#}
 											</td>
 											<!-- TODO figure out how to add search bar outside of this td -->
 											<td style="display:none">{{ host['id'] }}</td>
