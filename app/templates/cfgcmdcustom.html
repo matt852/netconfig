@@ -4,8 +4,8 @@
 			<form action="{{ url_for('confirm_cfg_cmd_custom') }}" method="post" name="cfgCmdCustom">
 			    {{ form.hidden_tag() }}
 
- 				 <input type="hidden" name="hostname" value={{ host.hostname }}>
- 				 <input type="hidden" name="hostid" value={{ host.id }}>
+ 				 <input type="hidden" name="hostname" value={{ device.hostname }}>
+ 				 <input type="hidden" name="deviceid" value={{ device.id }}>
 			    <p>
 			        {{ form.command.label }}<br />
 			        {{ form.command(rows=4, cols=60) }}

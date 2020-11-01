@@ -54,7 +54,7 @@ function handle(e) {
             encStr = encStr + '%3F';
           }
 
-          // Pull host ID from URL
+          // Pull device ID from URL
           loc = location.href.substr(location.href.lastIndexOf('/') + 1);
 
           if (document.getElementById("chkConfigMode").checked) {
@@ -62,7 +62,7 @@ function handle(e) {
           } else {
             mode = 'e';
           }
-          url = '/hostshelloutput/' + loc + '/' + mode + '/' + encStr;
+          url = '/deviceshelloutput/' + loc + '/' + mode + '/' + encStr;
 
           $.get(url, function(my_var) {
             $('#outputID').prepend(my_var);
@@ -130,7 +130,7 @@ function checkKey(e) {
 }
 
 function toggleConfigMode() {
-  // Pull host ID from URL
+  // Pull device ID from URL
   var loc = location.href.substr(location.href.lastIndexOf('/') + 1);
 
   if (document.getElementById("chkConfigMode").checked) {

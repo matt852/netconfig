@@ -19,13 +19,13 @@ def check_user_logged_in_status():
         return False
 
 
-def check_ssh_session_matches_id(sshid, hostid):
+def check_ssh_session_matches_id(ssh_id, device_id):
     """Check if there's any existing SSH connections.
 
     Return True if there are.
     Return False if not.
     """
-    if sshid == hostid:
+    if ssh_id == device_id:
         return True
     else:
         return False

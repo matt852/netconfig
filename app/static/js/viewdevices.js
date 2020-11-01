@@ -1,6 +1,6 @@
 $(document).ready(function() {
   var events = $('#events');
-  var table = $('#tblViewHosts').DataTable({
+  var table = $('#tblViewDevices').DataTable({
     //dom: 'lBfrtip', // WIP for select all button
     "pageLength": 10,
     "lengthMenu": [
@@ -17,7 +17,7 @@ $(document).ready(function() {
       visible: false,
       searchable: false,
       targets: 6
-    }], // Hidden column at end for host id
+    }], // Hidden column at end for device id
     select: {
       style: 'multi',
       selector: 'td:first-child'
@@ -35,7 +35,7 @@ $(document).ready(function() {
   });
   tableSettings = table.settings(); //store its settings in oSettings
 
-  $('#tblViewHosts tbody').on('click', 'td:first-child', function() {
+  $('#tblViewDevices tbody').on('click', 'td:first-child', function() {
     $(this).toggleClass('selected');
   });
 
@@ -59,7 +59,7 @@ $(document).ready(function() {
     });
     table.page.len(tableLength).draw();
 
-    var url = '/confirm/confirmmultiplehostdelete/'
+    var url = '/confirm/confirmmultipledevicedelete/'
 
     for (var i in selectedDevices) {
       url = url + '&' + selectedDevices[i];
@@ -67,7 +67,7 @@ $(document).ready(function() {
 
     // Loads next page on button click
     // Pass URL with an '&' in front of each device, in this format:
-    // /confirm/confirmmultipleintenable/[host.id]/&int1&int2&int3...etc
+    // /confirm/confirmmultipleintenable/[device.id]/&int1&int2&int3...etc
     window.location.href = url;
   });
 

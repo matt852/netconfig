@@ -41,7 +41,7 @@ $(document).ready(function() {
     success: function(data) {
       var result = JSON.stringify(data); // Convert jsonify'd data from python
       result = result.replace(/\"/g, "") // Remove double quotes from string
-      var divuptime = document.getElementById('hostUptime'); // Get DIV element from HTML page
+      var divuptime = document.getElementById('deviceUptime'); // Get DIV element from HTML page
       divuptime.innerHTML = result; // Pass string to DIV on HTML page
       $("#loadUptimeIcon").addClass('hidden');
     }
@@ -49,7 +49,7 @@ $(document).ready(function() {
   // End Uptime section
 
   var events = $('#events');
-  var table = $('#tblViewSpecificHost').DataTable({
+  var table = $('#tblViewSpecificDevice').DataTable({
     "pageLength": 10,
     "order": [],
     "lengthMenu": [
@@ -92,7 +92,7 @@ $(document).ready(function() {
   });
   tableSettings = table.settings(); //store its settings in oSettings
 
-  $('#tblViewSpecificHost tbody').on('click', 'td:first-child', function() {
+  $('#tblViewSpecificDevice tbody').on('click', 'td:first-child', function() {
     $(this).toggleClass('selected');
   });
 
@@ -116,7 +116,7 @@ $(document).ready(function() {
     });
     table.page.len(tableLength).draw();
 
-    // Gets host ID from current URL, aka everything after the last '/'
+    // Gets device ID from current URL, aka everything after the last '/'
     var url = '/confirm/confirmmultipleintenable/' + loc + '/' // + selectedInterfaces
 
     for (var i in selectedInterfaces) {
@@ -125,7 +125,7 @@ $(document).ready(function() {
 
     // Loads next page on button click
     // Pass URL with an '&' in front of each interface, in this format:
-    // /confirm/confirmmultipleintenable/[host.id]/&int1&int2&int3...etc
+    // /confirm/confirmmultipleintenable/[device.id]/&int1&int2&int3...etc
     window.location.href = url;
   });
 
@@ -148,7 +148,7 @@ $(document).ready(function() {
       selectedInterfaces.push(div.textContent || div.innerText || "");
     });
 
-    // Gets host ID from current URL, aka everything after the last '/'
+    // Gets device ID from current URL, aka everything after the last '/'
     var url = '/confirm/confirmmultipleintdisable/' + loc + '/' // + selectedInterfaces
 
     for (var i in selectedInterfaces) {
@@ -156,7 +156,7 @@ $(document).ready(function() {
     }
     // Loads next page on button click
     // Pass URL with an '&' in front of each interface, in this format:
-    // /confirm/confirmmultipleintenable/[host.id]/&int1&int2&int3...etc
+    // /confirm/confirmmultipleintenable/[device.id]/&int1&int2&int3...etc
     window.location.href = url;
   });
 
@@ -178,7 +178,7 @@ $(document).ready(function() {
       selectedInterfaces.push(div.textContent || div.innerText || "");
     });
 
-    // Gets host ID from current URL, aka everything after the last '/'
+    // Gets device ID from current URL, aka everything after the last '/'
     var url = '/confirm/confirmmultipleintedit/' + loc + '/' // + selectedInterfaces
 
     for (var i in selectedInterfaces) {
@@ -186,7 +186,7 @@ $(document).ready(function() {
     }
     // Loads next page on button click
     // Pass URL with an '&' in front of each interface, in this format:
-    // /confirm/confirmmultipleintenable/[host.id]/&int1&int2&int3...etc
+    // /confirm/confirmmultipleintenable/[device.id]/&int1&int2&int3...etc
     window.location.href = url;
   });
 
@@ -196,7 +196,7 @@ $('#modalConfigInterface').on('shown.bs.modal', function(event) {
   var button = $(event.relatedTarget) // Button that triggered the modal
   // Interface comes in with slashes
   var interface = button.data('interface') // Extract info from data-* attributes
-  var hostid = button.data('hostid')
+  var deviceid = button.data('deviceid')
 
   var modal = $(this)
 
@@ -211,7 +211,7 @@ $('#modalConfigInterface').on('shown.bs.modal', function(event) {
   interfaceTitle = interfaceTitle.replace(/=/g, '.')
 
   modal.find('.modal-title').text('Interface ' + interfaceTitle)
-  modal.find('.modal-result').load('/modalinterface/' + hostid + '/' + interfaceDash, function() {
+  modal.find('.modal-result').load('/modalinterface/' + deviceid + '/' + interfaceDash, function() {
     $("#loading").hide();
     $("#loadingWheel").hide();
     $("#loadingContentHide").show();
@@ -228,7 +228,7 @@ $('#modalEditInterface').on('show.bs.modal', function(event) {
   var button = $(event.relatedTarget) // Button that triggered the modal
   // Interface comes in with dashes
   var interface = button.data('interface') // Extract info from data-* attributes
-  var hostid = button.data('hostid')
+  var deviceid = button.data('deviceid')
 
   var modal = $(this)
 
@@ -236,7 +236,7 @@ $('#modalEditInterface').on('show.bs.modal', function(event) {
 
   modal.find('.modal-title').text('Edit Interface ' + interface)
   modal.find('.modal-interface').text(interface)
-  modal.find('.modal-result').load('/modaleditinterface/' + hostid + '?int=' + interface)
+  modal.find('.modal-result').load('/modaleditinterface/' + deviceid + '?int=' + interface)
 })
 
 $('#modalEditInterface').on('hidden.bs.modal', function() {
@@ -250,12 +250,12 @@ $('#modalCmdShowRunConfig').on('show.bs.modal', function(event) {
   var button = $(event.relatedTarget) // Button that triggered the modal
 
   var hostname = button.data('hostname') // Extract info from data-* attributes
-  var hostid = button.data('hostid') // Extract info from data-* attributes
+  var deviceid = button.data('deviceid') // Extract info from data-* attributes
 
   var modal = $(this)
 
   modal.find('.modal-title').text('Running config for ' + hostname)
-  modal.find('.modal-result').load('/modalcmdshowrunconfig/' + hostid)
+  modal.find('.modal-result').load('/modalcmdshowrunconfig/' + deviceid)
 })
 
 $('#modalCmdShowRunConfig').on('hidden.bs.modal', function() {
@@ -268,12 +268,12 @@ $('#modalCmdShowStartConfig').on('show.bs.modal', function(event) {
   var button = $(event.relatedTarget) // Button that triggered the modal
 
   var hostname = button.data('hostname') // Extract info from data-* attributes
-  var hostid = button.data('hostid') // Extract info from data-* attributes
+  var deviceid = button.data('deviceid') // Extract info from data-* attributes
 
   var modal = $(this)
 
   modal.find('.modal-title').text('Startup config for ' + hostname)
-  modal.find('.modal-result').load('/modalcmdshowstartconfig/' + hostid)
+  modal.find('.modal-result').load('/modalcmdshowstartconfig/' + deviceid)
 })
 
 $('#modalCmdShowStartConfig').on('hidden.bs.modal', function() {
@@ -286,12 +286,12 @@ $('#modalCmdShowCDPNeigh').on('show.bs.modal', function(event) {
   var button = $(event.relatedTarget) // Button that triggered the modal
 
   var hostname = button.data('hostname') // Extract info from data-* attributes
-  var hostid = button.data('hostid') // Extract info from data-* attributes
+  var deviceid = button.data('deviceid') // Extract info from data-* attributes
 
   var modal = $(this)
 
   modal.find('.modal-title').text('CDP Neighbors for ' + hostname)
-  modal.find('.modal-result').load('/modalcmdshowcdpneigh/' + hostid)
+  modal.find('.modal-result').load('/modalcmdshowcdpneigh/' + deviceid)
 })
 
 $('#modalCmdShowCDPNeigh').on('hidden.bs.modal', function() {
@@ -304,12 +304,12 @@ $('#modalCmdShowVersion').on('show.bs.modal', function(event) {
   var button = $(event.relatedTarget) // Button that triggered the modal
 
   var hostname = button.data('hostname') // Extract info from data-* attributes
-  var hostid = button.data('hostid') // Extract info from data-* attributes
+  var deviceid = button.data('deviceid') // Extract info from data-* attributes
 
   var modal = $(this)
 
   modal.find('.modal-title').text('Version info for ' + hostname)
-  modal.find('.modal-result').load('/modalcmdshowversion/' + hostid)
+  modal.find('.modal-result').load('/modalcmdshowversion/' + deviceid)
 })
 
 $('#modalCmdShowVersion').on('hidden.bs.modal', function() {
@@ -322,12 +322,12 @@ $('#modalCmdShowInventory').on('show.bs.modal', function(event) {
   var button = $(event.relatedTarget) // Button that triggered the modal
 
   var hostname = button.data('hostname') // Extract info from data-* attributes
-  var hostid = button.data('hostid') // Extract info from data-* attributes
+  var deviceid = button.data('deviceid') // Extract info from data-* attributes
 
   var modal = $(this)
 
   modal.find('.modal-title').text('Inventory info for ' + hostname)
-  modal.find('.modal-result').load('/modalcmdshowinventory/' + hostid)
+  modal.find('.modal-result').load('/modalcmdshowinventory/' + deviceid)
 })
 
 $('#modalCmdShowInventory').on('hidden.bs.modal', function() {
@@ -340,12 +340,12 @@ $('#modalCmdCustom').on('show.bs.modal', function(event) {
   var button = $(event.relatedTarget) // Button that triggered the modal
 
   var hostname = button.data('hostname') // Extract info from data-* attributes
-  var hostid = button.data('hostid') // Extract info from data-* attributes
+  var deviceid = button.data('deviceid') // Extract info from data-* attributes
 
   var modal = $(this)
 
   modal.find('.modal-title').text('Run custom commands on ' + hostname)
-  modal.find('.modal-result').load('/modalcmdcustom/' + hostid)
+  modal.find('.modal-result').load('/modalcmdcustom/' + deviceid)
 })
 
 $('#modalCmdCustom').on('hidden.bs.modal', function() {
@@ -357,12 +357,12 @@ $('#modalCfgCmdCustom').on('show.bs.modal', function(event) {
   var button = $(event.relatedTarget) // Button that triggered the modal
 
   var hostname = button.data('hostname') // Extract info from data-* attributes
-  var hostid = button.data('hostid') // Extract info from data-* attributes
+  var deviceid = button.data('deviceid') // Extract info from data-* attributes
 
   var modal = $(this)
 
   modal.find('.modal-title').text('Run custom config commands on ' + hostname)
-  modal.find('.modal-result').load('/modalcfgcmdcustom/' + hostid)
+  modal.find('.modal-result').load('/modalcfgcmdcustom/' + deviceid)
 })
 
 $('#modalCfgCmdCustom').on('hidden.bs.modal', function() {
@@ -375,12 +375,12 @@ $('#modalSaveConfig').on('shown.bs.modal', function(event) {
   var button = $(event.relatedTarget) // Button that triggered the modal
 
   var hostname = button.data('hostname') // Extract info from data-* attributes
-  var hostid = button.data('hostid') // Extract info from data-* attributes
+  var deviceid = button.data('deviceid') // Extract info from data-* attributes
 
   var modal = $(this)
 
   modal.find('.modal-title').text('Saving running configuration on ' + hostname)
-  modal.find('.modal-result').load('/modalcmdsaveconfig/' + hostid, function() {
+  modal.find('.modal-result').load('/modalcmdsaveconfig/' + deviceid, function() {
     $("#loading").hide();
     $("#loadingWheel").hide();
     $("#loadingContentHide").show();

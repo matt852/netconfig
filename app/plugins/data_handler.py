@@ -17,15 +17,14 @@ class DataHandler(object):
         self.source = source
         self.url = netbox_url
 
-    def add_host_to_db(self, hostname, ipv4_addr, type, ios_type, local_creds):
-        """Add host to database.  Returns True if successful."""
+    def add_device_to_db(self, hostname, ipv4_addr, type, ios_type, local_creds):
+        """Add device to database.  Returns True if successful."""
         try:
-            host = app.models.Host(hostname=hostname, ipv4_addr=ipv4_addr,
-                                   type=type.capitalize(),
-                                   ios_type=ios_type,
-                                   local_creds=local_creds)
-            app.db.session.add(host)
-            # This enables pulling ID for newly inserted host
+            device = app.models.Device(hostname=hostname, ipv4_addr=ipv4_addr,
+                                       type=type.capitalize(), ios_type=ios_type,
+                                       local_creds=local_creds)
+            app.db.session.add(device)
+            # This enables pulling ID for newly inserted device
             app.db.session.flush()
             app.db.session.commit()
         except (IntegrityError, InvalidRequestError) as e:
@@ -33,8 +32,8 @@ class DataHandler(object):
             return False, 0, e
 
         try:
-            app.logger.info("Added new host %s to database" % (host.hostname))
-            return True, host.id, None
+            app.logger.info(f'Added new device {device.hostname} to database')
+            return True, device.id, None
         except Exception as e:
             return False, 0, e
 
@@ -44,7 +43,7 @@ class DataHandler(object):
             proxy = app.models.ProxySettings(proxy_name=proxy_name,
                                              proxy_settings=proxy_settings)
             app.db.session.add(proxy)
-            # This enables pulling ID for newly inserted host
+            # This enables pulling ID for newly inserted device
             app.db.session.flush()
             app.db.session.commit()
         except (IntegrityError, InvalidRequestError) as e:
@@ -57,15 +56,15 @@ class DataHandler(object):
         except Exception as e:
             return False, 0, e
 
-    def import_hosts_to_db(self, csv_import):
-        """Import hosts to database.
+    def import_devices_to_db(self, csv_import):
+        """Import devices to database.
 
         Returns True if successful
         Format: Hostname,IPAddress,DeviceType,IOSType
         """
         reader = csv.reader(csv_import.strip().splitlines())
         errors = []
-        hosts = []
+        devices = []
         for row in reader:
             error = {}
 
@@ -94,12 +93,12 @@ class DataHandler(object):
                 errors.append(error)
                 continue
 
-            if app.models.Host.query.filter_by(hostname=row[0]).first():
+            if app.models.Device.query.filter_by(hostname=row[0]).first():
                 error = {'hostname': row[0], 'error': "Duplicate hostname in database"}
                 errors.append(error)
                 continue
 
-            if app.models.Host.query.filter_by(ipv4_addr=row[1]).first():
+            if app.models.Device.query.filter_by(ipv4_addr=row[1]).first():
                 error = {'hostname': row[0], 'error': "Duplicate IPv4 address in database"}
                 errors.append(error)
                 continue
@@ -114,27 +113,27 @@ class DataHandler(object):
                 local_creds = False
 
             try:
-                # TODO could probably use self.add_host_to_db
-                host = app.models.Host(hostname=row[0].strip(),
-                                       ipv4_addr=row[1],
-                                       type=row[2].capitalize(),
-                                       ios_type=ios_type,
-                                       local_creds=local_creds)
-                app.db.session.add(host)
+                # TODO could probably use self.add_device_to_db
+                device = app.models.Device(hostname=row[0].strip(),
+                                           ipv4_addr=row[1],
+                                           type=row[2].capitalize(),
+                                           ios_type=ios_type,
+                                           local_creds=local_creds)
+                app.db.session.add(device)
                 app.db.session.flush()
-                # Do this last, as we only want to add the host to var 'hosts' if it was fully successful
-                hosts.append({"id": host.id, "hostname": row[0],
-                              "ipv4_addr": row[1]})
+                # Do this last, as we only want to add the device to var 'devices' if it was fully successful
+                devices.append({"id": device.id, "hostname": row[0],
+                                "ipv4_addr": row[1]})
             except (IntegrityError, InvalidRequestError):
                 app.db.session.rollback()
 
-        # Only commit once for all hosts added
+        # Only commit once for all devices added
         try:
             app.db.session.commit()
         except (IntegrityError, InvalidRequestError):
             app.db.session.rollback()
 
-        return hosts, errors
+        return devices, errors
 
     def get_os_type(self, os):
         """Process OS Type.
@@ -171,35 +170,35 @@ class DataHandler(object):
         else:
             return "error"
 
-    def delete_host_in_db(self, x):
-        """Remove host from database.
+    def delete_device_in_db(self, x):
+        """Remove device from database.
 
         Returns True if successful.
-        x is the host ID
+        x is the device ID
         """
-        # IDEA change Netbox Netconfig field for "deleting"
+        # TODO: IDEA change Netbox Netconfig field for "deleting"
 
         try:
-            host = app.models.Host.query.filter_by(id=x).first()
-            app.db.session.delete(host)
+            device = app.models.Device.query.filter_by(id=x).first()
+            app.db.session.delete(device)
             app.db.session.commit()
-            app.logger.info('deleted host %s in database' % (host.hostname))
+            app.logger.info(f'deleted device {device.hostname} in database')
             return True
         except IntegrityError as err:
-            app.logger.info('unable to delete host %s in database' % (host.hostname))
-            app.logger.info(err)
+            app.logger.error(f'unable to delete device in database')
+            app.logger.error(f'error: {err}')
             return False
 
-    def get_hosts(self):
+    def get_devices(self):
         """Get certain number of devices in database."""
         data = []
 
         if self.source == 'local':
 
-            for host in app.models.Host.query.order_by(app.models.Host.hostname).all():
+            for device in app.models.Device.query.order_by(app.models.Device.hostname).all():
 
-                # TO DO consider adding this to the database?
-                h = host.__dict__
+                # TODO consider adding this to the database?
+                h = device.__dict__
                 h['source'] = "local"
 
                 data.append(h)
@@ -217,79 +216,80 @@ class DataHandler(object):
                     if (d['custom_fields']['Netconfig'] and d['custom_fields']['Netconfig']['label'] == 'Yes'):
 
                         os_type = self.get_os_type(d['device_type']['id'])
-                        host = {"id": d['id'], "hostname": d['name'],
-                                "ipv4_addr": d['primary_ip']['address'].split('/')[0],
-                                "type": d['device_type']['model'],
-                                "ios_type": os_type,
-                                "source": "netbox",
-                                "local_creds": False}
+                        device = {"id": d['id'], "hostname": d['name'],
+                                  "ipv4_addr": d['primary_ip']['address'].split('/')[0],
+                                  "type": d['device_type']['model'],
+                                  "ios_type": os_type,
+                                  "source": "netbox",
+                                  "local_creds": False}
 
-                        data.append(host)
+                        data.append(device)
 
         return data
 
-    def get_host_by_id(self, x):
+    def get_device_by_id(self, x):
         """Get device by ID, regardless of data store location.
 
         Support local database or Netbox inventory.
         Does not return SSH session.
-        x = host id
+        x = device id
         """
-        # TO DO consider merging with get_hosts
+        # TODO consider merging with get_devices
 
         if self.source == 'local':
             # TO DO handle downstream to use a dictionary not a model
-            host = app.models.Host.query.filter_by(id=x).first()
+            device = app.models.Device.query.filter_by(id=x).first()
             try:
-                host = host.__dict__
+                device = device.__dict__
             except AttributeError:
-                host = {}
+                device = {}
 
         elif self.source == 'netbox':
             try:
                 r = requests.get(self.url + '/api/dcim/devices/' + str(x))
             except ConnectionError:
-                app.logger.info("Connection error trying to connect to " + self.url)
+                app.logger.error("Connection error trying to connect to " + self.url)
                 return None
 
             if r.status_code == requests.codes.ok:
                 d = r.json()
 
                 os_type = self.get_os_type(d['device_type']['id'])
-                host = {"id": d['id'], "hostname": d['name'],
-                        "ipv4_addr": d['primary_ip']['address'].split('/')[0],
-                        "type": d['device_type']['model'],
-                        "ios_type": os_type,
-                        "local_creds": False}
+                device = {"id": d['id'], "hostname": d['name'],
+                          "ipv4_addr": d['primary_ip']['address'].split('/')[0],
+                          "type": d['device_type']['model'],
+                          "ios_type": os_type,
+                          "local_creds": False}
             else:
                 return None
 
-        # Get host class based on device type
-        return device_type.device_handler(id=host['id'], hostname=host['hostname'],
-                                          ipv4_addr=host['ipv4_addr'], type=host['type'],
-                                          ios_type=host['ios_type'],
-                                          local_creds=host['local_creds'])
+        # TODO: Fix this to pass just the dict only, not each specific arg
+        # Get device class based on device type
+        return device_type.device_handler(id=device['id'], hostname=device['hostname'],
+                                          ipv4_addr=device['ipv4_addr'], type=device['type'],
+                                          ios_type=device['ios_type'],
+                                          local_creds=device['local_creds'])
 
-    def edit_host_in_database(self, id, hostname, ipv4_addr, hosttype, ios_type, local_creds, local_creds_updated):
+    def edit_device_in_database(self, id, hostname, ipv4_addr, device_type, ios_type, local_creds, local_creds_updated):
         """Edit device in database.
 
         This is only supported when using the local database.
         """
-        # IDEA modify existing Netbox devices?
+        # TODO: IDEA modify existing Netbox devices?
 
         if self.source == 'local':
             try:
-                host = app.models.Host.query.filter_by(id=id).first()
+                device = app.models.Device.query.filter_by(id=id).first()
                 if hostname:
-                    host.hostname = hostname
+                    device.hostname = hostname
                 if ipv4_addr:
-                    host.ipv4_addr = ipv4_addr
-                if hosttype:
-                    host.type = hosttype
+                    device.ipv4_addr = ipv4_addr
+                if device_type:
+                    device.type = device_type
                 if ios_type:
-                    host.ios_type = ios_type
+                    device.ios_type = ios_type
                 if local_creds_updated:
-                    host.local_creds = local_creds
+                    device.local_creds = local_creds
                 app.db.session.commit()
                 return True
             except:

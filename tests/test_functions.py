@@ -11,7 +11,7 @@ class TestFunctions(unittest.TestCase):
 
     def test_setUserCredentials(self):
         """Test creds class is returned properly."""
-        actual_output = set_user_credentials("admin", "Password1", privPassword="Priv2")
+        actual_output = set_user_credentials("admin", "Password1", "Priv2")
         self.assertEqual(actual_output.un, "admin")
         self.assertEqual(actual_output.pw, "Password1")
         self.assertEqual(actual_output.priv, "Priv2")

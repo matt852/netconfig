@@ -1,8 +1,8 @@
 #!/usr/bin/python3
 
 import os
-from app.plugins.data_handler import DataHandler
 from app.momentjs import MomentJS
+from app.plugins.data_handler import DataHandler
 from app.plugins.log_handler import LogHandler
 from app.plugins.ssh_handler import SSHHandler
 from config import Config

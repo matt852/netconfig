@@ -17,8 +17,8 @@
 			<form action="{{ url_for('confirm_int_edit') }}" method="post" name="intEdit">
 			    {{ form.hidden_tag() }}
 
- 				 <input type="hidden" name="hostid" value="{{ hostid }}" />
- 				 <input type="hidden" name="hostinterface" value="{{ hostinterface }}" />
+ 				 <input type="hidden" name="deviceid" value="{{ deviceid }}" />
+ 				 <input type="hidden" name="deviceinterface" value="{{ deviceinterface }}" />
 
 			    <p>
 			        New access data vlan (access mode only):<br>

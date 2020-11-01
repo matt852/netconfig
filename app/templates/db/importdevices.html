@@ -7,7 +7,7 @@
 	<div class="row">
     	<div class="col-md-9">
 			<h2 class="text-primary">Import New Devices to Database</h2>
-			<form action="{{ url_for('results_import_hosts') }}" method="post" name="importhosts">
+			<form action="{{ url_for('results_import_devices') }}" method="post" name="importdevices">
 			    {{ form.hidden_tag() }}
 			    <p>
 			        Enter new devices in CSV format using the following columns, separated by commas only (no spaces)<br>

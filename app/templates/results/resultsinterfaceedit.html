@@ -22,7 +22,7 @@
 				{% for x in result %}
 					{% if x %}
 						{% if x == 'config term' %}
-							{{ host.hostname }}#config term<br />
+							{{ device.hostname }}#config term<br />
 						{% else %}
 							{{ x }}<br />
 						{% endif %}
@@ -35,7 +35,7 @@
 	<div class="row">
 		<div class="col-md-9">
 			<div class="text-right">
-				<a href="/db/viewhosts/{{ host.id }}" class="btn btn-success">Return To Host</a>
+				<a href="/db/viewdevices/{{ device.id }}" class="btn btn-success">Return To Device</a>
 			</div>
 		</div>
 	</div>

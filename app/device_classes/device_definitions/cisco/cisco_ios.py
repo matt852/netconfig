@@ -178,7 +178,7 @@ class CiscoIOS(CiscoBaseDevice):
         # Return dictionary with results
         return status
 
-    def pull_host_interfaces(self, active_session):
+    def pull_device_interfaces(self, active_session):
         """Retrieve list of interfaces on device."""
         result_a = self.run_ssh_command('show ip interface brief', active_session)
         result_b = self.run_ssh_command('show interface description', active_session)

@@ -22,9 +22,9 @@ class TestDataHandler(unittest.TestCase):
 
     def test_add_and_delete_host_in_db(self):
         """Test adding a host to the database is successful."""
-        result_add, h_id, err = self.datahandler.add_host_to_db("test", "192.168.1.5",
+        result_add, h_id, err = self.datahandler.add_device_to_db("test", "192.168.1.5",
                                                             "switch", "cisco_ios",
-                                                               False)
+                                                                  False)
 
         # Delete host from db if above adding was successful
         if result_add:
@@ -73,7 +73,7 @@ class TestDataHandler(unittest.TestCase):
         # {'hostname': '18Test', 'error': 'Duplicate hostname - already exists in database'} <---need to test
         # {'hostname': '18Test', 'error': 'Duplicate IP address - already exists in database'} <---need to test
 
-        hosts_result, err_result = self.datahandler.import_hosts_to_db(csv_data)
+        hosts_result, err_result = self.datahandler.import_devices_to_db(csv_data)
         for x, y in zip(hosts_expect, hosts_result):
             self.assertEqual(x['hostname'], y['hostname'])
             self.assertEqual(x['ipv4_addr'], y['ipv4_addr'])

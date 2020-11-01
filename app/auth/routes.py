@@ -17,13 +17,13 @@ def login():
             # Validate form
             if 'USER' in session:
                 # If user already stored in session variable, return home page
-                return redirect(url_for('view_hosts'))
+                return redirect(url_for('view_devices'))
             else:
                 # Try to save user credentials in Redis. Return index if fails
                 try:
                     if store_user_in_redis(request.form['user'], request.form['pw']):
                         logger.info('logged in')
-                        return redirect(url_for('view_hosts'))
+                        return redirect(url_for('view_devices'))
                 except:
                     logger.info('failed to store user data in Redis when logging in')
     # Return login page if accessed via GET request

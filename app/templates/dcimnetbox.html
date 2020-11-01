@@ -29,17 +29,17 @@
 						</tr>
 					</thead>
 				    <tbody>
-						{% for host in hosts %}
+						{% for device in devices %}
 							<tr>
-								<td><a href="/db/viewhosts/{{ host['id'] }}">{{ host['name'] }}</a></td>
-							    <td>{{ host['primary_ip']['address'] }}</td>
-							    <td>{{ host['device_type']['manufacturer']['name'] }}</td>
-							    <td>{{ host['device_type']['model'] }}</td>
+								<td><a href="/db/viewdevices/{{ device['id'] }}">{{ device['name'] }}</a></td>
+							    <td>{{ device['primary_ip']['address'] }}</td>
+							    <td>{{ device['device_type']['manufacturer']['name'] }}</td>
+							    <td>{{ device['device_type']['model'] }}</td>
 							    <td class="text-center"><i class="glyphicon glyphicon-ok" aria-hidden="true" style="color:green"></i></td>
 							    <td class="text-center">
-							    	<a href="{{ config.NETBOXSERVER }}/dcim/devices/{{ host['id'] }}" class="btn btn-xs btn-info" title="Open Device in Netbox" target="_blank"><i class="glyphicon glyphicon-search" aria-hidden="true"></i></a>
-							    	<a href="{{ config.NETBOXSERVER }}/dcim/devices/{{ host['id'] }}/edit" class="btn btn-xs btn-warning" title="Edit Device in Netbox" target="_blank"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
-									<a href="{{ config.NETBOXSERVER }}/dcim/devices/{{ host['id'] }}/delete" class="btn btn-xs btn-danger" title="Delete Device in Netbox" target="_blank"><i class="glyphicon glyphicon-ban-circle" aria-hidden="true"></i></a>
+							    	<a href="{{ config.NETBOXSERVER }}/dcim/devices/{{ device['id'] }}" class="btn btn-xs btn-info" title="Open Device in Netbox" target="_blank"><i class="glyphicon glyphicon-search" aria-hidden="true"></i></a>
+							    	<a href="{{ config.NETBOXSERVER }}/dcim/devices/{{ device['id'] }}/edit" class="btn btn-xs btn-warning" title="Edit Device in Netbox" target="_blank"><i class="glyphicon glyphicon-pencil" aria-hidden="true"></i></a>
+									<a href="{{ config.NETBOXSERVER }}/dcim/devices/{{ device['id'] }}/delete" class="btn btn-xs btn-danger" title="Delete Device in Netbox" target="_blank"><i class="glyphicon glyphicon-ban-circle" aria-hidden="true"></i></a>
 								</td>
 							</tr>
 						{% endfor %}

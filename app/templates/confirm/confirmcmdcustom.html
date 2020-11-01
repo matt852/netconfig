@@ -10,7 +10,7 @@
                 <div class="panel-heading">Execute Commands?</div>
                 <div class="panel-body">
 
-                    <p>Are you sure you want to run these commands on host <strong>{{ session['HOSTNAME'] }}</strong>?</p>
+                    <p>Are you sure you want to run these commands on device <strong>{{ session['HOSTNAME'] }}</strong>?</p>
                     <p>The following commands will be executed:</p>
 
                     {% if session['COMMAND'] %}
@@ -20,7 +20,7 @@
 
                     <div class="text-right">
                         <a href="/results/resultscmdcustom" class="btn btn-danger">Confirm</a>
-                        <a href="/db/viewhosts/{{ session['HOSTID'] }}" class="btn btn-default">Cancel</a>
+                        <a href="/db/viewdevices/{{ session['DEVICEID'] }}" class="btn btn-default">Cancel</a>
                     </div>
                 </div>
             </div>

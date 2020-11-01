@@ -11,28 +11,28 @@ from redis import StrictRedis
 from .scripts_bank.redis_logic import reset_user_redis_expire_timer, store_user_in_redis
 from .scripts_bank.lib.functions import check_for_version_update, interface_replace_slash
 from .scripts_bank.lib.flask_functions import check_user_logged_in_status
-from .forms import AddHostForm, CustomCfgCommandsForm, CustomCommandsForm
-from .forms import EditHostForm, EditInterfaceForm, ImportHostsForm, LocalCredentialsForm, ProxySettingsForm
+from .forms import AddDeviceForm, CustomCfgCommandsForm, CustomCommandsForm
+from .forms import EditDeviceForm, EditInterfaceForm, ImportDevicesForm, LocalCredentialsForm, ProxySettingsForm
 
 
 def initial_checks():
     """Run any functions required when user loads any page.
 
-    x is host.id.
+    x is device.id.
     """
     reset_user_redis_expire_timer()
     if not check_user_logged_in_status():
-        return render_template("index.html",
+        return render_template('index.html',
                                title='Home')
 
 
 def init_db():
     """Initialize local Redis database."""
     db = StrictRedis(
-        host=app.config['DB_HOST'],
+        device=app.config['DB_HOST'],
         port=app.config['DB_PORT'],
         db=app.config['DB_NO'],
-        charset="utf-8",
+        charset='utf-8',
         decode_responses=True)
     return db
 
@@ -50,26 +50,26 @@ def before_request():
     session.modified = True
 
 
-@app.route('/ajaxcheckhostactivesshsession/<x>', methods=['GET', 'POST'])
-def ajax_check_host_active_session(x):
-    """Check if existing SSH session for host is currently active.
+@app.route('/ajaxcheckdeviceactivesshsession/<x>', methods=['GET', 'POST'])
+def ajax_check_device_active_session(x):
+    """Check if existing SSH session for device is currently active.
 
-    Used for AJAX call only, on main viewhosts.html page.
-    x = host id
+    Used for AJAX call only, on main viewdevices.html page.
+    x = device id
     """
-    host = datahandler.get_host_by_id(x)
+    device = datahandler.get_device_by_id(x)
 
-    if host:
-        if sshhandler.check_host_active_ssh_session(host):
+    if device:
+        if sshhandler.check_device_active_ssh_session(device):
             return 'True'
     return 'False'
 
 
-@app.route('/nohostconnect/<host>')
-@app.route('/errors/nohostconnect/<host>')
-def no_host_connect_error(host):
+@app.route('/nodeviceconnect/<device>')
+@app.route('/errors/nodeviceconnect/<device>')
+def no_device_connect_error(device):
     """Return error page if unable to connect to device."""
-    return render_template('errors/nohostconnect.html', host=host)
+    return render_template('errors/nodeviceconnect.html', device=device)
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -81,7 +81,7 @@ def index():
     Else, redirect user to index page.
     """
     if 'USER' in session:
-        return redirect(url_for('view_hosts'))
+        return redirect(url_for('view_devices'))
     else:
         return render_template("index.html", title='Home')
 
@@ -98,7 +98,7 @@ def disconnect_all_ssh():
 def get_ssh_sessions_count():
     """Get number of saved/stored SSH sessions.
 
-    x = host id
+    x = device id
     """
     initial_checks()
     count = sshhandler.count_all_ssh_sessions()
@@ -128,33 +128,33 @@ def check_updates():
 def display_recent_device_names():
     """Get names of devices with existing saved/stored SSH sessions.
 
-    x = host id
+    x = device id
     """
     initial_checks()
-    hosts = sshhandler.get_names_of_ssh_session_devices()
-    return render_template("/recentsessionmenu.html",
-                           hosts=hosts)
+    devices = sshhandler.get_names_of_ssh_session_devices()
+    return render_template("recentsessionmenu.html",
+                           devices=devices)
 
 
-@app.route('/db/addhosts', methods=['GET', 'POST'])
-def add_hosts():
+@app.route('/db/adddevices', methods=['GET', 'POST'])
+def add_devices():
     """Add new device to local database."""
     initial_checks()
-    form = AddHostForm()
+    form = AddDeviceForm()
     if form.validate_on_submit():
-        return redirect(url_for('results_add_host'))
-    return render_template('/db/addhosts.html',
-                           title='Add hosts to database',
+        return redirect(url_for('results_add_device'))
+    return render_template('db/adddevices.html',
+                           title='Add devices to database',
                            form=form)
 
 
-@app.route('/results/resultsaddhost', methods=['GET', 'POST'])
-def results_add_host():
-    """Confirm new host details prior to saving in local database."""
+@app.route('/results/resultsadddevice', methods=['GET', 'POST'])
+def results_add_device():
+    """Confirm new device details prior to saving in local database."""
     initial_checks()
     hostname = request.form['hostname']
     ipv4_addr = request.form['ipv4_addr']
-    hosttype = request.form['hosttype']
+    devicetype = request.form['devicetype']
     ios_type = request.form['ios_type']
     # If checkbox is unchecked, this fails as the request.form['local_creds'] value returned is False
     if request.form.get('local_creds'):
@@ -162,150 +162,150 @@ def results_add_host():
     else:
         local_creds = False
 
-    response, hostid, e = datahandler.add_host_to_db(hostname, ipv4_addr, hosttype, ios_type, local_creds)
+    response, deviceid, e = datahandler.add_device_to_db(hostname, ipv4_addr, devicetype, ios_type, local_creds)
     if response:
-        return render_template("/results/resultsaddhost.html",
-                               title='Add host result',
+        return render_template("results/resultsadddevice.html",
+                               title='Add device result',
                                hostname=hostname,
                                ipv4_addr=ipv4_addr,
-                               hosttype=hosttype,
+                               devicetype=devicetype,
                                ios_type=ios_type,
                                local_creds=local_creds,
-                               hostid=hostid)
+                               deviceid=deviceid)
     else:
-        logger.info('exception thrown when adding new host to database: %s' % (e))
+        logger.info('exception thrown when adding new device to database: %s' % (e))
         # TO-DO Add popup error message here
-        return redirect(url_for('add_hosts'))
+        return redirect(url_for('add_devices'))
 
 
-@app.route('/db/importhosts', methods=['GET', 'POST'])
-def import_hosts():
+@app.route('/db/importdevices', methods=['GET', 'POST'])
+def import_devices():
     """Import devices into local database via CSV formatted text."""
     initial_checks()
-    form = ImportHostsForm()
+    form = ImportDevicesForm()
     if form.validate_on_submit():
-        return redirect(url_for('results_import_hosts'))
-    return render_template('/db/importhosts.html',
-                           title='Import hosts to database via CSV',
+        return redirect(url_for('results_import_devices'))
+    return render_template('db/importdevices.html',
+                           title='Import devices to database via CSV',
                            form=form)
 
 
-@app.route('/results/resultsimporthosts', methods=['GET', 'POST'])
-def results_import_hosts():
+@app.route('/results/resultsimportdevices', methods=['GET', 'POST'])
+def results_import_devices():
     """Confirm CSV import device details prior to saving to local database."""
     initial_checks()
-    hosts, errors = datahandler.import_hosts_to_db(request.form['csvimport'])
-    return render_template("/results/resultsimporthosts.html",
+    devices, errors = datahandler.import_devices_to_db(request.form['csvimport'])
+    return render_template("results/resultsimportdevices.html",
                            title='Import devices result',
-                           hosts=hosts,
+                           devices=devices,
                            errors=errors)
 
 
-@app.route('/edithost/<x>', methods=['GET'])
-def edit_host(x):
+@app.route('/editdevice/<x>', methods=['GET'])
+def edit_device(x):
     """Edit device details in local database.
 
-    x is host ID
+    x is device ID
     """
-    host = datahandler.get_host_by_id(x)
-    form = EditHostForm()
+    device = datahandler.get_device_by_id(x)
+    form = EditDeviceForm()
     if form.validate_on_submit():
-        return redirect('/results/resultshostedit')
-    return render_template('/edithost.html',
-                           title='Edit host in database',
+        return redirect('/results/resultsdeviceedit')
+    return render_template('editdevice.html',
+                           title='Edit device in database',
                            id=x,
-                           originalHost=host.hostname,
+                           original_device=device.hostname,
                            form=form)
 
 
-@app.route('/confirm/confirmmultiplehostdelete/<x>', methods=['GET'])
-def confirm_multiple_host_delete(x):
+@app.route('/confirm/confirmmultipledevicedelete/<x>', methods=['GET'])
+def confirm_multiple_device_delete(x):
     """Confirm deletion of multiple devices in local database.
 
-    x = each host id to be deleted, separated by an '&' symbol
+    x = each device id to be deleted, separated by an '&' symbol
     """
     initial_checks()
 
-    hostList = []
-    for host in x.split('&'):
-        if host:
-            hostList.append(datahandler.get_host_by_id(host))
-    return render_template("confirm/confirmmultiplehostdelete.html",
-                           hostList=hostList,
+    device_list = []
+    for device in x.split('&'):
+        if device:
+            device_list.append(datahandler.get_device_by_id(device))
+    return render_template("confirm/confirmmultipledevicedelete.html",
+                           deviceList=device_list,
                            x=x)
 
 
-@app.route('/results/resultsmultiplehostdeleted/<x>', methods=['GET', 'POST'])
-def results_multiple_host_delete(x):
-    """Display results from deleting multiple devices in local databse.
+@app.route('/results/resultsmultipledevicedeleted/<x>', methods=['GET', 'POST'])
+def results_multiple_device_delete(x):
+    """Display results from deleting multiple devices in local database.
 
-    x = each host id to be deleted, separated by an '&' symbol
+    x = each device id to be deleted, separated by an '&' symbol
     """
     initial_checks()
 
-    hostList = []
+    device_list = []
     for x in x.split('&'):
         if x:
-            host = datahandler.get_host_by_id(x)
-            hostList.append(host)
-            datahandler.delete_host_in_db(x)
+            device = datahandler.get_device_by_id(x)
+            device_list.append(device)
+            datahandler.delete_device_in_db(x)
             try:
-                sshhandler.disconnect_specific_ssh_session(host)
-                logger.info('disconnected any remaining active sessions for host %s' % (host.hostname))
+                sshhandler.disconnect_specific_ssh_session(device)
+                logger.info('disconnected any remaining active sessions for device %s' % (device.hostname))
             except:
-                logger.info('unable to attempt to disconnect host %s active sessions' % (host.hostname))
+                logger.info('unable to attempt to disconnect device %s active sessions' % (device.hostname))
 
-    overallResult = True
-    return render_template("results/resultsmultiplehostdeleted.html",
-                           overallResult=overallResult,
-                           hostList=hostList)
+    overall_result = True
+    return render_template("results/resultsmultipledevicedeleted.html",
+                           overallResult=overall_result,
+                           device_list=device_list)
 
 
-# Shows all hosts in database
-@app.route('/db/viewhosts')
-def view_hosts():
+# Shows all devices in database
+@app.route('/db/viewdevices')
+def view_devices():
     """Display all devices."""
-    logger.info('viewed all hosts')
-    hosts = datahandler.get_hosts()
+    logger.info('viewed all devices')
+    devices = datahandler.get_devices()
 
     # TODO this should happen not during the view render
-    # status = ph.reachable(hosts)
-    return render_template('/db/viewhosts.html',
-                           hosts=hosts,
-                           title='View hosts in database')
+    # status = ph.reachable(devices)
+    return render_template('db/viewdevices.html',
+                           devices=devices,
+                           title='View devices in database')
 
 
 @app.route('/deviceuptime/<x>')
 def device_uptime(x):
     """Get uptime of selected device.
 
-    x = host id.
+    x = device id.
     """
     initial_checks()
-    host = datahandler.get_host_by_id(x)
-    active_session = sshhandler.retrieve_ssh_session(host)
-    logger.info('retrieved uptime on host %s' % (host.hostname))
-    return jsonify(host.pull_device_uptime(active_session))
+    device = datahandler.get_device_by_id(x)
+    active_session = sshhandler.retrieve_ssh_session(device)
+    logger.info('retrieved uptime on device %s' % (device.hostname))
+    return jsonify(device.pull_device_uptime(active_session))
 
 
 @app.route('/devicepoestatus/<x>')
 def device_poe_status(x):
     """Get PoE status of all interfaces on device.
 
-    x = host id.
+    x = device id.
     """
     initial_checks()
-    host = datahandler.get_host_by_id(x)
-    active_session = sshhandler.retrieve_ssh_session(host)
-    logger.info('retrieved PoE status for interfaces on host %s' % (host.hostname))
-    return json.dumps(host.pull_device_poe_status(active_session))
+    device = datahandler.get_device_by_id(x)
+    active_session = sshhandler.retrieve_ssh_session(device)
+    logger.info('retrieved PoE status for interfaces on device %s' % (device.hostname))
+    return json.dumps(device.pull_device_poe_status(active_session))
 
 
-@app.route('/db/viewhosts/<x>', methods=['GET', 'POST'])
-def view_specific_host(x):
+@app.route('/db/viewdevices/<x>', methods=['GET', 'POST'])
+def view_specific_device(x):
     """Display specific device page.
 
-    x is host.id
+    x is device.id
     """
     initial_checks()
 
@@ -317,57 +317,57 @@ def view_specific_host(x):
         #  Unsure why, need to research
         return ('', 204)
 
-    host = datahandler.get_host_by_id(x)
+    device = datahandler.get_device_by_id(x)
 
-    logger.info('accessed host %s using IPv4 address %s' % (host.hostname, host.ipv4_addr))
+    logger.info('accessed device %s using IPv4 address %s' % (device.hostname, device.ipv4_addr))
 
     # Try statement as if this page was accessed directly and not via the Local Credentials form it will fail and we want to operate normally
-    # Variable to determine if successfully connected to host use local credentials
+    # Variable to determine if successfully connected to device use local credentials
     varFormSet = False
     try:
-        if store_user_in_redis(request.form['user'], request.form['pw'], privpw=request.form['privpw'], host=host):
+        if store_user_in_redis(request.form['user'], request.form['pw'], privpw=request.form['privpw'], device=device):
             # Set to True if variables are set correctly from local credentials form
             varFormSet = True
-            logger.info('local credentials saved to REDIS for accessing host %s' % (host.hostname))
+            logger.info('local credentials saved to REDIS for accessing device %s' % (device.hostname))
 
     except:
         # If no form submitted (not using local credentials), get SSH session
         # Don't go in if form was used (local credentials) but SSH session failed in above 'try' statement
         if not varFormSet:
-            logger.info('credentials used of currently logged in user for accessing host %s' % (host.hostname))
+            logger.info('credentials used of currently logged in user for accessing device %s' % (device.hostname))
 
     # Get any existing SSH sessions
-    active_session = sshhandler.retrieve_ssh_session(host)
-    result = host.pull_host_interfaces(active_session)
+    active_session = sshhandler.retrieve_ssh_session(device)
+    result = device.pull_device_interfaces(active_session)
 
     if result:
-        interfaces = host.count_interface_status(result)
-        return render_template("/db/viewspecifichost.html",
-                               host=host,
+        interfaces = device.count_interface_status(result)
+        return render_template("db/viewspecificdevice.html",
+                               device=device,
                                interfaces=interfaces,
                                result=result)
     else:
         # If interfaces is x.x.x.x skipped - connection timeout,
         #  throw error page redirect
-        sshhandler.disconnect_specific_ssh_session(host)
-        return redirect(url_for('no_host_connect_error',
-                                host=host))
+        sshhandler.disconnect_specific_ssh_session(device)
+        return redirect(url_for('no_device_connect_error',
+                                device=device))
 
 
 @app.route('/calldisconnectspecificsshsession/<x>')
 def call_disconnect_specific_ssh_session(x):
-    """Disconnect any SSH sessions for a specific host from all users.
+    """Disconnect any SSH sessions for a specific device from all users.
 
-    x = ID of host to disconnect.
+    x = ID of device to disconnect.
     """
-    host = datahandler.get_host_by_id(x)
+    device = datahandler.get_device_by_id(x)
     # Disconnect device.
     try:
-        sshhandler.disconnect_specific_ssh_session(host)
+        sshhandler.disconnect_specific_ssh_session(device)
     except:
         # Log error if unable to disconnect specific SSH session
-        logger.info('unable to disconnect SSH session to provided host %s from user %s' % (host.hostname, session['USER']))
-    return redirect(url_for('view_hosts'))
+        logger.info('unable to disconnect SSH session to provided device %s from user %s' % (device.hostname, session['USER']))
+    return redirect(url_for('view_devices'))
 
 
 ######################
@@ -382,11 +382,11 @@ def confirm_int_enable(x):
     x = device id
     """
     try:
-        host = datahandler.get_host_by_id(x)
-        if host:
+        device = datahandler.get_device_by_id(x)
+        if device:
             # Removes dashes from interface in URL
             return render_template("confirm/confirmintenable.html",
-                                   host=host,
+                                   device=device,
                                    interface=request.args.get('int', ''))
         else:
             return redirect(url_for('index'))
@@ -401,11 +401,11 @@ def confirm_int_disable(x):
     x = device id
     """
     try:
-        host = datahandler.get_host_by_id(x)
-        if host:
+        device = datahandler.get_device_by_id(x)
+        if device:
             # Removes dashes from interface in URL
             return render_template("confirm/confirmintdisable.html",
-                                   host=host,
+                                   device=device,
                                    interface=request.args.get('int', ''))
         else:
             return redirect(url_for('index'))
@@ -413,16 +413,16 @@ def confirm_int_disable(x):
         return redirect(url_for('index'))
 
 
-@app.route('/confirm/confirmhostdelete/<x>', methods=['GET', 'POST'])
-def confirm_host_delete(x):
+@app.route('/confirm/confirmdevicedelete/<x>', methods=['GET', 'POST'])
+def confirm_device_delete(x):
     """Confirm deleting device interface from local database.
 
     x = device ID
     """
     try:
-        host = datahandler.get_host_by_id(x)
-        if host:
-            return render_template("confirm/confirmhostdelete.html", host=host)
+        device = datahandler.get_device_by_id(x)
+        if device:
+            return render_template("confirm/confirmdevicedelete.html", device=device)
         else:
             return redirect(url_for('index'))
     except AttributeError:
@@ -432,45 +432,45 @@ def confirm_host_delete(x):
 @app.route('/confirm/confirmintedit/', methods=['POST'])
 def confirm_int_edit():
     """Confirm settings to edit device interface with before executing."""
-    hostid = request.form['hostid']
-    host = datahandler.get_host_by_id(hostid)
-    hostinterface = request.form['hostinterface']
+    deviceid = request.form['deviceid']
+    device = datahandler.get_device_by_id(deviceid)
+    deviceinterface = request.form['deviceinterface']
     datavlan = request.form['datavlan']
     voicevlan = request.form['voicevlan']
     other = request.form['other']
     otherEncoded = quote_plus(other, safe='/')
 
     return render_template("confirm/confirmintedit.html",
-                           host=host,
-                           hostinterface=hostinterface,
+                           device=device,
+                           deviceinterface=deviceinterface,
                            datavlan=datavlan,
                            voicevlan=voicevlan,
                            other=other,
                            otherEncoded=otherEncoded)
 
 
-@app.route('/results/resultshostedit/', methods=['GET', 'POST'])
-@app.route('/results/resultshostedit/<x>', methods=['GET', 'POST'])
-def results_host_edit(x):
-    """Confirm settings to edit host with in local database.
+@app.route('/results/resultsdeviceedit/', methods=['GET', 'POST'])
+@app.route('/results/resultsdeviceedit/<x>', methods=['GET', 'POST'])
+def results_device_edit(x):
+    """Confirm settings to edit device with in local database.
 
-    x = original host ID
+    x = original device ID
     """
     if 'modal' in x:
         return ('', 204)
 
-    storedHost = datahandler.get_host_by_id(x)
-    # Save all existing host variables, as the class stores get updated later in the function
-    origHostname = storedHost.hostname
-    origIpv4_addr = storedHost.ipv4_addr
-    origHosttype = storedHost.type
-    origIos_type = storedHost.ios_type
-    origLocal_creds = storedHost.local_creds
+    stored_device = datahandler.get_device_by_id(x)
+    # Save all existing device variables, as the class stores get updated later in the function
+    orig_hostname = stored_device.hostname
+    orig_ipv4_addr = stored_device.ipv4_addr
+    orig_devicetype = stored_device.type
+    orig_ios_type = stored_device.ios_type
+    orig_local_creds = stored_device.local_creds
 
     # Save form user inputs into new variables
     hostname = request.form['hostname']
     ipv4_addr = request.form['ipv4_addr']
-    hosttype = request.form['hosttype']
+    devicetype = request.form['devicetype']
     ios_type = request.form['ios_type']
     if request.form['local_creds'] == 'True':
         local_creds = True
@@ -485,34 +485,34 @@ def results_host_edit(x):
     # If exists, disconnect any existing SSH sessions
     #  and clear them from the SSH dict
     try:
-        sshhandler.disconnect_specific_ssh_session(storedHost)
-        logger.info('disconnected and cleared saved SSH session information for edited host %s' % (storedHost.hostname))
+        sshhandler.disconnect_specific_ssh_session(stored_device)
+        logger.info('disconnected and cleared saved SSH session information for edited device %s' % (stored_device.hostname))
     except (socket.error, EOFError):
-        logger.info('no existing SSH sessions for edited host %s' % (storedHost.hostname))
+        logger.info('no existing SSH sessions for edited device %s' % (stored_device.hostname))
     except:
-        logger.info('could not clear SSH session for edited host %s' % (storedHost.hostname))
+        logger.info('could not clear SSH session for edited device %s' % (stored_device.hostname))
 
-    result = datahandler.edit_host_in_database(storedHost.id, hostname, ipv4_addr, hosttype, ios_type, local_creds, local_creds_updated)
+    result = datahandler.edit_device_in_database(stored_device.id, hostname, ipv4_addr, devicetype, ios_type, local_creds, local_creds_updated)
 
     if result:
-        logger.info('edited host %s in database' % (storedHost.hostname))
-        return render_template("results/resultshostedit.html",
-                               title='Edit host confirm',
-                               storedHost=storedHost,
+        logger.info('edited device %s in database' % (stored_device.hostname))
+        return render_template("results/resultsdeviceedit.html",
+                               title='Edit device confirm',
+                               stored_device=stored_device,
                                hostname=hostname,
                                ipv4_addr=ipv4_addr,
-                               hosttype=hosttype,
+                               devicetype=devicetype,
                                ios_type=ios_type,
                                local_creds=local_creds,
                                local_creds_updated=local_creds_updated,
-                               origHostname=origHostname,
-                               origIpv4_addr=origIpv4_addr,
-                               origHosttype=origHosttype,
-                               origIos_type=origIos_type,
-                               origLocal_creds=origLocal_creds)
+                               orig_hostname=orig_hostname,
+                               orig_ipv4_addr=orig_ipv4_addr,
+                               orig_devicetype=orig_devicetype,
+                               orig_ios_type=orig_ios_type,
+                               orig_local_creds=orig_local_creds)
     else:
-        return redirect(url_for('confirmHostEdit',
-                                x=storedHost))
+        return redirect(url_for('confirmDeviceEdit',
+                                x=stored_device))
 
 
 @app.route('/confirm/confirmcmdcustom/', methods=['GET', 'POST'])
@@ -520,7 +520,7 @@ def confirm_cmd_custom():
     """Confirm bulk command entry before executing."""
     session['HOSTNAME'] = request.form['hostname']
     session['COMMAND'] = request.form['command']
-    session['HOSTID'] = request.form['hostid']
+    session['DEVICEID'] = request.form['deviceid']
 
     return render_template("confirm/confirmcmdcustom.html")
 
@@ -528,11 +528,11 @@ def confirm_cmd_custom():
 @app.route('/confirm/confirmcfgcmdcustom/', methods=['GET', 'POST'])
 def confirm_cfg_cmd_custom():
     """Confirm bulk configuration command entry before executing."""
-    host = datahandler.get_host_by_id(request.form['hostid'])
+    device = datahandler.get_device_by_id(request.form['deviceid'])
     session['HOSTNAME'] = request.form['hostname']
     session['COMMAND'] = request.form['command']
-    session['HOSTID'] = request.form['hostid']
-    session['IOS_TYPE'] = host.ios_type
+    session['DEVICEID'] = request.form['deviceid']
+    session['IOS_TYPE'] = device.ios_type
 
     return render_template("confirm/confirmcfgcmdcustom.html")
 
@@ -551,16 +551,16 @@ def results_int_enabled(x, y):
     """
     initial_checks()
 
-    host = datahandler.get_host_by_id(x)
+    device = datahandler.get_device_by_id(x)
 
-    active_session = sshhandler.retrieve_ssh_session(host)
+    active_session = sshhandler.retrieve_ssh_session(device)
 
     # Removes dashes from interface in URL and enabel interface
-    result = host.run_enable_interface_cmd(interface_replace_slash(y), active_session)
+    result = device.run_enable_interface_cmd(interface_replace_slash(y), active_session)
 
-    logger.info('enabled interface %s on host %s' % (y, host.hostname))
+    logger.info('enabled interface %s on device %s' % (y, device.hostname))
     return render_template("results/resultsinterfaceenabled.html",
-                           host=host, interface=y, result=result)
+                           device=device, interface=y, result=result)
 
 
 @app.route('/results/resultsinterfacedisabled/<x>/<y>', methods=['GET', 'POST'])
@@ -572,16 +572,16 @@ def results_int_disabled(x, y):
     """
     initial_checks()
 
-    host = datahandler.get_host_by_id(x)
+    device = datahandler.get_device_by_id(x)
 
-    active_session = sshhandler.retrieve_ssh_session(host)
+    active_session = sshhandler.retrieve_ssh_session(device)
 
     # Removes dashes from interface in URL and disable interface
-    result = host.run_disable_interface_cmd(interface_replace_slash(y), active_session)
+    result = device.run_disable_interface_cmd(interface_replace_slash(y), active_session)
 
-    logger.info('disabled interface %s on host %s' % (y, host.hostname))
+    logger.info('disabled interface %s on device %s' % (y, device.hostname))
     return render_template("results/resultsinterfacedisabled.html",
-                           host=host, interface=y, result=result)
+                           device=device, interface=y, result=result)
 
 
 @app.route('/results/resultsinterfaceedit/<x>/<datavlan>/<voicevlan>/<other>', methods=['GET', 'POST'])
@@ -595,12 +595,12 @@ def results_int_edit(x, datavlan, voicevlan, other):
     """
     initial_checks()
 
-    host = datahandler.get_host_by_id(x)
+    device = datahandler.get_device_by_id(x)
 
-    active_session = sshhandler.retrieve_ssh_session(host)
+    active_session = sshhandler.retrieve_ssh_session(device)
 
     # Get interface from passed variable in URL
-    hostinterface = request.args.get('int', '')
+    deviceinterface = request.args.get('int', '')
 
     # Decode 'other' string
     other = unquote_plus(other).decode('utf-8')
@@ -612,30 +612,30 @@ def results_int_edit(x, datavlan, voicevlan, other):
     other = other.replace('\r\n', '\n')
 
     # Remove dashes from interface in URL and edit interface config
-    result = host.run_edit_interface_cmd(hostinterface, datavlan, voicevlan, other, active_session)
+    result = device.run_edit_interface_cmd(deviceinterface, datavlan, voicevlan, other, active_session)
 
-    logger.info('edited interface %s on host %s' % (hostinterface, host.hostname))
-    return render_template("results/resultsinterfaceedit.html", host=host,
-                           interface=hostinterface, datavlan=datavlan,
+    logger.info('edited interface %s on device %s' % (deviceinterface, device.hostname))
+    return render_template("results/resultsinterfaceedit.html", device=device,
+                           interface=deviceinterface, datavlan=datavlan,
                            voicevlan=voicevlan, other=other, result=result)
 
 
-@app.route('/results/resultshostdeleted/<x>', methods=['GET', 'POST'])
-def results_host_deleted(x):
+@app.route('/results/resultsdevicedeleted/<x>', methods=['GET', 'POST'])
+def results_device_deleted(x):
     """Display results for deleting device from local database.
 
     x = device ID
     """
-    host = datahandler.get_host_by_id(x)
-    if host:
-        # Removes host from database
-        result = datahandler.delete_host_in_db(host.id)
+    device = datahandler.get_device_by_id(x)
+    if device:
+        # Removes device from database
+        result = datahandler.delete_device_in_db(device.id)
         if result:
-            sshhandler.disconnect_specific_ssh_session(host)
-            return render_template("results/resultshostdeleted.html",
-                                   host=host, result=result)
+            sshhandler.disconnect_specific_ssh_session(device)
+            return render_template("results/resultsdevicedeleted.html",
+                                   device=device, result=result)
         else:
-            return redirect(url_for('confirm_host_delete', x=host.id))
+            return redirect(url_for('confirm_device_delete', x=device.id))
     else:
         return redirect(url_for('index'))
 
@@ -645,21 +645,21 @@ def results_cmd_custom():
     """Display results from bulk command execution on device."""
     initial_checks()
 
-    host = datahandler.get_host_by_id(session['HOSTID'])
+    device = datahandler.get_device_by_id(session['DEVICEID'])
 
-    active_session = sshhandler.retrieve_ssh_session(host)
+    active_session = sshhandler.retrieve_ssh_session(device)
 
     command = session['COMMAND']
 
-    result = host.run_multiple_commands(command, active_session)
+    result = device.run_multiple_commands(command, active_session)
 
     session.pop('HOSTNAME', None)
     session.pop('COMMAND', None)
-    session.pop('HOSTID', None)
+    session.pop('DEVICEID', None)
 
-    logger.info('ran custom commands on host %s' % (host.hostname))
+    logger.info('ran custom commands on device %s' % (device.hostname))
     return render_template("results/resultscmdcustom.html",
-                           host=host,
+                           device=device,
                            command=command,
                            result=result)
 
@@ -669,22 +669,22 @@ def results_cfg_cmd_custom():
     """Display results from bulk configuration command execution on device."""
     initial_checks()
 
-    host = datahandler.get_host_by_id(session['HOSTID'])
+    device = datahandler.get_device_by_id(session['DEVICEID'])
 
-    active_session = sshhandler.retrieve_ssh_session(host)
+    active_session = sshhandler.retrieve_ssh_session(device)
 
     command = session['COMMAND']
 
-    result = host.run_multiple_config_commands(command, active_session)
+    result = device.run_multiple_config_commands(command, active_session)
 
     session.pop('HOSTNAME', None)
     session.pop('COMMAND', None)
-    session.pop('HOSTID', None)
+    session.pop('DEVICEID', None)
     session.pop('IOS_TYPE', None)
 
-    logger.info('ran custom config commands on host %s' % (host.hostname))
+    logger.info('ran custom config commands on device %s' % (device.hostname))
     return render_template("results/resultscfgcmdcustom.html",
-                           host=host,
+                           device=device,
                            command=command,
                            result=result)
 
@@ -696,7 +696,7 @@ def results_cfg_cmd_custom():
 
 @app.route('/modalinterface/', methods=['GET', 'POST'])
 @app.route('/modalinterface/<x>/<y>', methods=['GET', 'POST'])
-def modal_specific_interface_on_host(x, y):
+def modal_specific_interface_on_device(x, y):
     """Show specific interface details from device.
 
     x = device id
@@ -704,21 +704,21 @@ def modal_specific_interface_on_host(x, y):
     """
     initial_checks()
 
-    host = datahandler.get_host_by_id(x)
+    device = datahandler.get_device_by_id(x)
 
-    active_session = sshhandler.retrieve_ssh_session(host)
+    active_session = sshhandler.retrieve_ssh_session(device)
 
     # Removes dashes from interface in URL, replacing '_' with '/'
     interface = interface_replace_slash(y)
     # Replace's '=' with '.'
-    host.interface = interface.replace('=', '.')
+    device.interface = interface.replace('=', '.')
 
-    int_config, int_mac_addr, int_stats = host.pull_interface_info(active_session)
+    int_config, int_mac_addr, int_stats = device.pull_interface_info(active_session)
     mac_to_ip = ''
 
-    logger.info('viewed interface %s on host %s' % (host.interface, host.hostname))
-    return render_template("/viewspecificinterfaceonhost.html",
-                           host=host,
+    logger.info('viewed interface %s on device %s' % (device.interface, device.hostname))
+    return render_template("viewspecificinterfaceondevice.html",
+                           device=device,
                            interface=interface,
                            int_config=int_config,
                            intMacAddr=int_mac_addr,
@@ -727,36 +727,36 @@ def modal_specific_interface_on_host(x, y):
 
 
 @app.route('/modaleditinterface/<x>', methods=['GET', 'POST'])
-def modal_edit_interface_on_host(x):
+def modal_edit_interface_on_device(x):
     """Display modal to edit specific interface on device.
 
     x = device id
     """
     initial_checks()
 
-    host = datahandler.get_host_by_id(x)
+    device = datahandler.get_device_by_id(x)
 
-    active_session = sshhandler.retrieve_ssh_session(host)
+    active_session = sshhandler.retrieve_ssh_session(device)
 
     # Removes dashes from interface in URL
     # interface = interface_replace_slash(y)
     # Replace's '=' with '.'
-    # host.interface = interface.replace('=', '.')
+    # device.interface = interface.replace('=', '.')
 
     # Set interface to passed parameter in URL
-    host.interface = request.args.get('int', '')
+    device.interface = request.args.get('int', '')
 
-    int_config = host.pull_interface_config(active_session)
+    int_config = device.pull_interface_config(active_session)
     # Edit form
-    form = EditInterfaceForm(request.values, host=host, interface=host.interface)
+    form = EditInterfaceForm(request.values, device=device, interface=device.interface)
 
     if form.validate_on_submit():
-        flash('Interface to edit - "%s"' % (host.interface))
+        flash('Interface to edit - "%s"' % (device.interface))
         return redirect('/confirm/confirmintedit')
 
-    return render_template("/editinterface.html",
-                           hostid=host.id,
-                           hostinterface=host.interface,
+    return render_template("editinterface.html",
+                           deviceid=device.id,
+                           deviceinterface=device.interface,
                            int_config=int_config,
                            form=form)
 
@@ -765,21 +765,21 @@ def modal_edit_interface_on_host(x):
 def modal_local_credentials(x):
     """Get local credentials from user.
 
-    x is host ID
+    x is device ID
     """
     initial_checks()
 
-    host = datahandler.get_host_by_id(x)
+    device = datahandler.get_device_by_id(x)
 
-    if sshhandler.check_host_active_ssh_session(host):
-        return redirect('/db/viewhosts/%s' % (host.id))
+    if sshhandler.check_device_active_ssh_session(device):
+        return redirect('/db/viewdevices/%s' % (device.id))
 
     form = LocalCredentialsForm()
-    logger.info('saved local credentials for host %s' % (host.hostname))
+    logger.info('saved local credentials for device %s' % (device.hostname))
     return render_template('localcredentials.html',
                            title='Login with local SSH credentials',
                            form=form,
-                           host=host)
+                           device=device)
 
 
 @app.route('/modalcmdshowrunconfig/', methods=['GET', 'POST'])
@@ -791,13 +791,13 @@ def modal_cmd_show_run_config(x):
     """
     initial_checks()
 
-    host = datahandler.get_host_by_id(x)
-    active_session = sshhandler.retrieve_ssh_session(host)
-    host_config = host.pull_run_config(active_session)
-    logger.info('viewed running-config via button on host %s' % (host.hostname))
-    return render_template("/cmdshowrunconfig.html",
-                           host=host,
-                           host_config=host_config)
+    device = datahandler.get_device_by_id(x)
+    active_session = sshhandler.retrieve_ssh_session(device)
+    device_config = device.pull_run_config(active_session)
+    logger.info('viewed running-config via button on device %s' % (device.hostname))
+    return render_template("cmdshowrunconfig.html",
+                           device=device,
+                           device_config=device_config)
 
 
 @app.route('/modalcmdshowstartconfig/', methods=['GET', 'POST'])
@@ -809,13 +809,13 @@ def modal_cmd_show_start_config(x):
     """
     initial_checks()
 
-    host = datahandler.get_host_by_id(x)
-    active_session = sshhandler.retrieve_ssh_session(host)
-    host_config = host.pull_start_config(active_session)
-    logger.info('viewed startup-config via button on host %s' % (host.hostname))
-    return render_template("/cmdshowstartconfig.html",
-                           host=host,
-                           host_config=host_config)
+    device = datahandler.get_device_by_id(x)
+    active_session = sshhandler.retrieve_ssh_session(device)
+    device_config = device.pull_start_config(active_session)
+    logger.info('viewed startup-config via button on device %s' % (device.hostname))
+    return render_template("cmdshowstartconfig.html",
+                           device=device,
+                           device_config=device_config)
 
 
 @app.route('/modalcmdshowcdpneigh/', methods=['GET', 'POST'])
@@ -827,12 +827,12 @@ def modal_cmd_show_cdp_neigh(x):
     """
     initial_checks()
 
-    host = datahandler.get_host_by_id(x)
-    active_session = sshhandler.retrieve_ssh_session(host)
-    neigh = host.pull_cdp_neighbor(active_session)
-    logger.info('viewed CDP neighbors via button on host %s' % (host.hostname))
-    return render_template("/cmdshowcdpneigh.html",
-                           host=host,
+    device = datahandler.get_device_by_id(x)
+    active_session = sshhandler.retrieve_ssh_session(device)
+    neigh = device.pull_cdp_neighbor(active_session)
+    logger.info('viewed CDP neighbors via button on device %s' % (device.hostname))
+    return render_template("cmdshowcdpneigh.html",
+                           device=device,
                            neigh=neigh)
 
 
@@ -845,13 +845,13 @@ def modal_cmd_show_inventory(x):
     """
     initial_checks()
 
-    host = datahandler.get_host_by_id(x)
-    active_session = sshhandler.retrieve_ssh_session(host)
-    result = host.pull_inventory(active_session)
+    device = datahandler.get_device_by_id(x)
+    active_session = sshhandler.retrieve_ssh_session(device)
+    result = device.pull_inventory(active_session)
 
-    logger.info('viewed inventory info via button on host %s' % (host.hostname))
-    return render_template("/cmdshowinventory.html",
-                           host=host,
+    logger.info('viewed inventory info via button on device %s' % (device.hostname))
+    return render_template("cmdshowinventory.html",
+                           device=device,
                            result=result)
 
 
@@ -864,13 +864,13 @@ def modal_cmd_show_version(x):
     """
     initial_checks()
 
-    host = datahandler.get_host_by_id(x)
-    active_session = sshhandler.retrieve_ssh_session(host)
-    result = host.pull_version(active_session)
+    device = datahandler.get_device_by_id(x)
+    active_session = sshhandler.retrieve_ssh_session(device)
+    result = device.pull_version(active_session)
 
-    logger.info('viewed version info via button on host %s' % (host.hostname))
-    return render_template("/cmdshowversion.html",
-                           host=host,
+    logger.info('viewed version info via button on device %s' % (device.hostname))
+    return render_template("cmdshowversion.html",
+                           device=device,
                            result=result)
 
 
@@ -882,13 +882,13 @@ def modal_cmd_custom(x):
     """
     initial_checks()
 
-    host = datahandler.get_host_by_id(x)
+    device = datahandler.get_device_by_id(x)
 
     # Custom Commands form
-    form = CustomCommandsForm(request.values, hostname=host.hostname)
+    form = CustomCommandsForm(request.values, hostname=device.hostname)
 
-    return render_template("/cmdcustom.html",
-                           host=host,
+    return render_template("cmdcustom.html",
+                           device=device,
                            form=form)
 
 
@@ -900,13 +900,13 @@ def modal_cfg_cmd_custom(x):
     """
     initial_checks()
 
-    host = datahandler.get_host_by_id(x)
+    device = datahandler.get_device_by_id(x)
 
     # Custom Commands form
-    form = CustomCfgCommandsForm(request.values, hostname=host.hostname)
+    form = CustomCfgCommandsForm(request.values, hostname=device.hostname)
 
-    return render_template("/cfgcmdcustom.html",
-                           host=host,
+    return render_template("cfgcmdcustom.html",
+                           device=device,
                            form=form)
 
 
@@ -918,35 +918,35 @@ def modal_cmd_save_config(x):
     """
     initial_checks()
 
-    host = datahandler.get_host_by_id(x)
-    active_session = sshhandler.retrieve_ssh_session(host)
-    host.save_config_on_device(active_session)
+    device = datahandler.get_device_by_id(x)
+    active_session = sshhandler.retrieve_ssh_session(device)
+    device.save_config_on_device(active_session)
 
-    logger.info('saved config via button on host %s' % (host.hostname))
-    return render_template("/cmdsaveconfig.html",
-                           host=host)
+    logger.info('saved config via button on device %s' % (device.hostname))
+    return render_template("cmdsaveconfig.html",
+                           device=device)
 
 
-@app.route('/db/viewhosts/hostshell/<x>', methods=['GET', 'POST'])
-def host_shell(x):
+@app.route('/db/viewdevices/deviceshell/<x>', methods=['GET', 'POST'])
+def device_shell(x):
     """Display iShell input fields.
 
     x = device id
     """
     initial_checks()
 
-    host = datahandler.get_host_by_id(x)
+    device = datahandler.get_device_by_id(x)
 
     # Exit config mode if currently in it on page refresh/load
-    exit_config_mode(host.id)
+    exit_config_mode(device.id)
 
-    logger.info('accessed interactive shell on host %s' % (host.hostname))
-    return render_template("hostshell.html",
-                           host=host)
+    logger.info('accessed interactive shell on device %s' % (device.hostname))
+    return render_template("deviceshell.html",
+                           device=device)
 
 
-@app.route('/hostshelloutput/<x>/<m>/<y>', methods=['GET', 'POST'])
-def host_shell_output(x, m, y):
+@app.route('/deviceshelloutput/<x>/<m>/<y>', methods=['GET', 'POST'])
+def device_shell_output(x, m, y):
     """Display iShell output fields.
 
     x = device id
@@ -957,8 +957,8 @@ def host_shell_output(x, m, y):
 
     config_error = False
 
-    host = datahandler.get_host_by_id(x)
-    active_session = sshhandler.retrieve_ssh_session(host)
+    device = datahandler.get_device_by_id(x)
+    active_session = sshhandler.retrieve_ssh_session(device)
 
     # Replace '___' with '/'
     x = unquote_plus(y).decode('utf-8')
@@ -966,7 +966,7 @@ def host_shell_output(x, m, y):
     # command = interface_replace_slash(unquote_plus(y).decode('utf-8'))
 
     # Append prompt and command executed to beginning of output
-    # output.append(host.find_prompt_in_session(active_session) + command)
+    # output.append(device.find_prompt_in_session(active_session) + command)
 
     # Check if last character is a '?'
     if command[-1] == '?':
@@ -988,11 +988,11 @@ def host_shell_output(x, m, y):
             # Remove first item in list, as Netmiko returns the command ran only in the output
             output.pop(0)
         else:
-            output = host.get_cmd_output(command, active_session)
+            output = device.get_cmd_output(command, active_session)
 
-    logger.info('ran command on host %s - %s' % (host.hostname, command))
+    logger.info('ran command on device %s - %s' % (device.hostname, command))
 
-    return render_template("hostshelloutput.html",
+    return render_template("deviceshelloutput.html",
                            output=output,
                            command=command,
                            mode=m,
@@ -1007,11 +1007,11 @@ def enter_config_mode(x):
     """
     initial_checks()
 
-    host = datahandler.get_host_by_id(x)
-    active_session = sshhandler.retrieve_ssh_session(host)
+    device = datahandler.get_device_by_id(x)
+    active_session = sshhandler.retrieve_ssh_session(device)
     # Enter configuration mode on device using existing SSH session
     active_session.config_mode()
-    logger.info('entered config mode via iShell on host %s' % (host.hostname))
+    logger.info('entered config mode via iShell on device %s' % (device.hostname))
     return ('', 204)
 
 
@@ -1023,12 +1023,12 @@ def exit_config_mode(x):
     """
     initial_checks()
 
-    host = datahandler.get_host_by_id(x)
-    active_session = sshhandler.retrieve_ssh_session(host)
+    device = datahandler.get_device_by_id(x)
+    active_session = sshhandler.retrieve_ssh_session(device)
     # Exit configuration mode on device using existing SSH session
     active_session.exit_config_mode()
 
-    logger.info('exited config mode via iShell on host %s' % (host.hostname))
+    logger.info('exited config mode via iShell on device %s' % (device.hostname))
     return ('', 204)
 
 
@@ -1044,9 +1044,9 @@ def confirm_multi_int_enable(x, y):
     x = device id
     y = interfaces separated by '&' in front of each interface name
     """
-    host = datahandler.get_host_by_id(x)
+    device = datahandler.get_device_by_id(x)
     return render_template("confirm/confirmmultipleintenable.html",
-                           host=host,
+                           device=device,
                            interfaces=y)
 
 
@@ -1057,9 +1057,9 @@ def confirm_multi_int_disable(x, y):
     x = device id
     y = interfaces separated by '&' in front of each interface name
     """
-    host = datahandler.get_host_by_id(x)
+    device = datahandler.get_device_by_id(x)
     return render_template("confirm/confirmmultipleintdisable.html",
-                           host=host,
+                           device=device,
                            interfaces=y)
 
 
@@ -1070,9 +1070,9 @@ def confirm_multi_int_edit(x, y):
     x = device id
     y = interfaces separated by '&' in front of each interface name
     """
-    host = datahandler.get_host_by_id(x)
+    device = datahandler.get_device_by_id(x)
     return render_template("confirm/confirmmultipleintedit.html",
-                           host=host,
+                           device=device,
                            interfaces=y)
 
 
@@ -1085,8 +1085,8 @@ def results_multi_int_enabled(x, y):
     """
     initial_checks()
 
-    host = datahandler.get_host_by_id(x)
-    active_session = sshhandler.retrieve_ssh_session(host)
+    device = datahandler.get_device_by_id(x)
+    active_session = sshhandler.retrieve_ssh_session(device)
 
     result = []
     # Split by interfaces, separated by '&'
@@ -1095,11 +1095,11 @@ def results_multi_int_enabled(x, y):
         if a:
             # Removes dashes from interface in URL
             a = interface_replace_slash(a)
-            result.append(host.run_enable_interface_cmd(a, active_session))
+            result.append(device.run_enable_interface_cmd(a, active_session))
 
-    logger.info('enabled multiple interfaces on host %s' % (host.hostname))
+    logger.info('enabled multiple interfaces on device %s' % (device.hostname))
     return render_template("results/resultsmultipleintenabled.html",
-                           host=host,
+                           device=device,
                            interfaces=y,
                            result=result)
 
@@ -1113,8 +1113,8 @@ def results_multi_int_disabled(x, y):
     """
     initial_checks()
 
-    host = datahandler.get_host_by_id(x)
-    active_session = sshhandler.retrieve_ssh_session(host)
+    device = datahandler.get_device_by_id(x)
+    active_session = sshhandler.retrieve_ssh_session(device)
 
     result = []
     # Split by interfaces, separated by '&'
@@ -1122,11 +1122,11 @@ def results_multi_int_disabled(x, y):
         if a:
             # Removes dashes from interface in URL
             a = interface_replace_slash(a)
-            result.append(host.run_disable_interface_cmd(a, active_session))
+            result.append(device.run_disable_interface_cmd(a, active_session))
 
-    logger.info('disabled multiple interfaces on host %s' % (host.hostname))
+    logger.info('disabled multiple interfaces on device %s' % (device.hostname))
     return render_template("results/resultsmultipleintdisabled.html",
-                           host=host,
+                           device=device,
                            interfaces=y,
                            result=result)
 
@@ -1140,8 +1140,8 @@ def results_multi_int_edit(x, y):
     """
     initial_checks()
 
-    host = datahandler.get_host_by_id(x)
-    active_session = sshhandler.retrieve_ssh_session(host)
+    device = datahandler.get_device_by_id(x)
+    active_session = sshhandler.retrieve_ssh_session(device)
 
     result = []
     # Split by interfaces, separated by '&'
@@ -1150,11 +1150,11 @@ def results_multi_int_edit(x, y):
             # Removes dashes from interface in URL
             a = interface_replace_slash(a)
 
-    result.append(host.save_config_on_device(active_session))
+    result.append(device.save_config_on_device(active_session))
 
-    logger.info('edited multiple interfaces on host %s' % (host.hostname))
+    logger.info('edited multiple interfaces on device %s' % (device.hostname))
     return render_template("results/resultsmultipleintedit.html",
-                           host=host,
+                           device=device,
                            interfaces=y,
                            result=result)
 
@@ -1174,7 +1174,7 @@ def edit_settings():
 
     try:
         with open(app.config['SETTINGSFILE'], 'r') as s:
-            return render_template('/editsettings.html',
+            return render_template('editsettings.html',
                                    title='Edit Netconfig settings',
                                    file=s.readlines())
     except:
@@ -1187,7 +1187,7 @@ def proxy_settings():
     initial_checks()
 
     form = ProxySettingsForm()
-    return render_template('/proxysettings.html',
+    return render_template('proxysettings.html',
                            title='Edit Proxy Settings',
                            form=form)
 
@@ -1200,13 +1200,13 @@ def results_edit_proxy():
     proxy_name = request.form['proxy_name']
     proxy_settings = request.form['proxy_settings']
 
-    response, hostid, e = datahandler.add_proxy_to_db(proxy_name, proxy_settings)
+    response, deviceid, e = datahandler.add_proxy_to_db(proxy_name, proxy_settings)
     if response:
-        return render_template("/results/resultseditproxy.html",
+        return render_template("results/resultseditproxy.html",
                                title='Edit proxy settings result',
                                proxy_name=proxy_name,
                                proxy_settings=proxy_settings,
-                               hostid=hostid)
+                               deviceid=deviceid)
     else:
         logger.info('exception thrown when adding/editing proxy settings to database: %s' % e)
         # TO-DO Add popup error message here

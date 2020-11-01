@@ -23,15 +23,15 @@ class DeviceType(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     brand = db.Column(db.String(30), index=True)
     model = db.Column(db.String(30), index=True)
-    netmiko_cat = db.Column(db.Text, index=True)
-    device = db.relationship('Host', backref='devicetype')
+    netmiko_category = db.Column(db.Text, index=True)
+    device = db.relationship('Device', backref='devicetype', lazy='dynamic')
 
     def __repr__(self):
         """Device type."""
         return '<Devicetype %r>' % self.model
 
 
-class Host(db.Model):
+class Device(db.Model):
     """Store devices in database."""
 
     id = db.Column(db.Integer, primary_key=True)
@@ -41,10 +41,11 @@ class Host(db.Model):
     ios_type = db.Column(db.String(15), index=True)
     local_creds = db.Column(db.Boolean, default=False)
     devicetype_id = db.Column(db.Integer, db.ForeignKey('devicetype.id'))
+    proxy_id = db.Column(db.Integer, db.ForeignKey('proxysettings.id'))
 
     def __repr__(self):
         """Devices."""
-        return '<Host %r>' % self.hostname
+        return '<Device %r>' % self.hostname
 
 
 class ProxySettings(db.Model):

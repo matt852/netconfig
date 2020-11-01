@@ -42,14 +42,14 @@
 		{% if session['USER'] %}
 		<script src="{{url_for('static', filename='js/countactivesessions.js')}}"></script>
 		{% endif %}
-		{% if request.path == "/db/viewhosts" or request.path == "/db/viewhosts/" %}
-			<script src="{{url_for('static', filename='js/viewhosts.js')}}"></script>
+		{% if request.path == "/db/viewdevices" or request.path == "/db/viewdevices/" %}
+			<script src="{{url_for('static', filename='js/viewdevices.js')}}"></script>
 			<script src="{{url_for('static', filename='js/localcredentials.js')}}"></script>
 			<script src="{{url_for('static', filename='js/dcimnetbox.js')}}"></script>
-		{% elif "/db/viewhosts/" in request.path %}
-			<script src="{{url_for('static', filename='js/hostshell.js')}}"></script>
-			<script src="{{url_for('static', filename='js/viewspecifichost.js')}}"></script>
-		{% elif "/modallocalcredentials" in request.path or "/results/resultshostedit" in request.path %}
+		{% elif "/db/viewdevices/" in request.path %}
+			<script src="{{url_for('static', filename='js/deviceshell.js')}}"></script>
+			<script src="{{url_for('static', filename='js/viewspecificdevice.js')}}"></script>
+		{% elif "/modallocalcredentials" in request.path or "/results/resultsdeviceedit" in request.path %}
 			<script src="{{url_for('static', filename='js/localcredentials.js')}}"></script>
 		{% endif %}
 	{% endblock %}

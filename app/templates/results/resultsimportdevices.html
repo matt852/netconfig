@@ -21,7 +21,7 @@
 	</div>
 	<div class="row">
 		<div class="col-md-9">
-			{% if hosts %}
+			{% if devices %}
 				<h4 class="text-success">Successful Device Imports</h4>
 				<table class="table table-striped table-hover table-condensed display">
 					<thead>
@@ -31,10 +31,10 @@
 						</tr>
 					</thead>
 					<tbody>
-						{% for host in hosts %}
+						{% for device in devices %}
 							<tr>
-								<td><a href="/db/viewhosts/{{ host['id'] }}">{{ host['hostname'] }}</a></td>
-								<td>{{ host['ipv4_addr'] }}</td>
+								<td><a href="/db/viewdevices/{{ device['id'] }}">{{ device['hostname'] }}</a></td>
+								<td>{{ device['ipv4_addr'] }}</td>
 							</tr>
 						{% endfor %}
 					</tbody>
@@ -68,7 +68,7 @@
 	<div class="row">
 		<div class="col-md-9">
 			<div class="text-right">
-				<a href="/db/viewhosts" class="btn btn-primary">View host list</a>
+				<a href="/db/viewdevices" class="btn btn-primary">View device list</a>
 			</div>
 		</div>
 	</div>

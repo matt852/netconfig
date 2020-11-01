@@ -3,9 +3,9 @@
 import requests
 
 
-class NetboxHost(object):
+class NetboxDevice(object):
     """
-    Netbox Host class for making calls to Netbox host
+    Netbox Device class for making calls to Netbox device
     """
     # TODO should be a database model
 
@@ -48,10 +48,10 @@ class NetboxHost(object):
             # NOTE should this be False?
             return 'cisco_ios'
 
-    def get_host_by_id(self, x):
-        """Return host info in same format as SQLAlchemy responses, for X-Compatibility with local DB choice.
+    def get_device_by_id(self, x):
+        """Return device info in same format as SQLAlchemy responses, for X-Compatibility with local DB choice.
 
-        x is host ID
+        x is device ID
         """
 
         r = requests.get(self.url + '/api/dcim/devices/' + str(x))
@@ -62,7 +62,7 @@ class NetboxHost(object):
         else:
             return None
 
-    def get_hosts(self):
+    def get_devices(self):
         """Return all devices stored in Netbox."""
 
         r = requests.get(self.url + '/api/dcim/devices/?limit=0')
@@ -71,9 +71,9 @@ class NetboxHost(object):
 
             # NOTE probably don't need to strip primary_ip cidr.
             # Not seeing this as a problem connecting
-            result = [host for host in r.json()['results']
-                      if host['custom_fields']['Netconfig'] and
-                      host['custom_fields']['Netconfig']['label'] == 'Yes']
+            result = [device for device in r.json()['results']
+                      if device['custom_fields']['Netconfig'] and
+                      device['custom_fields']['Netconfig']['label'] == 'Yes']
 
             return result
 
@@ -81,21 +81,21 @@ class NetboxHost(object):
 
             return None
 
-    def get_host_id(self, x):
+    def get_device_id(self, x):
         """Input device name/hostname, returns id as stored in Netbox."""
         r = requests.get(self.url + '/api/dcim/devices/?limit=0')
 
         if r.status_code == requests.codes.ok:
 
-            for host in r.json()['results']:
-                if host['display_name'] == x:  # Network
-                    return host['id']
+            for device in r.json()['results']:
+                if device['display_name'] == x:  # Network
+                    return device['id']
 
         else:
 
             return None
 
-    def get_host_name(self, x):
+    def get_device_name(self, x):
         """Input ID, return device name from Netbox."""
         r = requests.get(self.url + '/api/dcim/devices/' + str(x))
 
@@ -108,7 +108,7 @@ class NetboxHost(object):
 
             return None
 
-    def get_host_ip_addr(self, x):
+    def get_device_ip_addr(self, x):
         """Input ID, return device IP address from Netbox."""
         r = requests.get(self.url + '/api/dcim/devices/' + str(x))
 
@@ -121,7 +121,7 @@ class NetboxHost(object):
 
             return None
 
-    def get_host_type(self, x):
+    def get_device_type(self, x):
         """Input ID, return device type from Netbox."""
         r = requests.get(self.url + '/api/dcim/devices/' + str(x))
 

@@ -16,16 +16,16 @@
                     	<div class="panel-body">
 
             				<p>The following commands will be executed:</p>
-<pre><code>{{ host.get_cmd_enter_configuration_mode() }}
+<pre><code>{{ device.get_cmd_enter_configuration_mode() }}
 {% for x in interfaces.split('&') %}{% if x %}{% set x = x|replace('_','/') %}&nbsp;interface {{ x }}
-&nbsp;&nbsp;{{ host.get_cmd_enable_interface() }}
+&nbsp;&nbsp;{{ device.get_cmd_enable_interface() }}
 {% endif %}{% endfor %}&nbsp;&nbsp;end
 </code></pre>
                             <br />
 
                             <div class="text-right">
-                        		<a href="/results/resultsmultipleintenabled/{{ host.id }}/{{ interfaces }}" class="btn btn-danger">Confirm</a>
-                        		<a href="/db/viewhosts/{{ host.id }}" class="btn btn-default">Cancel</a>
+                        		<a href="/results/resultsmultipleintenabled/{{ device.id }}/{{ interfaces }}" class="btn btn-danger">Confirm</a>
+                        		<a href="/db/viewdevices/{{ device.id }}" class="btn btn-default">Cancel</a>
                     		</div>
                         </div>
                 	</div>

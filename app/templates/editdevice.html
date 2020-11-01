@@ -6,8 +6,8 @@
 <div class="container-fluid">
 	<div class="row">
     	<div class="col-md-9">
-			<h2 class="text-primary">Edit Host {{ originalHost }}</h2>
-			<form action="{{ url_for('results_host_edit') }}{{ id }}" method="post" name="hostedit">
+			<h2 class="text-primary">Edit Device {{ original_device }}</h2>
+			<form action="{{ url_for('results_device_edit') }}{{ id }}" method="post" name="deviceedit">
 			    {{ form.hidden_tag() }}
 			    <p>
 			        Hostname:<br>
@@ -25,8 +25,8 @@
 			    </p>
 			    <p>
 			        Device Type:<br>
-			        {{ form.hosttype }}
-			        {% for error in form.hosttype.errors %}
+			        {{ form.devicetype }}
+			        {% for error in form.devicetype.errors %}
 			          <span style="color: red;">[{{error}}]</span>
 			        {% endfor %}<br>
 			    </p>
@@ -55,7 +55,7 @@
 	<div class="row">
 		<div class="col-md-9">
 			<div class="text-right">
-				<a href="/db/viewhosts" class="btn btn-info">Cancel</a>
+				<a href="/db/viewdevices" class="btn btn-info">Cancel</a>
 			</div>
 		</div>
 	</div>

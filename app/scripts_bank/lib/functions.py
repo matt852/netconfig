@@ -20,11 +20,11 @@ class UserCredentials(object):
 creds = UserCredentials('', '', '')
 
 
-def set_user_credentials(username, password, privPassword=''):
+def set_user_credentials(username, password, priv_password):
     """Return creds class with username and password in it."""
     creds.un = username
     creds.pw = password
-    creds.priv = privPassword
+    creds.priv = priv_password
     return creds
 
 
@@ -35,7 +35,7 @@ def contains_skipped(x):
     Returns False otherwise.
     """
     try:
-        if "skipped" in str(x):
+        if 'skipped' in str(x):
             return True
         else:
             return False

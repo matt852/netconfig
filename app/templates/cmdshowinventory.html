@@ -1,7 +1,7 @@
 <div class="container-fluid">
 	<div class="row">
 		<div class="col-md-12">
-			<h2 class="text-primary">Inventory info for {{ host.hostname }}:</h2><br /><br />
+			<h2 class="text-primary">Inventory info for {{ device.hostname }}:</h2><br /><br />
 <code><pre>{% for x in result %}{% if x %}{{ x }}<br />{% elif not y and loop.index0 > 0 %}<br />{% endif %}{% endfor %}</pre></code>
 		</div>
 	</div>

@@ -10,7 +10,7 @@
                 <div class="panel-heading">Execute Config Commands?</div>
                 <div class="panel-body">
 
-                    <p>Are you sure you want to modify host <strong>{{ session['HOSTNAME'] }}</strong>?</p>
+                    <p>Are you sure you want to modify device <strong>{{ session['HOSTNAME'] }}</strong>?</p>
                     <p>The following commands will be executed:</p>
 
                     config t<br />
@@ -20,6 +20,7 @@
                     {% endif %}
 
                     &nbsp;end<br />
+                    {# TODO: Fix this #}
                     {% if session['IOS_TYPE'] == 'cisco_nxos' %}
                     copy running-config startup-config<br />
                     {% elif session['IOS_TYPE'] == 'cisco_ios' or session['IOS_TYPE'] == 'cisco_asa' or session['IOS_TYPE'] == 'cisco_xe' %}
@@ -30,7 +31,7 @@
 
                     <div class="text-right">
                         <a href="/results/resultscfgcmdcustom" class="btn btn-danger">Confirm</a>
-                        <a href="/db/viewhosts/{{ session['HOSTID'] }}" class="btn btn-default">Cancel</a>
+                        <a href="/db/viewdevices/{{ session['DEVICEID'] }}" class="btn btn-default">Cancel</a>
                     </div>
                 </div>
             </div>

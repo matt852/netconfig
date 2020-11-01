@@ -124,7 +124,7 @@ class CiscoNXOS(CiscoBaseDevice):
         # Return empty result - unsupported on NX-OS
         return {}
 
-    def pull_host_interfaces(self, active_session):
+    def pull_device_interfaces(self, active_session):
         """Retrieve list of interfaces on device."""
         output_result = ''
         command = "show interface status | xml"

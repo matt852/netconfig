@@ -11,20 +11,20 @@
             	<div class="panel-body">
                     {% set otherURL = otherEncoded|replace('/','___') %}
                     
-    				<p>Are you sure you want to modify interface <strong>{{ hostinterface }}</strong> on host <strong>{{ host.hostname }}</strong>?</p>
+    				<p>Are you sure you want to modify interface <strong>{{ deviceinterface }}</strong> on device <strong>{{ device.hostname }}</strong>?</p>
                     <p>The following commands will be executed:</p>
-
-<code>{{ host.get_cmd_enter_configuration_mode() }}<br />
-&nbsp;interface {{ hostinterface }}<br />
+{#TODO: Fix this#}
+<code>{{ device.get_cmd_enter_configuration_mode() }}<br />
+&nbsp;interface {{ deviceinterface }}<br />
 {% if datavlan == '' %}{% set datavlan = 0 %}{% else %}&nbsp;&nbsp;switchport access vlan {{ datavlan }}<br />{% endif %}
 {% if voicevlan == '' %}{% set voicevlan = 0 %}{% else %}&nbsp;&nbsp;switchport voice vlan {{ voicevlan }}<br />{% endif %}
 {% if other == '' %}{% set otherURL = 0 %}{% else %}{% set otherDisplay = other|replace('\n','<br />&nbsp;&nbsp;') %}&nbsp;&nbsp;{{ otherDisplay | safe }}<br />
-{% endif %}&nbsp;&nbsp;{{ host.get_cmd_exit_configuration_mode() }}<br />
+{% endif %}&nbsp;&nbsp;{{ device.get_cmd_exit_configuration_mode() }}<br />
 </code>
 
 					<div class="text-right">
-                		<a href="/results/resultsinterfaceedit/{{ host.id }}/{{ datavlan }}/{{ voicevlan }}/{{ otherURL }}?int={{ hostinterface }}" class="btn btn-danger">Confirm</a>
-                		<a href="/db/viewhosts/{{ host.id }}" class="btn btn-default">Cancel</a>
+                		<a href="/results/resultsinterfaceedit/{{ device.id }}/{{ datavlan }}/{{ voicevlan }}/{{ otherURL }}?int={{ deviceinterface }}" class="btn btn-danger">Confirm</a>
+                		<a href="/db/viewdevices/{{ device.id }}" class="btn btn-default">Cancel</a>
             		</div>
             	</div>
            	</div>

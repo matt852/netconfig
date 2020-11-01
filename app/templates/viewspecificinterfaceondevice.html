@@ -7,7 +7,7 @@
 			<b>Statistics:</b>
 			<br />
 <code><pre>{% for x in intStats %}{% if x != '' and 'end' not in x %}{% if x %}{{ x }}<br />{% elif not y and loop.index0 > 0 %}<br />{% endif %}{% endif %}{% endfor %}</pre></code>
-			{% if host.type == 'Switch' %}
+			{% if device.type == 'Switch' %}
 				<b>MAC Address Associations:</b>
 			{% endif %}
 			<br /><br />

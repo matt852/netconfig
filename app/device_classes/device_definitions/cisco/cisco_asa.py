@@ -70,7 +70,7 @@ class CiscoASA(CiscoBaseDevice):
         # Return empty result - unsupported on ASA
         return {}
 
-    def pull_host_interfaces(self, active_session):
+    def pull_device_interfaces(self, active_session):
         """Retrieve list of interfaces on device."""
         # result = self.run_ssh_command('show interface ip brief', active_session)
         result = self.run_ssh_command('show interface detail', active_session)

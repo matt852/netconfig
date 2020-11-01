@@ -9,7 +9,7 @@
 
 			<h2 class="text-primary">Delete Multiple Devices Result</h2>
 
-			{% if overallResult %}
+			{% if overall_result %}
 				<p><b>SUCCESS:</b> Devices were successfully deleted from the local database</p>
 			{% else %}
 				<p><b>ERROR:</b> Devices were not successfully deleted from the local database</p>
@@ -17,7 +17,7 @@
 
 			<p><b>List of devices:</b></p>
 
-			{% for x in hostList %}
+			{% for x in device_list %}
 				{% if x %}
 					{{ x.hostname }}<br />
 				{% endif %}
@@ -28,7 +28,7 @@
 	<div class="row">
 		<div class="col-md-9">
 			<div class="text-right">
-				<a href="/db/viewhosts" class="btn btn-success">Return To Main Page</a>
+				<a href="/db/viewdevices" class="btn btn-success">Return To Main Page</a>
 			</div>
 		</div>
 	</div>

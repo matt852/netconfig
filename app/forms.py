@@ -16,16 +16,17 @@ class LocalCredentialsForm(FlaskForm):
     privpw = PasswordField('Privileged Password (if applicable)')
 
 
-class AddHostForm(FlaskForm):
+class AddDeviceForm(FlaskForm):
     """Add new device to local database form."""
 
+    # TODO: Abstract out choices
     hostname = StringField('Hostname', validators=[DataRequired()])
     ipv4_addr = StringField('IPv4 Address', validators=[DataRequired(), IPAddress()])
-    hosttype_choices = [('', ''),
+    devicetype_choices = [('', ''),
                         ('Switch', 'Switch'),
                         ('Router', 'Router'),
                         ('Firewall', 'Firewall')]
-    hosttype = SelectField('Host Type', choices=hosttype_choices, validators=[DataRequired()])
+    devicetype = SelectField('Device Type', choices=devicetype_choices, validators=[DataRequired()])
     ios_type_choices = [('cisco_ios', 'IOS'),
                         ('cisco_asa', 'ASA'),
                         ('cisco_nxos', 'NX-OS'),
@@ -34,7 +35,7 @@ class AddHostForm(FlaskForm):
     local_creds = BooleanField('Use Local/Different Credentials', default=False)
 
 
-class ImportHostsForm(FlaskForm):
+class ImportDevicesForm(FlaskForm):
     """Import devices into local database using CSV format."""
 
     csvimport = StringField('Devices to Import via CSV format', widget=TextArea())
@@ -46,20 +47,20 @@ class EditInterfaceForm(FlaskForm):
     datavlan = StringField('Data Vlan')
     voicevlan = StringField('Voice Vlan')
     other = StringField('Other', widget=TextArea())
-    host = HiddenField('Host')
+    device = HiddenField('Device')
     interface = HiddenField('Interface')
 
 
-class EditHostForm(FlaskForm):
+class EditDeviceForm(FlaskForm):
     """Edit device in local database form."""
 
     hostname = StringField('Hostname', validators=[DataRequired()])
     ipv4_addr = StringField('IPv4 Address', validators=[DataRequired()])
-    hosttype_choices = [('', ''),
+    devicetype_choices = [('', ''),
                         ('Switch', 'Switch'),
                         ('Router', 'Router'),
                         ('Firewall', 'Firewall')]
-    hosttype = SelectField('Host Type', choices=hosttype_choices, validators=[DataRequired()])
+    devicetype = SelectField('Device Type', choices=devicetype_choices, validators=[DataRequired()])
     ios_type_choices = [('', ''),
                         ('cisco_ios', 'IOS'),
                         ('cisco_asa', 'ASA'),

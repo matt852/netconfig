@@ -7,7 +7,7 @@
 	<div class="row">
     	<div class="col-md-9">
 			<h2 class="text-primary">Add New Device to Database</h2>
-			<form action="{{ url_for('results_add_host') }}" method="post" name="addhosts">
+			<form action="{{ url_for('results_add_device') }}" method="post" name="adddevices">
 			    {{ form.hidden_tag() }}
 			    <p>
 			        Please enter the device hostname:<br />
@@ -17,7 +17,7 @@
 			        {% endfor %}<br />
 			    </p>
 			    <p>
-			        Please enter the device host IP address:<br />
+			        Please enter the device device IP address:<br />
 			        {{ form.ipv4_addr(size=20, required="required") }}
 			        {% for error in form.ipv4_addr.errors %}
 			          <span style="color: red;">[{{error}}]</span>
@@ -25,8 +25,8 @@
 			    </p>
 			    <p>
 			        Please enter the device type:<br />
-			        {{ form.hosttype(required="required") }}
-			        {% for error in form.hosttype.errors %}
+			        {{ form.devicetype(required="required") }}
+			        {% for error in form.devicetype.errors %}
 			          <span style="color: red;">[{{error}}]</span>
 			        {% endfor %}<br />
 			    </p>

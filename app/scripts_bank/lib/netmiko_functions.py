@@ -31,22 +31,22 @@ def ssh_skip_check(x):
         return False
 
 
-def connect_to_ssh(host, creds):
-    """Connect to host via SSH with provided username and password, and type of device specified."""
-    # Try to connect to the host
+def connect_to_ssh(device, creds):
+    """Connect to device via SSH with provided username and password, and type of device specified."""
+    # Try to connect to the device
     try:
         if creds.priv:
-            ssh = nm.ConnectHandler(device_type=host.ios_type.strip(), ip=host.ipv4_addr.strip(), username=creds.un, password=creds.pw, secret=creds.priv, timeout=app.app.config['SSH_TIMEOUT'])
+            ssh = nm.ConnectHandler(device_type=device.ios_type.strip(), ip=device.ipv4_addr.strip(), username=creds.un, password=creds.pw, secret=creds.priv, timeout=app.app.config['SSH_TIMEOUT'])
             # Enter into enable mode
             ssh.enable()
         else:
-            ssh = nm.ConnectHandler(device_type=host.ios_type.strip(), ip=host.ipv4_addr.strip(), username=creds.un, password=creds.pw, timeout=app.app.config['SSH_TIMEOUT'])
+            ssh = nm.ConnectHandler(device_type=device.ios_type.strip(), ip=device.ipv4_addr.strip(), username=creds.un, password=creds.pw, timeout=app.app.config['SSH_TIMEOUT'])
 
     # except nm.AuthenticationException:
-    #    return "%s skipped - authentication error\n" % (host)
+    #    return "%s skipped - authentication error\n" % (device)
     except:
-        return "%s skipped - connection timeout\n" % (host)
-    # Returns active SSH session to host
+        return "%s skipped - connection timeout\n" % (device)
+    # Returns active SSH session to device
     return ssh
 
 
@@ -55,7 +55,7 @@ def disconnect_from_ssh(ssh):
     # Daemonize work to run in background
     def daemon():
         try:
-            # Disconnect from the host
+            # Disconnect from the device
             ssh.disconnect()
         except:
             pass
@@ -64,9 +64,9 @@ def disconnect_from_ssh(ssh):
     d.start()
 
 
-def run_ssh_command_once(command, host, creds):
-    """Run command on host via SSH and returns output."""
-    ssh = connect_to_ssh(host, creds)
+def run_ssh_command_once(command, device, creds):
+    """Run command on device via SSH and returns output."""
+    ssh = connect_to_ssh(device, creds)
     # Verify ssh connection established and didn't return an error
     if ssh_skip_check(ssh):
         return False
@@ -78,14 +78,14 @@ def run_ssh_command_once(command, host, creds):
     return result
 
 
-def run_multiple_ssh_commands_with_cmd_head(cmdList, host, creds):
-    """Run multiple commands on host via SSH and returns output."""
+def run_multiple_ssh_commands_with_cmd_head(cmd_list, device, creds):
+    """Run multiple commands on device via SSH and returns output."""
     result = []
-    ssh = connect_to_ssh(host, creds)
+    ssh = connect_to_ssh(device, creds)
     # Verify ssh connection established and didn't return an error
     if ssh_skip_check(ssh):
         return False
-    for x in cmdList:
+    for x in cmd_list:
         result.append("Command: %s" % x)
         # Get command output from multiple commands configured on device
         result.append(ssh.send_command(x))
@@ -95,10 +95,10 @@ def run_multiple_ssh_commands_with_cmd_head(cmdList, host, creds):
     return result
 
 
-def run_multiple_ssh_commands_in_session(cmdList, ssh):
-    """Run multiple commands in list on host via SSH and returns all output from applying the config."""
+def run_multiple_ssh_commands_in_session(cmd_list, ssh):
+    """Run multiple commands in list on device via SSH and returns all output from applying the config."""
     result = []
-    for x in cmdList:
+    for x in cmd_list:
         result.append("Command: %s" % x)
         # Get command output from multiple commands configured on device
         result.append(ssh.send_command(x))
@@ -106,11 +106,11 @@ def run_multiple_ssh_commands_in_session(cmdList, ssh):
     return result
 
 
-def get_ssh_session(host, creds):
+def get_ssh_session(device, creds):
     """Create an SSH session, verifies it worked, then returns the session itself."""
-    ssh = connect_to_ssh(host, creds)
+    ssh = connect_to_ssh(device, creds)
     # Verify ssh connection established and didn't return an error
     if ssh_skip_check(ssh):
-        return "ERROR: In function nfn.get_ssh_session, ssh_skip_check failed using host %s\n" % (host.hostname)
+        return "ERROR: In function nfn.get_ssh_session, ssh_skip_check failed using device %s\n" % (device.hostname)
     # Return output of command
     return ssh

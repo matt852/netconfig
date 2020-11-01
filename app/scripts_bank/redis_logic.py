@@ -36,14 +36,14 @@ def reset_user_redis_expire_timer():
         pass
 
 
-def store_user_in_redis(user, pw, privpw='', host=''):
+def store_user_in_redis(user, pw, privpw='', device=''):
     """Save user credentials in Redis.
 
-    If host is blank, then store as a general user.
-    If host is defined, tag credentials to host as a local set of credentials.
+    If device is blank, then store as a general user.
+    If device is defined, tag credentials to device as a local set of credentials.
     """
     try:
-        if not host:
+        if not device:
             # If user id doesn't exist, create new one with next available UUID
             # Else reuse existing key,
             #  to prevent incrementing id each time the same user logs in
@@ -65,13 +65,13 @@ def store_user_in_redis(user, pw, privpw='', host=''):
                 generate_session_uuid()
 
         else:
-            # Key to save variable is host id, --, and username of logged in
+            # Key to save variable is device id, --, and username of logged in
             # user
-            key = str(host.id) + "--" + str(session['USER'])
+            key = str(device.id) + "--" + str(session['USER'])
             if g.db.hget('localusers', key):
                 saved_id = g.db.hget('localusers', key)
             else:
-                # Create new host id, incrementing by 10
+                # Create new device id, incrementing by 10
                 saved_id = g.db.incrby('next_user_id', 10)
 
             if privpw:
