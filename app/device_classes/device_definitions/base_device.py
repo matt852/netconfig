@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 from app.scripts_bank.lib.netmiko_functions import run_multiple_ssh_commands_in_session
 
 

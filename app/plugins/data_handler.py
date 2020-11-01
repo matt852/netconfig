@@ -1,12 +1,12 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import app
-import requests
-from requests.exceptions import ConnectionError
 import csv
-from sqlalchemy.exc import IntegrityError, InvalidRequestError
+import requests
+from app.device_classes import device_type
 from netaddr import IPAddress, core
-from .device_classes import device_type
+from requests.exceptions import ConnectionError
+from sqlalchemy.exc import IntegrityError, InvalidRequestError
 
 
 class DataHandler(object):
@@ -33,7 +33,7 @@ class DataHandler(object):
             return False, 0, e
 
         try:
-            app.logger.write_log("Added new host %s to database" % (host.hostname))
+            app.logger.info("Added new host %s to database" % (host.hostname))
             return True, host.id, None
         except Exception as e:
             return False, 0, e
@@ -52,7 +52,7 @@ class DataHandler(object):
             return False, 0, e
 
         try:
-            app.logger.write_log("Updated proxy settings %s in database" % proxy.proxy_name)
+            app.logger.info("Updated proxy settings %s in database" % proxy.proxy_name)
             return True, proxy.id, None
         except Exception as e:
             return False, 0, e
@@ -147,7 +147,7 @@ class DataHandler(object):
             try:
                 r = requests.get(self.url + '/api/dcim/device-types/' + str(os))
             except ConnectionError:
-                app.logger.write_log("Connection error trying to connect to " + self.url)
+                app.logger.info("Connection error trying to connect to " + self.url)
                 return "error"
             if r.status_code == requests.codes.ok:
 
@@ -183,11 +183,11 @@ class DataHandler(object):
             host = app.models.Host.query.filter_by(id=x).first()
             app.db.session.delete(host)
             app.db.session.commit()
-            app.logger.write_log('deleted host %s in database' % (host.hostname))
+            app.logger.info('deleted host %s in database' % (host.hostname))
             return True
         except IntegrityError as err:
-            app.logger.write_log('unable to delete host %s in database' % (host.hostname))
-            app.logger.write_log(err)
+            app.logger.info('unable to delete host %s in database' % (host.hostname))
+            app.logger.info(err)
             return False
 
     def get_hosts(self):
@@ -208,7 +208,7 @@ class DataHandler(object):
             try:
                 r = requests.get(self.url + '/api/dcim/devices/?limit=0')
             except ConnectionError:
-                app.logger.write_log("Connection error trying to connect to " + self.url)
+                app.logger.info("Connection error trying to connect to " + self.url)
                 return data
 
             if r.status_code == requests.codes.ok:
@@ -249,7 +249,7 @@ class DataHandler(object):
             try:
                 r = requests.get(self.url + '/api/dcim/devices/' + str(x))
             except ConnectionError:
-                app.logger.write_log("Connection error trying to connect to " + self.url)
+                app.logger.info("Connection error trying to connect to " + self.url)
                 return None
 
             if r.status_code == requests.codes.ok:

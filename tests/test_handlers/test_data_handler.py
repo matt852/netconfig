@@ -1,6 +1,6 @@
 import unittest
 from app import app, db
-from app.data_handler import DataHandler
+from app.plugins.data_handler import DataHandler
 
 
 class TestDataHandler(unittest.TestCase):

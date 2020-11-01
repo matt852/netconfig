@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 from app import app
 from flask import g, session
 from uuid import uuid4

@@ -1,6 +1,6 @@
 import unittest
 import os
-from app.log_handler import LogHandler
+from app.plugins.log_handler import LogHandler
 from tempfile import gettempdir
 
 

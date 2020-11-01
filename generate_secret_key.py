@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # Original script from Netbox, found here:
 # https://github.com/digitalocean/netbox

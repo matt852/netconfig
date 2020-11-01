@@ -1,7 +1,5 @@
-import app
 from unittest import main, TestCase
-from mock import MagicMock, patch
-from app.ssh_handler import SSHHandler
+from mock import MagicMock
 
 
 class TestSSHHandler(TestCase):

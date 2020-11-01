@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 from app import app, logger, sshhandler
 from app.auth import bp
 from flask import redirect, request, render_template, session, url_for
@@ -20,10 +22,10 @@ def login():
                 # Try to save user credentials in Redis. Return index if fails
                 try:
                     if store_user_in_redis(request.form['user'], request.form['pw']):
-                        logger.write_log('logged in')
+                        logger.info('logged in')
                         return redirect(url_for('view_hosts'))
                 except:
-                    logger.write_log('failed to store user data in Redis when logging in')
+                    logger.info('failed to store user data in Redis when logging in')
     # Return login page if accessed via GET request
     return render_template('auth/login.html', title='Login with SSH credentials', form=form)
 
@@ -35,16 +37,16 @@ def logout():
     try:
         current_user = session['USER']
         delete_user_in_redis()
-        logger.write_log('deleted user %s data stored in Redis' % (current_user))
+        logger.info('deleted user %s data stored in Redis' % (current_user))
         session.pop('USER', None)
-        logger.write_log('deleted user %s as stored in session variable' % (current_user), user=current_user)
+        logger.info('deleted user %s as stored in session variable' % (current_user), user=current_user)
         u = session['UUID']
         session.pop('UUID', None)
-        logger.write_log('deleted UUID %s for user %s as stored in session variable' % (u, current_user), user=current_user)
+        logger.info('deleted UUID %s for user %s as stored in session variable' % (u, current_user), user=current_user)
         u = None
     except KeyError:
-        logger.write_log('Exception thrown on logout.')
+        logger.info('Exception thrown on logout.')
         return redirect(url_for('index'))
-    logger.write_log('logged out')
+    logger.info('logged out')
 
     return redirect(url_for('index'))

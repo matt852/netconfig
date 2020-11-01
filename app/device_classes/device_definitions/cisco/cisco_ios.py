@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import re
 from app.device_classes.device_definitions.cisco_base_device import CiscoBaseDevice
 

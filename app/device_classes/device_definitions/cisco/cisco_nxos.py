@@ -1,8 +1,10 @@
+#!/usr/bin/python3
+
 from app.device_classes.device_definitions.cisco_base_device import CiscoBaseDevice
+from app.scripts_bank.lib.functions import contains_skipped
+from io import StringIO
 import re
 import xml.etree.cElementTree as ET
-from io import StringIO
-from app.scripts_bank.lib.functions import contains_skipped
 
 
 class CiscoNXOS(CiscoBaseDevice):

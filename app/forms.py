@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 from flask_wtf import FlaskForm
 from wtforms.fields import StringField, PasswordField, BooleanField
 from wtforms.fields import HiddenField, SelectField
