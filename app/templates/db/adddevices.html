@@ -25,18 +25,18 @@
 			    </p>
 			    <p>
 			        Please enter the device type:<br />
-			        {{ form.devicetype(required="required") }}
-			        {% for error in form.devicetype.errors %}
+			        {{ form.device_type(required="required") }}
+			        {% for error in form.device_type.errors %}
 			          <span style="color: red;">[{{error}}]</span>
 			        {% endfor %}<br />
 			    </p>
-			    <p>
-			        Please enter the device's IOS type:<br />
-			        {{ form.ios_type(required="required") }}
-			        {% for error in form.ios_type.errors %}
-			          <span style="color: red;">[{{error}}]</span>
-			        {% endfor %}<br />
-			    </p>
+{#			    <p>#}
+{#			        Please enter the device's IOS type:<br />#}
+{#			        {{ form.ios_type(required="required") }}#}
+{#			        {% for error in form.ios_type.errors %}#}
+{#			          <span style="color: red;">[{{error}}]</span>#}
+{#			        {% endfor %}<br />#}
+{#			    </p>#}
 			    <br />
 			    <p>
 			    	{{ form.local_creds.label }}<br />

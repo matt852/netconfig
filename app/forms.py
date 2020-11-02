@@ -22,16 +22,13 @@ class AddDeviceForm(FlaskForm):
     # TODO: Abstract out choices
     hostname = StringField('Hostname', validators=[DataRequired()])
     ipv4_addr = StringField('IPv4 Address', validators=[DataRequired(), IPAddress()])
-    devicetype_choices = [('', ''),
-                        ('switch', 'Switch'),
-                        ('router', 'Router'),
-                        ('firewall', 'Firewall')]
-    devicetype = SelectField('Device Type', choices=devicetype_choices, validators=[DataRequired()])
-    ios_type_choices = [('cisco_ios', 'IOS'),
-                        ('cisco_asa', 'ASA'),
-                        ('cisco_nxos', 'NX-OS'),
-                        ('cisco_xe', 'IOS-XE')]
-    ios_type = SelectField('IOS Type', choices=ios_type_choices, validators=[DataRequired()])
+    # device_types = datahandler.get_devicetypes()
+    device_type_choices = list()
+    # device_type_choices = [('', ''),
+    #                     ('switch', 'Switch'),
+    #                     ('router', 'Router'),
+    #                     ('firewall', 'Firewall')]
+    device_type = SelectField('Device Type', choices=device_type_choices, validators=[DataRequired()])
     local_creds = BooleanField('Use Local/Different Credentials', default=False)
 
 

@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-
+import pdb
 import json
 import socket
 from datetime import timedelta
@@ -176,6 +176,9 @@ def add_devices():
     """Add new device to local database."""
     initial_checks()
     form = AddDeviceForm()
+    device_types = datahandler.get_devicetypes()
+    form.device_type.choices = [(device.get('id'), device.get('model').capitalize())
+                                for device in device_types]
     if form.validate_on_submit():
         return redirect(url_for('results_add_device'))
     return render_template('db/adddevices.html',
@@ -189,22 +192,20 @@ def results_add_device():
     initial_checks()
     hostname = request.form['hostname']
     ipv4_addr = request.form['ipv4_addr']
-    devicetype = request.form['devicetype']
-    ios_type = request.form['ios_type']
+    device_type = request.form['device_type']
+    # ios_type = request.form['ios_type']
     # If checkbox is unchecked, this fails as the request.form['local_creds'] value returned is False
     if request.form.get('local_creds'):
         local_creds = True
     else:
         local_creds = False
 
-    response, deviceid, e = datahandler.add_device_to_db(hostname, ipv4_addr, devicetype, ios_type, local_creds)
+    response, deviceid, e = datahandler.add_device_to_db(hostname, ipv4_addr, device_type, local_creds)
     if response:
         return render_template("results/resultsadddevice.html",
                                title='Add device result',
                                hostname=hostname,
                                ipv4_addr=ipv4_addr,
-                               devicetype=devicetype,
-                               ios_type=ios_type,
                                local_creds=local_creds,
                                deviceid=deviceid)
     else:

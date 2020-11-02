@@ -52,7 +52,6 @@ class Device(db.Model):
     ipv4_addr = db.Column(db.String(15), index=True, unique=True)
     local_creds = db.Column(db.Boolean, default=False)
     devicetype_id = db.Column(db.Integer, db.ForeignKey(DeviceType.id))
-    # devicetype = db.backref(')
     proxy_id = db.Column(db.Integer, db.ForeignKey(ProxySettings.id))
 
     def __repr__(self):

@@ -17,16 +17,15 @@ class DataHandler(object):
         self.source = source
         self.url = netbox_url
 
-    def add_device_to_db(self, hostname, ipv4_addr, device_type, ios_type, local_creds):
+    def add_device_to_db(self, hostname, ipv4_addr, device_type, local_creds):
         """Add device to database.  Returns True if successful."""
         try:
             # search for device_type in DeviceType class
             # steps:
             # 1. page to add/remove device types into DB
-            # 2. when adding new device, make devicetype dropdown query available options
+            # 2. when adding new device, make device_type dropdown query available options
             device = app.models.Device(hostname=hostname, ipv4_addr=ipv4_addr,
-                                       device_type=device_type.lower(), ios_type=ios_type,
-                                       local_creds=local_creds)
+                                       devicetype_id=int(device_type), local_creds=local_creds)
             app.db.session.add(device)
             # This enables pulling ID for newly inserted device
             app.db.session.flush()
