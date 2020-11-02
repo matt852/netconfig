@@ -1,0 +1,45 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+	<div class="row">
+    	<div class="col-md-9">
+			<h2 class="text-primary">Add New Device Type to Database</h2>
+			<form action="{{ url_for('results_add_device_type') }}" method="post" name="adddevicetype">
+			    {{ form.hidden_tag() }}
+			    <p>
+                    {{ form.model.label }}<br />
+			        {{ form.model(size=30, required="required", autofocus="autofocus") }}
+			        {% for error in form.model.errors %}
+			          <span style="color: red;">[{{error}}]</span>
+			        {% endfor %}<br />
+			    </p>
+			    <p>
+                    {{ form.brand.label }}<br />
+			        {{ form.brand(required="required") }}
+			        {% for error in form.brand.errors %}
+			          <span style="color: red;">[{{error}}]</span>
+			        {% endfor %}<br />
+			    </p>
+			    <p>
+                    {{ form.hardware_category.label }}<br />
+			        {{ form.hardware_category(required="required") }}
+			        {% for error in form.hardware_category.errors %}
+			          <span style="color: red;">[{{error}}]</span>
+			        {% endfor %}<br />
+			    </p>
+			    <p>
+                    {{ form.netmiko_category.label }}<br />
+			        {{ form.netmiko_category(required="required") }}
+			        {% for error in form.netmiko_category.errors %}
+			          <span style="color: red;">[{{error}}]</span>
+			        {% endfor %}<br />
+			    </p>
+			    <p><input type="submit" value="Submit" class="btn btn-primary" /></p>
+			</form>
+		</div>
+	</div>
+</div>
+{% endblock %}

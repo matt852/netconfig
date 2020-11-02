@@ -10,6 +10,9 @@ import xml.etree.cElementTree as ET
 class CiscoNXOS(CiscoBaseDevice):
     """Class for NX-OS type devices from vendor Cisco."""
 
+    def __init__(self):
+        super(CiscoNXOS, self).__init__()
+
     def cmd_run_config(self):
         """Return command to display running configuration on device."""
         command = 'show running-config | exclude !'

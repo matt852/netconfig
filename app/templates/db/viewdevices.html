@@ -24,7 +24,7 @@
 									<th></th>
 									<th>Hostname</th>
 									<th>IPv4 Address</th>
-									<th>Type</th>
+									<th>Device Type</th>
 									<th class="text-center">Status</th>
 									<th class="text-center">Options</th>
 									<th style="display:none">DB ID</th>
@@ -40,7 +40,7 @@
 												<td><a href="/db/viewdevices/{{ device['id'] }}">{{ device['hostname'] }}</a></td>
 											{% endif %}
 										<td>{{ device['ipv4_addr'] }}</td>
-										<td>{{ device['type'] }}</td>
+										<td>{{ device['device_type']['model'] }}</td>
 											<td class="text-center"><i class="glyphicon glyphicon-ok" aria-hidden="true" style="color:green"></i></td>
 
 										<td class="text-center">

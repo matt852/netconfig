@@ -11,7 +11,7 @@ from redis import StrictRedis
 from .scripts_bank.redis_logic import reset_user_redis_expire_timer, store_user_in_redis
 from .scripts_bank.lib.functions import check_for_version_update, interface_replace_slash
 from .scripts_bank.lib.flask_functions import check_user_logged_in_status
-from .forms import AddDeviceForm, CustomCfgCommandsForm, CustomCommandsForm
+from .forms import AddDeviceForm, AddDeviceTypeForm,  CustomCfgCommandsForm, CustomCommandsForm
 from .forms import EditDeviceForm, EditInterfaceForm, ImportDevicesForm, LocalCredentialsForm, ProxySettingsForm
 
 
@@ -29,7 +29,7 @@ def initial_checks():
 def init_db():
     """Initialize local Redis database."""
     db = StrictRedis(
-        device=app.config['DB_HOST'],
+        host=app.config['DB_HOST'],
         port=app.config['DB_PORT'],
         db=app.config['DB_NO'],
         charset='utf-8',
@@ -136,6 +136,41 @@ def display_recent_device_names():
                            devices=devices)
 
 
+@app.route('/db/adddevicetype', methods=['GET', 'POST'])
+def add_device_type():
+    """Add new device type to local database."""
+    initial_checks()
+    form = AddDeviceTypeForm()
+    if form.validate_on_submit():
+        return redirect(url_for('results_add_device_type'))
+    return render_template('db/adddevicetype.html',
+                           title='Add device type to database',
+                           form=form)
+
+
+@app.route('/results/resultsadddevicetype', methods=['GET', 'POST'])
+def results_add_device_type():
+    """Confirm new device type details prior to saving in local database."""
+    initial_checks()
+    brand = request.form['brand']
+    model = request.form['model']
+    hardware_category = request.form['hardware_category']
+    netmiko_category = request.form['netmiko_category']
+
+    response, device_type_id, e = datahandler.add_device_type_to_db(brand, model, hardware_category, netmiko_category)
+    if response:
+        return render_template("results/resultsadddevicetype.html",
+                               title='Add device type result',
+                               brand=brand,
+                               model=model,
+                               hardware_category=hardware_category,
+                               netmiko_category=netmiko_category)
+    else:
+        logger.error(f'error when adding new device to database: {e}')
+        # TODO Add popup error message here
+        return redirect(url_for('add_device_type'))
+
+
 @app.route('/db/adddevices', methods=['GET', 'POST'])
 def add_devices():
     """Add new device to local database."""
@@ -173,8 +208,8 @@ def results_add_device():
                                local_creds=local_creds,
                                deviceid=deviceid)
     else:
-        logger.info('exception thrown when adding new device to database: %s' % (e))
-        # TO-DO Add popup error message here
+        logger.error(f'error when adding new device to database: {e}')
+        # TODO Add popup error message here
         return redirect(url_for('add_devices'))
 
 
@@ -267,11 +302,13 @@ def view_devices():
     """Display all devices."""
     logger.info('viewed all devices')
     devices = datahandler.get_devices()
+    device_types = datahandler.get_devicetypes()
 
     # TODO this should happen not during the view render
     # status = ph.reachable(devices)
     return render_template('db/viewdevices.html',
                            devices=devices,
+                           device_types=device_types,
                            title='View devices in database')
 
 

@@ -17,7 +17,7 @@
 			        {% endfor %}<br />
 			    </p>
 			    <p>
-			        Please enter the device device IP address:<br />
+			        Please enter the device IP address:<br />
 			        {{ form.ipv4_addr(size=20, required="required") }}
 			        {% for error in form.ipv4_addr.errors %}
 			          <span style="color: red;">[{{error}}]</span>

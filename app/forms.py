@@ -23,9 +23,9 @@ class AddDeviceForm(FlaskForm):
     hostname = StringField('Hostname', validators=[DataRequired()])
     ipv4_addr = StringField('IPv4 Address', validators=[DataRequired(), IPAddress()])
     devicetype_choices = [('', ''),
-                        ('Switch', 'Switch'),
-                        ('Router', 'Router'),
-                        ('Firewall', 'Firewall')]
+                        ('switch', 'Switch'),
+                        ('router', 'Router'),
+                        ('firewall', 'Firewall')]
     devicetype = SelectField('Device Type', choices=devicetype_choices, validators=[DataRequired()])
     ios_type_choices = [('cisco_ios', 'IOS'),
                         ('cisco_asa', 'ASA'),
@@ -33,6 +33,27 @@ class AddDeviceForm(FlaskForm):
                         ('cisco_xe', 'IOS-XE')]
     ios_type = SelectField('IOS Type', choices=ios_type_choices, validators=[DataRequired()])
     local_creds = BooleanField('Use Local/Different Credentials', default=False)
+
+
+class AddDeviceTypeForm(FlaskForm):
+    """Add new device type to local database form."""
+
+    # TODO: Abstract out choices
+    brand_choices = [('', ''),
+                     ('cisco', 'Cisco')]
+    brand = SelectField('Brand', choices=brand_choices, validators=[DataRequired()])
+    model = StringField('Model', validators=[DataRequired()])
+    hardware_category_choices = [('', ''),
+                           ('switch', 'Switch'),
+                           ('router', 'Router'),
+                           ('firewall', 'Firewall')]
+    hardware_category = SelectField('Hardware Category', choices=hardware_category_choices, validators=[DataRequired()])
+    netmiko_category_choices = [('', ''),
+                                ('cisco_ios', 'IOS'),
+                                ('cisco_asa', 'ASA'),
+                                ('cisco_nxos', 'NX-OS'),
+                                ('cisco_xe', 'IOS-XE')]
+    netmiko_category = SelectField('OS Type', choices=netmiko_category_choices, validators=[DataRequired()])
 
 
 class ImportDevicesForm(FlaskForm):

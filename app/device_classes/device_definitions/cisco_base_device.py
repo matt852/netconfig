@@ -8,7 +8,7 @@ class CiscoBaseDevice(BaseDevice):
     
     def __init__(self):
         # TODO: Add Super here and rework classes
-        pass
+        super(CiscoBaseDevice, self).__init__()
 
     def check_invalid_input_detected(self, x):
         """Check for invalid input when executing command on device."""
@@ -39,7 +39,7 @@ class CiscoBaseDevice(BaseDevice):
 
     def run_enable_interface_cmd(self, interface, active_session):
         """Enable interface on device using existing SSH session."""
-        cmd_list = []
+        cmd_list = list()
         cmd_list.append("interface %s" % interface)
         cmd_list.append("%s" % (self.get_cmd_enable_interface()))
         cmd_list.append("end")
@@ -48,7 +48,7 @@ class CiscoBaseDevice(BaseDevice):
 
     def run_disable_interface_cmd(self, interface, active_session):
         """Disable interface on device using existing SSH session."""
-        cmd_list = []
+        cmd_list = list()
         cmd_list.append("interface %s" % interface)
         cmd_list.append("%s" % (self.get_cmd_disable_interface()))
         cmd_list.append("end")
@@ -57,7 +57,7 @@ class CiscoBaseDevice(BaseDevice):
 
     def run_edit_interface_cmd(self, interface, datavlan, voicevlan, other, active_session):
         """Edit interface on device with specified parameters on existing SSH session."""
-        cmd_list = []
+        cmd_list = list()
         cmd_list.append("interface %s" % interface)
 
         if datavlan != '0':
