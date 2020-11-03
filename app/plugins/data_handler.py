@@ -291,6 +291,7 @@ class DataHandler(object):
                 device = device.__dict__
             except AttributeError:
                 device = {}
+            dt = self.get_devicetype_by_id(device['devicetype_id'])
 
         # elif self.source == 'netbox':
         #     try:
@@ -314,11 +315,10 @@ class DataHandler(object):
         # TODO: Fix this to pass just the dict only, not each specific arg
         # Get device class based on device type
         return device_type.device_handler(id=device['id'], hostname=device['hostname'],
-                                          ipv4_addr=device['ipv4_addr'], device_type=device['type'],
-                                          ios_type=device['ios_type'],
-                                          local_creds=device['local_creds'])
+                                          ipv4_addr=device['ipv4_addr'], device_type=dt['model'],
+                                          ios_type=dt['netmiko_category'], local_creds=device['local_creds'])
 
-    def edit_device_in_database(self, id, hostname, ipv4_addr, device_type, ios_type, local_creds, local_creds_updated):
+    def edit_device_in_database(self, id, hostname, ipv4_addr, device_type, local_creds, local_creds_updated):
         """Edit device in database.
 
         This is only supported when using the local database.
@@ -333,9 +333,9 @@ class DataHandler(object):
                 if ipv4_addr:
                     device.ipv4_addr = ipv4_addr
                 if device_type:
-                    device.type = device_type
-                if ios_type:
-                    device.ios_type = ios_type
+                    # TODO: tshoot this
+                    device_type_id = self.get_devicetype_by_id(device_type)
+                    device.devicetype_id = device_type_id.get('id')
                 if local_creds_updated:
                     device.local_creds = local_creds
                 app.db.session.commit()

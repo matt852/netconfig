@@ -6,9 +6,9 @@ from app.device_classes.device_definitions.base_device import BaseDevice
 class CiscoBaseDevice(BaseDevice):
     """Base class for network device vendor Cisco."""
     
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         # TODO: Add Super here and rework classes
-        super(CiscoBaseDevice, self).__init__()
+        super(CiscoBaseDevice, self).__init__(*args, **kwargs)
 
     def check_invalid_input_detected(self, x):
         """Check for invalid input when executing command on device."""

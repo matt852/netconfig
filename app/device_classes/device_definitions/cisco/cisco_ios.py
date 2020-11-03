@@ -7,8 +7,8 @@ from app.device_classes.device_definitions.cisco_base_device import CiscoBaseDev
 class CiscoIOS(CiscoBaseDevice):
     """Class for IOS type devices from vendor Cisco."""
 
-    def __init__(self):
-        super(CiscoIOS, self).__init__()
+    def __init__(self, *args, **kwargs):
+        super(CiscoIOS, self).__init__(*args, **kwargs)
 
     def cmd_run_config(self):
         """Return command to display running configuration on device."""

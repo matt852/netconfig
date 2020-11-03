@@ -22,13 +22,7 @@ class AddDeviceForm(FlaskForm):
     # TODO: Abstract out choices
     hostname = StringField('Hostname', validators=[DataRequired()])
     ipv4_addr = StringField('IPv4 Address', validators=[DataRequired(), IPAddress()])
-    # device_types = datahandler.get_devicetypes()
-    device_type_choices = list()
-    # device_type_choices = [('', ''),
-    #                     ('switch', 'Switch'),
-    #                     ('router', 'Router'),
-    #                     ('firewall', 'Firewall')]
-    device_type = SelectField('Device Type', choices=device_type_choices, validators=[DataRequired()])
+    device_type = SelectField('Device Type', choices=list(), validators=[DataRequired()])
     local_creds = BooleanField('Use Local/Different Credentials', default=False)
 
 
@@ -72,24 +66,10 @@ class EditInterfaceForm(FlaskForm):
 class EditDeviceForm(FlaskForm):
     """Edit device in local database form."""
 
-    hostname = StringField('Hostname', validators=[DataRequired()])
-    ipv4_addr = StringField('IPv4 Address', validators=[DataRequired()])
-    devicetype_choices = [('', ''),
-                        ('Switch', 'Switch'),
-                        ('Router', 'Router'),
-                        ('Firewall', 'Firewall')]
-    devicetype = SelectField('Device Type', choices=devicetype_choices, validators=[DataRequired()])
-    ios_type_choices = [('', ''),
-                        ('cisco_ios', 'IOS'),
-                        ('cisco_asa', 'ASA'),
-                        ('cisco_nxos', 'NX-OS'),
-                        ('cisco_xe', 'IOS-XE'),
-                        ('cisco_wlc_ssh', 'WLC')]
-    ios_type = SelectField('IOS Type', choices=ios_type_choices, validators=[DataRequired()])
-    local_creds_choices = [('', ''),
-                           ('False', 'No'),
-                           ('True', 'Yes')]
-    local_creds = SelectField('Use Local/Different Credentials', choices=local_creds_choices)
+    hostname = StringField('Hostname')
+    ipv4_addr = StringField('IPv4 Address', validators=[IPAddress()])
+    device_type = SelectField('Device Type', choices=list())
+    local_creds = BooleanField('Use Local/Different Credentials', default=False)
 
 
 class CustomCommandsForm(FlaskForm):

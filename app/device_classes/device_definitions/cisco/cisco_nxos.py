@@ -10,8 +10,8 @@ import xml.etree.cElementTree as ET
 class CiscoNXOS(CiscoBaseDevice):
     """Class for NX-OS type devices from vendor Cisco."""
 
-    def __init__(self):
-        super(CiscoNXOS, self).__init__()
+    def __init__(self, *args, **kwargs):
+        super(CiscoNXOS, self).__init__(*args, **kwargs)
 
     def cmd_run_config(self):
         """Return command to display running configuration on device."""

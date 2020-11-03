@@ -1,12 +1,13 @@
 #!/usr/bin/python3
 
 from app import app, db
+from app.models import Device, DeviceType, ProxySettings
 from os import environ
 
 
 @app.shell_context_processor
 def make_shell_context():
-    return {'db': db}
+    return {'db': db, 'Device': Device, 'DeviceType': DeviceType, 'ProxySettings': ProxySettings}
 
 
 if __name__ == "__main__":

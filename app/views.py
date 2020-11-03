@@ -179,6 +179,7 @@ def add_devices():
     device_types = datahandler.get_devicetypes()
     form.device_type.choices = [(device.get('id'), device.get('model').capitalize())
                                 for device in device_types]
+    form.device_type.choices.insert(0, ('', ''))
     if form.validate_on_submit():
         return redirect(url_for('results_add_device'))
     return render_template('db/adddevices.html',
@@ -245,6 +246,10 @@ def edit_device(x):
     """
     device = datahandler.get_device_by_id(x)
     form = EditDeviceForm()
+    device_types = datahandler.get_devicetypes()
+    form.device_type.choices = [(device.get('id'), device.get('model').capitalize())
+                                for device in device_types]
+    form.device_type.choices.insert(0, ('', ''))
     if form.validate_on_submit():
         return redirect('/results/resultsdeviceedit')
     return render_template('editdevice.html',
@@ -501,19 +506,20 @@ def results_device_edit(x):
     # Save all existing device variables, as the class stores get updated later in the function
     orig_hostname = stored_device.hostname
     orig_ipv4_addr = stored_device.ipv4_addr
-    orig_devicetype = stored_device.type
-    orig_ios_type = stored_device.ios_type
+    orig_device_type = stored_device.device_type
     orig_local_creds = stored_device.local_creds
 
     # Save form user inputs into new variables
-    hostname = request.form['hostname']
-    ipv4_addr = request.form['ipv4_addr']
-    devicetype = request.form['devicetype']
-    ios_type = request.form['ios_type']
-    if request.form['local_creds'] == 'True':
+    hostname = request.form.get('hostname') or ''
+    ipv4_addr = request.form.get('ipv4_addr') or ''
+    device_type = request.form.get('device_type') or ''
+    if device_type:
+        # TODO: Change model to name
+        device_type_name = datahandler.get_devicetype_by_id(device_type)['model']
+    if request.form.get('local_creds') == 'True':
         local_creds = True
         local_creds_updated = True
-    elif request.form['local_creds'] == 'False':
+    elif request.form.get('local_creds') == 'False':
         local_creds = False
         local_creds_updated = True
     else:
@@ -524,29 +530,28 @@ def results_device_edit(x):
     #  and clear them from the SSH dict
     try:
         sshhandler.disconnect_specific_ssh_session(stored_device)
-        logger.info('disconnected and cleared saved SSH session information for edited device %s' % (stored_device.hostname))
+        logger.debug(f'disconnected and cleared saved SSH session information'
+                     f' for edited device {stored_device.hostname}')
     except (socket.error, EOFError):
-        logger.info('no existing SSH sessions for edited device %s' % (stored_device.hostname))
+        logger.debug(f'no existing SSH sessions for edited device {stored_device.hostname}')
     except:
-        logger.info('could not clear SSH session for edited device %s' % (stored_device.hostname))
+        logger.debug(f'could not clear SSH session for edited device {stored_device.hostname}')
 
-    result = datahandler.edit_device_in_database(stored_device.id, hostname, ipv4_addr, devicetype, ios_type, local_creds, local_creds_updated)
+    result = datahandler.edit_device_in_database(stored_device.id, hostname, ipv4_addr, device_type, local_creds, local_creds_updated)
 
     if result:
-        logger.info('edited device %s in database' % (stored_device.hostname))
+        logger.info(f'edited device {stored_device.hostname} in database')
         return render_template("results/resultsdeviceedit.html",
                                title='Edit device confirm',
                                stored_device=stored_device,
                                hostname=hostname,
                                ipv4_addr=ipv4_addr,
-                               devicetype=devicetype,
-                               ios_type=ios_type,
+                               device_type=device_type_name,
                                local_creds=local_creds,
                                local_creds_updated=local_creds_updated,
                                orig_hostname=orig_hostname,
                                orig_ipv4_addr=orig_ipv4_addr,
-                               orig_devicetype=orig_devicetype,
-                               orig_ios_type=orig_ios_type,
+                               orig_device_type=orig_device_type,
                                orig_local_creds=orig_local_creds)
     else:
         return redirect(url_for('confirmDeviceEdit',

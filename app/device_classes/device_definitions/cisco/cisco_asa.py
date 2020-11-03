@@ -6,8 +6,8 @@ from app.device_classes.device_definitions.cisco_base_device import CiscoBaseDev
 class CiscoASA(CiscoBaseDevice):
     """Class for ASA type devices from vendor Cisco."""
 
-    def __init__(self):
-        super(CiscoASA, self).__init__()
+    def __init__(self, *args, **kwargs):
+        super(CiscoASA, self).__init__(*args, **kwargs)
 
     def cmd_run_config(self):
         """Return command to display running configuration on device."""

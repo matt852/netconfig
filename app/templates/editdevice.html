@@ -25,15 +25,8 @@
 			    </p>
 			    <p>
 			        Device Type:<br>
-			        {{ form.devicetype }}
-			        {% for error in form.devicetype.errors %}
-			          <span style="color: red;">[{{error}}]</span>
-			        {% endfor %}<br>
-			    </p>
-			    <p>
-			        IOS Type:<br>
-			        {{ form.ios_type }}
-			        {% for error in form.ios_type.errors %}
+			        {{ form.device_type }}
+			        {% for error in form.device_type.errors %}
 			          <span style="color: red;">[{{error}}]</span>
 			        {% endfor %}<br>
 			    </p>

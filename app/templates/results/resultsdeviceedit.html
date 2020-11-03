@@ -10,7 +10,7 @@
                 <div class="panel panel-success">
                     <div class="panel-heading">Edit Device - Success</div>
                     <div class="panel-body">
-                        {% if hostname == '' and ipv4_addr == '' and devicetype == '' and ios_type == '' and not local_creds_updated %}
+                        {% if hostname == '' and ipv4_addr == '' and device_type == '' and not local_creds_updated %}
                             No changes have been made<br />
                         {% else %}
                             <p>Device <strong>{{ orig_hostname }} successfully edited</strong></p><br />
@@ -38,18 +38,11 @@
                                                 <td>{{ ipv4_addr }}</td>
                                             </tr>
                                         {% endif %}
-                                        {% if devicetype != '' %}
+                                        {% if device_type != '' %}
                                             <tr>
                                                 <td>Device Type</td>
-                                                <td>{{ orig_devicetype }}</td>
-                                                <td>{{ devicetype }}</td>
-                                            </tr>
-                                        {% endif %}
-                                        {% if ios_type != '' %}
-                                            <tr>
-                                                <td>IOS Type</td>
-                                                <td>{{ orig_ios_type}}</td>
-                                                <td>{{ ios_type }}</td>
+                                                <td>{{ orig_device_type }}</td>
+                                                <td>{{ device_type }}</td>
                                             </tr>
                                         {% endif %}
                                         {% if local_creds_updated %}
