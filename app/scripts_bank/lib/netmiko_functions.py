@@ -36,11 +36,11 @@ def connect_to_ssh(device, creds):
     # Try to connect to the device
     try:
         if creds.priv:
-            ssh = nm.ConnectHandler(device_type=device.ios_type.strip(), ip=device.ipv4_addr.strip(), username=creds.un, password=creds.pw, secret=creds.priv, timeout=app.app.config['SSH_TIMEOUT'])
+            ssh = nm.ConnectHandler(session_log='output.txt', device_type=device.ios_type.strip(), ip=device.ipv4_addr.strip(), username=creds.un, password=creds.pw, secret=creds.priv, timeout=app.app.config['SSH_TIMEOUT'])
             # Enter into enable mode
             ssh.enable()
         else:
-            ssh = nm.ConnectHandler(device_type=device.ios_type.strip(), ip=device.ipv4_addr.strip(), username=creds.un, password=creds.pw, timeout=app.app.config['SSH_TIMEOUT'])
+            ssh = nm.ConnectHandler(session_log='output.txt', device_type=device.ios_type.strip(), ip=device.ipv4_addr.strip(), username=creds.un, password=creds.pw, timeout=app.app.config['SSH_TIMEOUT'])
 
     # except nm.AuthenticationException:
     #    return "%s skipped - authentication error\n" % (device)

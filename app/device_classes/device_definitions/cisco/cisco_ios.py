@@ -129,7 +129,7 @@ class CiscoIOS(CiscoBaseDevice):
 
     def pull_interface_statistics(self, active_session):
         """Retrieve statistics for interface on device."""
-        command = "show interface %s" % (self.interface)
+        command = f'show interface {self.interface}'
         return self.get_cmd_output(command, active_session)
 
     def pull_interface_info(self, active_session):

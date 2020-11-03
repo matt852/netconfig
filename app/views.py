@@ -292,9 +292,9 @@ def results_multiple_device_delete(x):
             datahandler.delete_device_in_db(x)
             try:
                 sshhandler.disconnect_specific_ssh_session(device)
-                logger.info('disconnected any remaining active sessions for device %s' % (device.hostname))
+                logger.info(f'disconnected any remaining active sessions for device {device.hostname}')
             except:
-                logger.info('unable to attempt to disconnect device %s active sessions' % (device.hostname))
+                logger.warning(f'unable to attempt to disconnect device {device.hostname} active sessions')
 
     overall_result = True
     return render_template("results/resultsmultipledevicedeleted.html",
@@ -327,8 +327,9 @@ def device_uptime(x):
     initial_checks()
     device = datahandler.get_device_by_id(x)
     active_session = sshhandler.retrieve_ssh_session(device)
-    logger.info('retrieved uptime on device %s' % (device.hostname))
-    return jsonify(device.pull_device_uptime(active_session))
+    uptime = device.pull_device_uptime(active_session)
+    logger.info(f'retrieved uptime on device {device.hostname}')
+    return jsonify(uptime)
 
 
 @app.route('/devicepoestatus/<x>')
@@ -340,8 +341,9 @@ def device_poe_status(x):
     initial_checks()
     device = datahandler.get_device_by_id(x)
     active_session = sshhandler.retrieve_ssh_session(device)
-    logger.info('retrieved PoE status for interfaces on device %s' % (device.hostname))
-    return json.dumps(device.pull_device_poe_status(active_session))
+    poe_status = device.pull_device_poe_status(active_session)
+    logger.info(f'retrieved PoE status for interfaces on device {device.hostname}')
+    return json.dumps(poe_status)
 
 
 @app.route('/db/viewdevices/<x>', methods=['GET', 'POST'])
@@ -366,18 +368,18 @@ def view_specific_device(x):
 
     # Try statement as if this page was accessed directly and not via the Local Credentials form it will fail and we want to operate normally
     # Variable to determine if successfully connected to device use local credentials
-    varFormSet = False
+    var_form_set = False
     try:
         if store_user_in_redis(request.form['user'], request.form['pw'], privpw=request.form['privpw'], device=device):
             # Set to True if variables are set correctly from local credentials form
-            varFormSet = True
-            logger.info('local credentials saved to REDIS for accessing device %s' % (device.hostname))
+            var_form_set = True
+            logger.info(f'local credentials saved to REDIS for accessing device {device.hostname}')
 
     except:
         # If no form submitted (not using local credentials), get SSH session
         # Don't go in if form was used (local credentials) but SSH session failed in above 'try' statement
-        if not varFormSet:
-            logger.info('credentials used of currently logged in user for accessing device %s' % (device.hostname))
+        if not var_form_set:
+            logger.info(f'credentials used of currently logged in user for accessing device {device.hostname}')
 
     # Get any existing SSH sessions
     active_session = sshhandler.retrieve_ssh_session(device)
@@ -409,7 +411,8 @@ def call_disconnect_specific_ssh_session(x):
         sshhandler.disconnect_specific_ssh_session(device)
     except:
         # Log error if unable to disconnect specific SSH session
-        logger.info('unable to disconnect SSH session to provided device %s from user %s' % (device.hostname, session['USER']))
+        logger.info(f'unable to disconnect SSH session to provided device {device.hostname}'
+                    f' from user {session.get("USER")}')
     return redirect(url_for('view_devices'))
 
 
@@ -516,6 +519,8 @@ def results_device_edit(x):
     if device_type:
         # TODO: Change model to name
         device_type_name = datahandler.get_devicetype_by_id(device_type)['model']
+    else:
+        device_type_name = ''
     if request.form.get('local_creds') == 'True':
         local_creds = True
         local_creds_updated = True
@@ -598,10 +603,11 @@ def results_int_enabled(x, y):
 
     active_session = sshhandler.retrieve_ssh_session(device)
 
+    # TODO: Fix passing of interfaces and interface_replace_slash cmd
     # Removes dashes from interface in URL and enabel interface
     result = device.run_enable_interface_cmd(interface_replace_slash(y), active_session)
 
-    logger.info('enabled interface %s on device %s' % (y, device.hostname))
+    logger.info(f'enabled interface {y} on device {device.hostname}')
     return render_template("results/resultsinterfaceenabled.html",
                            device=device, interface=y, result=result)
 
@@ -646,7 +652,7 @@ def results_int_edit(x, datavlan, voicevlan, other):
     deviceinterface = request.args.get('int', '')
 
     # Decode 'other' string
-    other = unquote_plus(other).decode('utf-8')
+    other = unquote_plus(other)
 
     # Replace '___' with '/'
     other = other.replace('___', '/')
@@ -700,7 +706,7 @@ def results_cmd_custom():
     session.pop('COMMAND', None)
     session.pop('DEVICEID', None)
 
-    logger.info('ran custom commands on device %s' % (device.hostname))
+    logger.info(f'ran custom commands on device {device.hostname}')
     return render_template("results/resultscmdcustom.html",
                            device=device,
                            command=command,
@@ -725,7 +731,7 @@ def results_cfg_cmd_custom():
     session.pop('DEVICEID', None)
     session.pop('IOS_TYPE', None)
 
-    logger.info('ran custom config commands on device %s' % (device.hostname))
+    logger.info(f'ran custom config commands on device {device.hostname}')
     return render_template("results/resultscfgcmdcustom.html",
                            device=device,
                            command=command,
@@ -749,6 +755,7 @@ def modal_specific_interface_on_device(x, y):
 
     device = datahandler.get_device_by_id(x)
 
+    # TODO: Cleanup this garbage of character replacements
     active_session = sshhandler.retrieve_ssh_session(device)
 
     # Removes dashes from interface in URL, replacing '_' with '/'
@@ -759,7 +766,7 @@ def modal_specific_interface_on_device(x, y):
     int_config, int_mac_addr, int_stats = device.pull_interface_info(active_session)
     mac_to_ip = ''
 
-    logger.info('viewed interface %s on device %s' % (device.interface, device.hostname))
+    logger.info(f'viewed interface {device.interface} on device {device.hostname}')
     return render_template("viewspecificinterfaceondevice.html",
                            device=device,
                            interface=interface,
@@ -794,7 +801,7 @@ def modal_edit_interface_on_device(x):
     form = EditInterfaceForm(request.values, device=device, interface=device.interface)
 
     if form.validate_on_submit():
-        flash('Interface to edit - "%s"' % (device.interface))
+        flash(f'Interface to edit - "{device.interface}"')
         return redirect('/confirm/confirmintedit')
 
     return render_template("editinterface.html",
@@ -815,10 +822,10 @@ def modal_local_credentials(x):
     device = datahandler.get_device_by_id(x)
 
     if sshhandler.check_device_active_ssh_session(device):
-        return redirect('/db/viewdevices/%s' % (device.id))
+        return redirect(f'/db/viewdevices/{device.id}')
 
     form = LocalCredentialsForm()
-    logger.info('saved local credentials for device %s' % (device.hostname))
+    logger.info(f'saved local credentials for device {device.hostname}')
     return render_template('localcredentials.html',
                            title='Login with local SSH credentials',
                            form=form,
@@ -837,7 +844,7 @@ def modal_cmd_show_run_config(x):
     device = datahandler.get_device_by_id(x)
     active_session = sshhandler.retrieve_ssh_session(device)
     device_config = device.pull_run_config(active_session)
-    logger.info('viewed running-config via button on device %s' % (device.hostname))
+    logger.info(f'viewed running-config via button on device {device.hostname}')
     return render_template("cmdshowrunconfig.html",
                            device=device,
                            device_config=device_config)
@@ -855,7 +862,7 @@ def modal_cmd_show_start_config(x):
     device = datahandler.get_device_by_id(x)
     active_session = sshhandler.retrieve_ssh_session(device)
     device_config = device.pull_start_config(active_session)
-    logger.info('viewed startup-config via button on device %s' % (device.hostname))
+    logger.info(f'viewed startup-config via button on device {device.hostname}')
     return render_template("cmdshowstartconfig.html",
                            device=device,
                            device_config=device_config)
@@ -873,7 +880,7 @@ def modal_cmd_show_cdp_neigh(x):
     device = datahandler.get_device_by_id(x)
     active_session = sshhandler.retrieve_ssh_session(device)
     neigh = device.pull_cdp_neighbor(active_session)
-    logger.info('viewed CDP neighbors via button on device %s' % (device.hostname))
+    logger.info(f'viewed CDP neighbors via button on device {device.hostname}')
     return render_template("cmdshowcdpneigh.html",
                            device=device,
                            neigh=neigh)
@@ -892,7 +899,7 @@ def modal_cmd_show_inventory(x):
     active_session = sshhandler.retrieve_ssh_session(device)
     result = device.pull_inventory(active_session)
 
-    logger.info('viewed inventory info via button on device %s' % (device.hostname))
+    logger.info(f'viewed inventory info via button on device {device.hostname}')
     return render_template("cmdshowinventory.html",
                            device=device,
                            result=result)
@@ -911,7 +918,7 @@ def modal_cmd_show_version(x):
     active_session = sshhandler.retrieve_ssh_session(device)
     result = device.pull_version(active_session)
 
-    logger.info('viewed version info via button on device %s' % (device.hostname))
+    logger.info(f'viewed version info via button on device {device.hostname}')
     return render_template("cmdshowversion.html",
                            device=device,
                            result=result)
@@ -965,7 +972,7 @@ def modal_cmd_save_config(x):
     active_session = sshhandler.retrieve_ssh_session(device)
     device.save_config_on_device(active_session)
 
-    logger.info('saved config via button on device %s' % (device.hostname))
+    logger.info(f'saved config via button on device {device.hostname}')
     return render_template("cmdsaveconfig.html",
                            device=device)
 
@@ -983,7 +990,7 @@ def device_shell(x):
     # Exit config mode if currently in it on page refresh/load
     exit_config_mode(device.id)
 
-    logger.info('accessed interactive shell on device %s' % (device.hostname))
+    logger.info(f'accessed interactive shell on device {device.hostname}')
     return render_template("deviceshell.html",
                            device=device)
 
@@ -1004,7 +1011,7 @@ def device_shell_output(x, m, y):
     active_session = sshhandler.retrieve_ssh_session(device)
 
     # Replace '___' with '/'
-    x = unquote_plus(y).decode('utf-8')
+    x = unquote_plus(y)
     command = x.replace('___', '/')
     # command = interface_replace_slash(unquote_plus(y).decode('utf-8'))
 
@@ -1033,7 +1040,7 @@ def device_shell_output(x, m, y):
         else:
             output = device.get_cmd_output(command, active_session)
 
-    logger.info('ran command on device %s - %s' % (device.hostname, command))
+    logger.info(f'ran command on device {device.hostname} - {command}')
 
     return render_template("deviceshelloutput.html",
                            output=output,
@@ -1054,7 +1061,7 @@ def enter_config_mode(x):
     active_session = sshhandler.retrieve_ssh_session(device)
     # Enter configuration mode on device using existing SSH session
     active_session.config_mode()
-    logger.info('entered config mode via iShell on device %s' % (device.hostname))
+    logger.info(f'entered config mode via iShell on device {device.hostname}')
     return ('', 204)
 
 
@@ -1071,7 +1078,7 @@ def exit_config_mode(x):
     # Exit configuration mode on device using existing SSH session
     active_session.exit_config_mode()
 
-    logger.info('exited config mode via iShell on device %s' % (device.hostname))
+    logger.info(f'exited config mode via iShell on device {device.hostname}')
     return ('', 204)
 
 
@@ -1140,7 +1147,7 @@ def results_multi_int_enabled(x, y):
             a = interface_replace_slash(a)
             result.append(device.run_enable_interface_cmd(a, active_session))
 
-    logger.info('enabled multiple interfaces on device %s' % (device.hostname))
+    logger.info(f'enabled multiple interfaces on device {device.hostname}')
     return render_template("results/resultsmultipleintenabled.html",
                            device=device,
                            interfaces=y,
@@ -1167,7 +1174,7 @@ def results_multi_int_disabled(x, y):
             a = interface_replace_slash(a)
             result.append(device.run_disable_interface_cmd(a, active_session))
 
-    logger.info('disabled multiple interfaces on device %s' % (device.hostname))
+    logger.info(f'disabled multiple interfaces on device {device.hostname}')
     return render_template("results/resultsmultipleintdisabled.html",
                            device=device,
                            interfaces=y,
@@ -1195,7 +1202,7 @@ def results_multi_int_edit(x, y):
 
     result.append(device.save_config_on_device(active_session))
 
-    logger.info('edited multiple interfaces on device %s' % (device.hostname))
+    logger.info(f'edited multiple interfaces on device {device.hostname}')
     return render_template("results/resultsmultipleintedit.html",
                            device=device,
                            interfaces=y,
@@ -1252,5 +1259,5 @@ def results_edit_proxy():
                                deviceid=deviceid)
     else:
         logger.info('exception thrown when adding/editing proxy settings to database: %s' % e)
-        # TO-DO Add popup error message here
+        # TODO Add popup error message here
         return redirect(url_for('proxy_settings'))
