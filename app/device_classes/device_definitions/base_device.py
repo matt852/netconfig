@@ -35,14 +35,14 @@ class BaseDevice(object):
             # Return False if session is not in config mode
             return False
 
-    def revert_session_mode(self, active_session, originalState):
+    def revert_session_mode(self, active_session, original_state):
         """Revert SSH session to config mode if it was previously in config mode.
 
         Not currently used.
         """
-        if originalState and not active_session.check_config_mode():
+        if original_state and not active_session.check_config_mode():
             active_session.enter_config_mode()
-        elif active_session.check_config_mode() and not originalState:
+        elif active_session.check_config_mode() and not original_state:
             active_session.exit_config_mode()
 
     def run_ssh_command(self, command, active_session):
@@ -50,14 +50,14 @@ class BaseDevice(object):
         # Run command
         result = active_session.send_command(command)
         # Run check for invalid input detected, etc
-        if "Invalid input detected" in result:
+        if 'Invalid input detected' in result:
             # Command failed, possibly due to being in configuration mode.  Exit config mode
             active_session.exit_config_mode()
             # Try to retrieve command results again
             try:
                 result = self.run_ssh_command(command, active_session)
                 # If command still failed, return nothing
-                if "Invalid input detected" in result:
+                if 'Invalid input detected' in result:
                     return ''
             except:
                 # If failure to access SSH channel or run command, return nothing
@@ -66,21 +66,21 @@ class BaseDevice(object):
         # Return command output
         return result
 
-    def run_ssh_config_commands(self, cmdList, active_session):
+    def run_ssh_config_commands(self, cmd_list, active_session):
         """Execute configuration commands on device.
 
         Execute one or more configuration commands on device.
         Commands provided via array, with each command on it's own array row.
         Uses existing SSH session.
         """
-        return active_session.send_config_set(cmdList).splitlines()
+        return active_session.send_config_set(cmd_list).splitlines()
 
     def run_multiple_commands(self, command, active_session):
         """Execute multiple commands on device using existing SSH session."""
-        newCmd = []
+        new_cmd = list()
         for x in command.splitlines():
-            newCmd.append(x)
-        run_multiple_ssh_commands_in_session(newCmd, active_session)
+            new_cmd.append(x)
+        run_multiple_ssh_commands_in_session(new_cmd, active_session)
 
     def run_multiple_config_commands(self, command, active_session):
         """Execute multiple configuration commands on device.
@@ -90,13 +90,13 @@ class BaseDevice(object):
         Saves configuration settings to memory on device once completed.
         Uses existing SSH session.
         """
-        newCmd = []
+        new_cmd = []
         for x in command.splitlines():
-            newCmd.append(x)
+            new_cmd.append(x)
         # Get command output from network device
-        result = self.run_ssh_config_commands(newCmd, active_session)
-        saveResult = self.save_config_on_device(active_session)
-        for x in saveResult:
+        result = self.run_ssh_config_commands(new_cmd, active_session)
+        save_result = self.save_config_on_device(active_session)
+        for x in save_result:
             result.append(x)
         return result
 
@@ -118,7 +118,7 @@ class BaseDevice(object):
         Each array row is separated by newline.
         """
         result = self.run_ssh_command(command, active_session)
-        return result.replace("  ", ",").splitlines()
+        return result.replace('  ', ',').splitlines()
 
     def find_prompt_in_session(self, active_session):
         """Return device prompt from existing SSH session."""
@@ -126,7 +126,7 @@ class BaseDevice(object):
 
     def replace_double_spaces_commas(self, x):
         """Replace all double spaces in provided string with a single comma."""
-        x = x.replace("  ", ",,")
-        while ",," in x:
-            x = x.replace(",,", ",")
+        x = x.replace('  ', ',,')
+        while ',,' in x:
+            x = x.replace(',,', ',')
         return x

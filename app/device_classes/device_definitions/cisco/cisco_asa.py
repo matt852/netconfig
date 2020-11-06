@@ -35,7 +35,7 @@ class CiscoASA(CiscoBaseDevice):
 
     def pull_interface_config(self, active_session):
         """Retrieve configuration for interface on device."""
-        command = "show run interface %s | exclude configuration|!" % (self.interface)
+        command = f'show run interface {self.interface} | exclude configuration|!'
         return self.get_cmd_output(command, active_session)
 
     def pull_interface_mac_addresses(self, active_session):
@@ -44,7 +44,7 @@ class CiscoASA(CiscoBaseDevice):
 
     def pull_interface_statistics(self, active_session):
         """Retrieve statistics for interface on device."""
-        command = "show interface %s" % (self.interface)
+        command = f'show interface {self.interface}'
         return self.get_cmd_output(command, active_session)
 
     def pull_interface_info(self, active_session):
@@ -59,6 +59,7 @@ class CiscoASA(CiscoBaseDevice):
         """Retrieve device uptime."""
         command = 'show version | include up'
         output = self.get_cmd_output(command, active_session)
+        uptime = ''
         for x in output:
             if 'failover' in x:
                 break
@@ -86,7 +87,7 @@ class CiscoASA(CiscoBaseDevice):
         Down is total number of down/inactive interfaces.
         Disable is total number of administratively down/manually disabled interfaces.
         """
-        data = {}
+        data = dict()
         data['up'] = data['down'] = data['disabled'] = data['total'] = 0
 
         for x in interfaces:
@@ -103,28 +104,32 @@ class CiscoASA(CiscoBaseDevice):
 
         return data
 
-    def clean_interface_description(self, x):
+    @staticmethod
+    def clean_interface_description(x):
         """Create description if doesn't exist. Truncate as necessary."""
         # If no description was configured, manually set it to an empty string
-        try:
-            x['description']
-        except KeyError:
-            # Set to '--' if empty
-            x['description'] = "--"
+        description = x.get('description') or '--'
         # Truncate description to 25 characters if longer then 25 characters
-        return (x['description'][:25] + '..') if len(x['description']) > 25 else x['description'].strip()
+        return (description[:25] + '..') if len(description) > 25 else description.strip()
 
     def cleanup_asa_output(self, asa_output):
         """Clean up returned ASA output from 'show ip interface brief'."""
-        data = []
-        interface = {}
+        data = list()
+        interface = dict()
         # Used to set if we're on the first loop or not
         not_first_loop = False
-
+        skip_interface = True
         for line in asa_output.splitlines():
             try:
                 # This is the first line of each new interface
-                if "line protocol is" in line:
+                if 'line protocol is' in line:
+                    skip_interface = False
+                    x = line.split()
+                    # Skips tap interfaces and other non-real interfaces
+                    # Example: Interface  'nlp_int_tap', is up, line protocol is up
+                    if '"' in x[1]:
+                        skip_interface = True
+                        continue
                     # If on first loop, skip
                     if not_first_loop:
                         interface['description'] = self.clean_interface_description(interface)
@@ -133,21 +138,19 @@ class CiscoASA(CiscoBaseDevice):
                         # Set 'not_first_loop' to True now
                         not_first_loop = True
                     # Create new empty interface dict
-                    interface = {}
-                    # Split on commas
-                    x = line.split()
+                    interface = dict()
                     interface['name'] = x[1]
                     # If interface is administratively down
-                    if "admin" in x[4]:
-                        interface['status'] = "admin down"
+                    if 'admin' in x[4]:
+                        interface['status'] = 'admin down'
                     else:
                         interface['status'] = x[4].strip(',')
                     interface['protocol'] = x[-1]
-                elif "IP address" in line:
+                elif 'IP address' in line and not skip_interface:
                     x = line.split()
                     interface['address'] = x[2].strip(',')
-                elif "Description" in line:
-                    # Remove the word "Description" from line, keep rest of string
+                elif 'Description' in line and not skip_interface:
+                    # Remove the word 'Description' from line, keep rest of string
                     interface['description'] = line.replace('Description:', '').strip()
             except IndexError:
                 continue

@@ -11,7 +11,7 @@ class SSHHandler(object):
     """Handler object for SSH connections."""
 
     # Global Variables #
-    ssh = {}
+    ssh = dict()
 
     def __init__(self):
         """Data handler initialization function."""
@@ -30,11 +30,11 @@ class SSHHandler(object):
 
     def check_device_active_ssh_session(self, device):
         """Check if existing SSH session for device is currently active."""
-        sshKey = self.get_ssh_key_for_device(device)
+        ssh_key = self.get_ssh_key_for_device(device)
 
         # Return True is SSH session is active, False if not
         try:
-            if session_is_alive(self.ssh[sshKey]):
+            if session_is_alive(self.ssh[ssh_key]):
                 return True
             else:
                 return False
@@ -45,10 +45,10 @@ class SSHHandler(object):
     def check_device_existing_ssh_session(self, device):
         """Check if device currenty has an existing SSH session saved."""
         # Retrieve SSH key for device
-        sshKey = self.get_ssh_key_for_device(device)
+        ssh_key = self.get_ssh_key_for_device(device)
 
         # Return True if device in SSH variable, False if not
-        if sshKey in self.ssh:
+        if ssh_key in self.ssh:
             return True
         else:
             return False
@@ -94,14 +94,14 @@ class SSHHandler(object):
         # Default to saving SSH information for program tracking
         if saved_session:
             if not self.check_device_existing_ssh_session(device):
-                app.logger.info('initiated new SSH connection to %s' % (device.hostname))
+                app.logger.debug(f'initiated new SSH connection to {device.hostname}')
                 # If no currently active SSH sessions, initiate a new one
                 self.ssh[ssh_key] = get_ssh_session(device, creds)
 
             # Run test to verify if socket connection is still open or not
             elif not self.check_device_active_ssh_session(device):
                 # If session is closed, reestablish session and log event
-                app.logger.info('reestablished SSH connection to %s' % (device.hostname))
+                app.logger.debug(f'reestablished SSH connection to {device.hostname}')
                 self.ssh[ssh_key] = get_ssh_session(device, creds)
 
             # Erase sensitive data from memory

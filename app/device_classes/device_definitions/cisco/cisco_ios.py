@@ -22,7 +22,7 @@ class CiscoIOS(CiscoBaseDevice):
 
     def cmd_cdp_neighbor(self):
         """Return command to display CDP/LLDP neighbors on device."""
-        command = "show cdp entry *"
+        command = 'show cdp entry *'
         return command
 
     def pull_run_config(self, active_session):
@@ -43,18 +43,18 @@ class CiscoIOS(CiscoBaseDevice):
 
     def pull_interface_config(self, active_session):
         """Retrieve configuration for interface on device."""
-        command = "show run interface %s | exclude configuration|!" % (self.interface)
+        command = f'show run interface {self.interface} | exclude configuration|!'
         return self.get_cmd_output(command, active_session)
 
     def pull_interface_mac_addresses(self, active_session):
         """Retrieve MAC address table for interface on device."""
         # TODO: This entire function needs to be better optimized
         #  Possibly split into two functions: one each for IOS and IOS-XE
-        command = "show mac address-table interface %s" % (self.interface)
+        command = f'show mac address-table interface {self.interface}'
         for a in range(2):
             result = self.run_ssh_command(command, active_session)
             if self.check_invalid_input_detected(result):
-                command = "show mac-address-table interface %s" % (self.interface)
+                command = f'show mac-address-table interface {self.interface}'
                 continue
             else:
                 break
@@ -220,7 +220,7 @@ class CiscoIOS(CiscoBaseDevice):
             try:
                 x = a.split()  # show ip interface brief output
                 y = b.split()  # show interface description output
-                if x[0] == "Interface":
+                if x[0] == 'Interface':
                     continue
                 else:
                     interface = {}
@@ -228,17 +228,17 @@ class CiscoIOS(CiscoBaseDevice):
                     interface['name'] = x[0]
                     interface['address'] = x[1]
                     if 'admin' in y[1]:
-                        interface['status'] = y[1] + " " + y[2]
+                        interface['status'] = y[1] + ' ' + y[2]
                         interface['protocol'] = y[3]
                         # Get all elements from 4th index onward, but combine into readable string
                         for z in y[4:]:
-                            desc_line = desc_line + str(z) + " "
+                            desc_line = desc_line + str(z) + ' '
                     else:
                         interface['status'] = y[1]
                         interface['protocol'] = y[2]
                         # Get all elements from 3rd index onward, but combine into readable string
                         for z in y[3:]:
-                            desc_line = desc_line + str(z) + " "
+                            desc_line = desc_line + str(z) + ' '
                     # Truncate description to 25 characters if longer then 25 characters
                     interface['description'] = (desc_line[:25] + '..') if len(desc_line) > 25 else desc_line.strip()
                     # Set to '--' if empty

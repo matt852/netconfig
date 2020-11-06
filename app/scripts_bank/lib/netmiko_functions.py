@@ -36,16 +36,20 @@ def connect_to_ssh(device, creds):
     # Try to connect to the device
     try:
         if creds.priv:
-            ssh = nm.ConnectHandler(session_log='output.txt', device_type=device.ios_type.strip(), ip=device.ipv4_addr.strip(), username=creds.un, password=creds.pw, secret=creds.priv, timeout=app.app.config['SSH_TIMEOUT'])
+            ssh = nm.ConnectHandler(session_log='output.txt', device_type=device.ios_type.strip(),
+                                    ip=device.ipv4_addr.strip(), username=creds.un, password=creds.pw,
+                                    secret=creds.priv, timeout=app.app.config['SSH_TIMEOUT'])  # ssh_config_file='ssh_config'
             # Enter into enable mode
             ssh.enable()
         else:
-            ssh = nm.ConnectHandler(session_log='output.txt', device_type=device.ios_type.strip(), ip=device.ipv4_addr.strip(), username=creds.un, password=creds.pw, timeout=app.app.config['SSH_TIMEOUT'])
+            ssh = nm.ConnectHandler(session_log='output.txt', device_type=device.ios_type.strip(),
+                                    ip=device.ipv4_addr.strip(), username=creds.un, password=creds.pw,
+                                    timeout=app.app.config['SSH_TIMEOUT'])  # ssh_config_file='ssh_config'
 
     # except nm.AuthenticationException:
     #    return "%s skipped - authentication error\n" % (device)
-    except:
-        return "%s skipped - connection timeout\n" % (device)
+    except nm.ssh_exception.NetmikoTimeoutException:
+        return f'{device} skipped - connection timeout\n'
     # Returns active SSH session to device
     return ssh
 
