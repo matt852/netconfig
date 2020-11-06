@@ -93,4 +93,6 @@ class ProxySettingsForm(FlaskForm):
                               ('test', 'TEST')]
     proxy_settings = SelectField('Edit proxy settings', choices=proxy_settings_choices)
     proxy_name = StringField('Name', validators=[DataRequired()])
+    proxy_ip = StringField('IP Address', validators=[DataRequired(), IPAddress()])
+    proxy_key = StringField('SSH Key')
     proxy_edit = StringField('Settings', widget=TextArea())

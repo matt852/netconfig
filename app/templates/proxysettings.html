@@ -5,36 +5,52 @@
 
 <div class="container-fluid">
 	<div class="row">
-    	<div class="col-md-9">
-			<h2 class="text-primary">Proxy Settings</h2>
-			<div class="table-responsive">
-				<!--<table id="tblSettings" class="table table-striped table-hover table-condensed display">
-			    <tbody>-->
-                <form action="{{ url_for('results_edit_proxy') }}" method="post" name="adddevices">
-			        {{ form.hidden_tag() }}
-                    <p>
-                        {{ form.proxy_settings.label }}
-                        {{ form.proxy_settings(required="required") }}
+        <h2 class="text-primary">Proxy Settings</h2>
+        <div class="col-md-10">
+            <form action="{{ url_for('results_edit_proxy') }}" method="post" name="proxysettings">
+                {{ form.hidden_tag() }}
+                <div class="row">
+                    <div class="form-group col-md-4">
+                        {{ form.proxy_settings.label }}<br />
+                        {{ form.proxy_settings() }}
                         {% for error in form.proxy_settings.errors %}
-                          <span style="color: red;">[{{error}}]</span>
+                            <span style="color: red;">[{{ error }}]</span>
                         {% endfor %}
-                        <br /><br /><br />
-                        {{ form.proxy_name(required="required") }}
+                    </div>
+                </div>
+                <!-- TODO: Hide below, then load/populate on select via AJAX -->
+                <div class="row">
+                    <div class="form-group col-md-4">
+                        {{ form.proxy_name.label }} <span style="color: red;">*</span><br />
+                        {{ form.proxy_name(autofocus="autofocus") }}
                         {% for error in form.proxy_name.errors %}
-                          <span style="color: red;">[{{error}}]</span>
+                            <span style="color: red;">[{{ error }}]</span>
                         {% endfor %}
-                        <br /><br />
-                        {{ form.proxy_edit(rows=4, cols=60, required="required") }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-4">
+                        {{ form.proxy_ip.label }} <span style="color: red;">*</span><br />
+                        {{ form.proxy_ip(rows=4, cols=60) }}
+                        {% for error in form.proxy_ip.errors %}
+                            <span style="color: red;">[{{ error }}]</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-4">
+                        {{ form.proxy_edit.label }} <span style="color: red;">*</span><br />
+                        {{ form.proxy_edit(rows=4, cols=60) }}
                         {% for error in form.proxy_edit.errors %}
-                          <span style="color: red;">[{{error}}]</span>
-                        {% endfor %}<br />
-                        <br />
-                    </p>
-                    <p><input type="submit" value="Submit" class="btn btn-primary" /></p>
-                </form>
-				<!--</tbody>
-			</table>-->
-		</div>
+                            <span style="color: red;">[{{ error }}]</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <input type="submit" name="submit" value="Submit" class="btn btn-primary" />&nbsp;
+                </div>
+            </form>
 	</div>
 </div>
 {% endblock %}
